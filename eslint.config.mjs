@@ -38,6 +38,12 @@ export default defineConfig(
     plugins: {
       'import-x': importPlugin,
     },
+    settings: {
+      'import-x/resolver': {
+        typescript: true,
+        node: true,
+      },
+    },
     rules: {
       // ES モジュールのファイル拡張子を必須化
       // TypeScript では .ts ファイルを .js 拡張子でインポートするため、
