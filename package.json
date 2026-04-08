@@ -1,0 +1,37 @@
+{
+  "name": "contact-api",
+  "version": "1.0.0",
+  "description": "DDD-based Contact Form API with Fastify + Kysely + PostgreSQL",
+  "type": "module",
+  "scripts": {
+    "clean": "node -e \"var fs = require('fs'); try{['dist','node_modules'].map((fpath) => fs.rmdirSync(fpath, { recursive: true }))}catch(err){console.log(err)}; process.exit(0);\"",
+    "build": "tsc -b -v --listFiles",
+    "start": "node dist/src/main.js",
+    "dev": "node --watch dist/src/main.js",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:unit": "vitest run --project unit",
+    "test:db": "vitest run --project db",
+    "migrate": "node dist/src/infrastructure/migrate.js",
+    "migrate:down": "node dist/src/infrastructure/migrate.js down"
+  },
+  "author": "",
+  "license": "Unlicense",
+  "dependencies": {
+    "fastify": "^5.3.3",
+    "kysely": "^0.28.0",
+    "pg": "^8.13.0",
+    "zod": "^3.25.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.5.0",
+    "@types/pg": "^8.11.0",
+    "eslint": "^10.1.0",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import-x": "^4.16.2",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.0",
+    "vitest": "^3.2.1"
+  }
+}

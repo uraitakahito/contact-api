@@ -1,0 +1,53 @@
+name: test
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+# develop へ push すると push と pull_request の両イベントが発火し、
+# 同じコミットに対してテストが2回実行されてしまう。
+# concurrency group を設定し、同一ブランチの重複実行を防ぐ。
+#
+# グループ名の仕組み:
+#   - pull_request イベント: github.head_ref = "develop"  → group = "test-develop"
+#   - push イベント:         github.head_ref = ""(空)     → github.ref_name = "develop" → group = "test-develop"
+# 両イベントで同じグループ名になるため、後発の実行が先行をキャンセルする。
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: contact_api_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    env:
+      DATABASE_HOST: localhost
+      DATABASE_PORT: 5432
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_NAME: contact_api_test
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
