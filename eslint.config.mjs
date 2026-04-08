@@ -66,16 +66,6 @@ export default defineConfig(
       // 匿名デフォルトエクスポートを禁止
       'import-x/no-anonymous-default-export': 'error',
 
-      // Enum 型の使用を禁止（ユニオン型を使用すること）
-      '@typescript-eslint/no-restricted-types': [
-        'error',
-        {
-          types: {
-            Enum: 'Use union types instead of enums',
-          },
-        },
-      ],
-
       //
       // ランタイム構文の拡張を禁止 (erasable syntax only)
       // TypeScript などのスーパーセット言語固有の新しいランタイム機能によってJavaScript の構文を拡張することは、次のような理由により、よくないことと考えられています。
