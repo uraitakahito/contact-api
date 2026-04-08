@@ -1,10 +1,11 @@
 // @ts-check
 
 import eslint from '@eslint/js';
+import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 import importPlugin from 'eslint-plugin-import-x';
 
-export default tseslint.config(
+export default defineConfig(
   //
   // Global ignores
   //
