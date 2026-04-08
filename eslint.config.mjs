@@ -106,30 +106,57 @@ export default defineConfig(
       // type import は必ず import type を使う
       '@typescript-eslint/consistent-type-imports': 'error',
 
-      // 命名規則
+      // 命名規則 (Google TypeScript Style Guide ベース)
       '@typescript-eslint/naming-convention': [
-        'error',
-        // 変数: camelCase / UPPER_CASE (定数) / PascalCase (クラスインスタンス等)
+        'warn',
+        // 変数: camelCase
         {
           selector: 'variable',
-          format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
-        },
-        // 関数: camelCase / PascalCase (コンポーネント等)
-        {
-          selector: 'function',
-          format: ['camelCase', 'PascalCase'],
-        },
-        // 型 (interface / type alias / class 等): PascalCase
-        {
-          selector: 'typeLike',
-          format: ['PascalCase'],
+          format: ['camelCase'],
         },
         // boolean 変数: プレフィックス必須
         {
           selector: 'variable',
           types: ['boolean'],
           format: ['camelCase'],
-          prefix: ['is', 'has', 'can', 'should'],
+          prefix: ['can', 'did', 'has', 'is', 'must', 'need', 'should', 'will'],
+        },
+        // enum/enumMember: UPPER_CASE
+        {
+          selector: ['enum', 'enumMember'],
+          format: ['UPPER_CASE'],
+        },
+        // 関数: camelCase
+        {
+          selector: 'function',
+          format: ['camelCase'],
+          leadingUnderscore: 'allow',
+        },
+        // アクセサ: camelCase
+        {
+          selector: 'accessor',
+          format: ['camelCase'],
+        },
+        // パラメータ: camelCase
+        {
+          selector: 'parameter',
+          format: ['camelCase'],
+          leadingUnderscore: 'allow',
+        },
+        // クラス: PascalCase
+        {
+          selector: 'class',
+          format: ['PascalCase'],
+        },
+        // 型エイリアス: PascalCase
+        {
+          selector: 'typeAlias',
+          format: ['PascalCase'],
+        },
+        // 型パラメータ: PascalCase
+        {
+          selector: 'typeParameter',
+          format: ['PascalCase'],
         },
       ],
     },
