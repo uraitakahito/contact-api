@@ -1,6 +1,6 @@
 /**
  * @module connection
- * @description Infrastructure — Kysely データベース接続ファクトリ。
+ * @description Kysely データベース接続ファクトリ。
  *
  * Driven Adapter が使用するDB接続を生成する。
  */
