@@ -40,8 +40,22 @@ export default defineConfig(
     },
     rules: {
       // ES モジュールのファイル拡張子を必須化
-      // TypeScript では .ts ファイルを .js 拡張子でインポートするため ignorePackages: true を設定
-      'import-x/extensions': ['error', 'always', { ignorePackages: true }],
+      // TypeScript では .ts ファイルを .js 拡張子でインポートするため、
+      // ts/tsx は 'never' に設定し、それ以外は 'always' に設定
+      'import-x/extensions': [
+        'error',
+        'always',
+        {
+          ignorePackages: true,
+          // type-only import にも拡張子チェックを適用
+          checkTypeImports: true,
+          pattern: {
+            // .ts/.tsx 拡張子での import を禁止（.js 拡張子で書くのが正しい）
+            ts: 'never',
+            tsx: 'never',
+          },
+        },
+      ],
 
       // 匿名デフォルトエクスポートを禁止
       'import-x/no-anonymous-default-export': 'error',
