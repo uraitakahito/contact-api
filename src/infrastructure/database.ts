@@ -1,3 +1,10 @@
+/**
+ * @module database
+ * @description Infrastructure — Kysely 用のテーブル型定義。
+ *
+ * DBスキーマと TypeScript 型のマッピング。
+ */
+
 import type { ColumnType, Generated } from 'kysely';
 
 export interface ContactTable {

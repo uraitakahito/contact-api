@@ -1,3 +1,8 @@
+/**
+ * @module 001-create-contacts
+ * @description Infrastructure — contacts テーブルのマイグレーション定義。
+ */
+
 import type { Kysely } from 'kysely';
 import { sql } from 'kysely';
 

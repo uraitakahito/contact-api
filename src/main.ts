@@ -1,3 +1,10 @@
+/**
+ * @module main
+ * @description Composition Root — 全層を組み立てるエントリーポイント。
+ *
+ * Port と Adapter を結合し、依存性の注入を行う。
+ */
+
 import Fastify from 'fastify';
 import { CreateContactUseCase } from './application/create-contact.js';
 import { DeleteContactUseCase } from './application/delete-contact.js';

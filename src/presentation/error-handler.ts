@@ -1,3 +1,8 @@
+/**
+ * @module error-handler
+ * @description Driving Adapter 補助 — ドメインエラーを HTTP レスポンスに変換するエラーハンドラ。
+ */
+
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ZodError } from 'zod';
 import { ContactNotFoundError, ContactValidationError } from '../domain/errors.js';

@@ -1,3 +1,8 @@
+/**
+ * @module migrate
+ * @description Infrastructure — データベースマイグレーション実行スクリプト。
+ */
+
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promises as fs } from 'node:fs';

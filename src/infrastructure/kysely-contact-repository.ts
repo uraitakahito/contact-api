@@ -1,3 +1,11 @@
+/**
+ * @module kysely-contact-repository
+ * @description Driven Adapter（駆動されるアダプター）
+ *
+ * ContactRepository（Driven Port）の Kysely/PostgreSQL 実装。
+ * Domain層のインターフェースを具体的なDB操作に変換する。
+ */
+
 import type { Kysely } from 'kysely';
 import { sql } from 'kysely';
 import type { Contact, ContactStatus, CreateContactInput, UpdateContactInput } from '../domain/contact.js';

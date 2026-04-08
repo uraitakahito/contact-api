@@ -1,3 +1,8 @@
+/**
+ * @module format
+ * @description Driving Adapter 補助 — Contact エンティティを JSON レスポンス形式に変換するフォーマッタ。
+ */
+
 import type { Contact } from '../domain/contact.js';
 
 export interface ContactResponse {

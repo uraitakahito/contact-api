@@ -1,3 +1,8 @@
+/**
+ * @module health-routes
+ * @description Driving Adapter（駆動するアダプター） — ヘルスチェック用 HTTP ルート。
+ */
+
 import type { FastifyInstance } from 'fastify';
 import type { Kysely } from 'kysely';
 import { sql } from 'kysely';

@@ -1,3 +1,11 @@
+/**
+ * @module contact-routes
+ * @description Driving Adapter（駆動するアダプター）
+ *
+ * HTTP リクエストを受け取り、ユースケース（Driving Port）を呼び出す。
+ * 外部の技術（Fastify/HTTP）とアプリケーションコアを橋渡しする。
+ */
+
 import type { FastifyInstance } from 'fastify';
 import type { CreateContactUseCase } from '../application/create-contact.js';
 import type { DeleteContactUseCase } from '../application/delete-contact.js';
