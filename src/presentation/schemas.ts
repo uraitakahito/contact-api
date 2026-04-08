@@ -1,3 +1,10 @@
+/**
+ * @module schemas
+ * @description Driving Adapter 補助 — Zod バリデーションスキーマ。
+ *
+ * Driving Adapter が HTTP リクエストを検証するために使用。
+ */
+
 import { z } from 'zod';
 
 const contactStatusSchema = z.enum(['new', 'in_progress', 'resolved', 'closed']);

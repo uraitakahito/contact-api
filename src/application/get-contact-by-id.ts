@@ -1,3 +1,8 @@
+/**
+ * @module get-contact-by-id
+ * @description Driving Port（駆動するポート） — 問い合わせ個別取得ユースケース。
+ */
+
 import { ContactNotFoundError } from '../domain/errors.js';
 import type { ContactRepository } from '../domain/contact-repository.js';
 import type { Contact } from '../domain/contact.js';

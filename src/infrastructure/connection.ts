@@ -1,3 +1,10 @@
+/**
+ * @module connection
+ * @description Infrastructure — Kysely データベース接続ファクトリ。
+ *
+ * Driven Adapter が使用するDB接続を生成する。
+ */
+
 import { CamelCasePlugin, Kysely, PostgresDialect } from 'kysely';
 import pg from 'pg';
 import type { Database } from './database.js';

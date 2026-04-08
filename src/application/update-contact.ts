@@ -1,3 +1,8 @@
+/**
+ * @module update-contact
+ * @description Driving Port（駆動するポート） — 問い合わせ更新ユースケース。
+ */
+
 import { ContactNotFoundError } from '../domain/errors.js';
 import type { ContactRepository } from '../domain/contact-repository.js';
 import type { Contact, UpdateContactInput } from '../domain/contact.js';

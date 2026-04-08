@@ -149,6 +149,45 @@ npm run test:unit
 npm run test:db
 ```
 
+## ヘキサゴナルアーキテクチャ（Ports and Adapters）
+
+本プロジェクトは DDD のレイヤードアーキテクチャに、ヘキサゴナルアーキテクチャの考え方を取り入れています。アプリケーションのコアロジックを外部の技術的詳細（HTTP、データベース）から分離し、Port（インターフェース）と Adapter（実装）で接続します。
+
+```
+[HTTP Client]
+     │
+     ▼  Driving Adapter
+contact-routes.ts (Fastify)
+     │
+     ▼  Driving Port
+CreateContactUseCase.execute()
+     │
+     ▼  Driven Port
+ContactRepository.create()          ← インターフェース（Domain層）
+     │
+     ▼  Driven Adapter
+KyselyContactRepository.create()    ← 実装（Infrastructure層）
+     │
+     ▼
+  PostgreSQL
+```
+
+### Port と Adapter の対応表
+
+| 種類 | 方向 | 役割 | ファイル |
+|---|---|---|---|
+| **Driving Port** | 外 → 内 | 外部がアプリケーションを駆動する入り口 | `src/application/create-contact.ts` 等 5 ユースケース |
+| **Driving Adapter** | 外 → 内 | HTTP リクエストをユースケースに橋渡し | `src/presentation/contact-routes.ts`, `health-routes.ts` |
+| **Driving Adapter 補助** | 外 → 内 | バリデーション・フォーマット・エラー変換 | `src/presentation/schemas.ts`, `format.ts`, `error-handler.ts` |
+| **Driven Port** | 内 → 外 | アプリケーションが外部を利用するインターフェース | `src/domain/contact-repository.ts` |
+| **Driven Adapter** | 内 → 外 | Driven Port の具体的な DB 実装 | `src/infrastructure/kysely-contact-repository.ts` |
+| **Domain Model** | — | ビジネスの中心概念（外部依存なし） | `src/domain/contact.ts`, `errors.ts` |
+| **Composition Root** | — | Port と Adapter を結合し依存性を注入 | `src/main.ts` |
+
+### 依存性逆転の原則（DIP）
+
+Domain 層が `ContactRepository` インターフェース（Driven Port）を定義し、Infrastructure 層の `KyselyContactRepository`（Driven Adapter）が実装します。これにより Domain 層・Application 層は具体的な DB 技術を知らず、Adapter の差し替えだけで技術を変更できます。
+
 ## DDD 各層の説明
 
 ### Domain 層 (`src/domain/`)
