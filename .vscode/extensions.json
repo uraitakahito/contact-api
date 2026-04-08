@@ -1,0 +1,33 @@
+{
+  "recommendations": [
+    //
+    // JavaScript
+    //
+    // https://marketplace.visualstudio.com/items?itemName=vitest.explorer
+    "vitest.explorer",
+    //
+    // TypeScript
+    //
+    // https://marketplace.visualstudio.com/items?itemName=yoavbls.pretty-ts-errors
+    "yoavbls.pretty-ts-errors",
+    //
+    // Others
+    //
+    // https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+    "dbaeumer.vscode-eslint",
+    // https://marketplace.visualstudio.com/items?itemName=dbankier.vscode-quick-select
+    "dbankier.vscode-quick-select",
+    // https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens
+    "eamodio.gitlens",
+    // https://marketplace.visualstudio.com/items?itemName=GitHub.vscode-pull-request-github
+    "GitHub.vscode-pull-request-github",
+    // https://marketplace.visualstudio.com/items?itemName=GitHub.vscode-github-actions
+    "GitHub.vscode-github-actions",
+    // https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml
+    "redhat.vscode-yaml",
+    // https://marketplace.visualstudio.com/items?itemName=timonwong.shellcheck
+    "timonwong.shellcheck",
+    // https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens
+    "usernamehw.errorlens",
+  ]
+}
