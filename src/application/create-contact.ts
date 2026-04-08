@@ -10,7 +10,11 @@ import type { ContactRepository } from '../domain/contact-repository.js';
 import type { Contact, CreateContactInput } from '../domain/contact.js';
 
 export class CreateContactUseCase {
-  constructor(private readonly contactRepository: ContactRepository) {}
+  private readonly contactRepository: ContactRepository;
+
+  constructor(contactRepository: ContactRepository) {
+    this.contactRepository = contactRepository;
+  }
 
   async execute(input: CreateContactInput): Promise<Contact> {
     if (!input.name.trim()) {

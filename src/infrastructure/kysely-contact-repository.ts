@@ -13,7 +13,11 @@ import type { ContactRepository } from '../domain/contact-repository.js';
 import type { Database } from './database.js';
 
 export class KyselyContactRepository implements ContactRepository {
-  constructor(private readonly db: Kysely<Database>) {}
+  private readonly db: Kysely<Database>;
+
+  constructor(db: Kysely<Database>) {
+    this.db = db;
+  }
 
   async create(input: CreateContactInput): Promise<Contact> {
     return this.db
