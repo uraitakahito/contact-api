@@ -7,7 +7,11 @@ import type { ContactRepository } from '../domain/contact-repository.js';
 import type { Contact, ContactStatus } from '../domain/contact.js';
 
 export class GetContactsUseCase {
-  constructor(private readonly contactRepository: ContactRepository) {}
+  private readonly contactRepository: ContactRepository;
+
+  constructor(contactRepository: ContactRepository) {
+    this.contactRepository = contactRepository;
+  }
 
   async execute(filter?: { status?: ContactStatus }): Promise<Contact[]> {
     return this.contactRepository.findAll(filter);

@@ -8,7 +8,11 @@ import type { ContactRepository } from '../domain/contact-repository.js';
 import type { Contact } from '../domain/contact.js';
 
 export class GetContactByIdUseCase {
-  constructor(private readonly contactRepository: ContactRepository) {}
+  private readonly contactRepository: ContactRepository;
+
+  constructor(contactRepository: ContactRepository) {
+    this.contactRepository = contactRepository;
+  }
 
   async execute(id: number): Promise<Contact> {
     const contact = await this.contactRepository.findById(id);

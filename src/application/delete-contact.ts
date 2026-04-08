@@ -7,7 +7,11 @@ import { ContactNotFoundError } from '../domain/errors.js';
 import type { ContactRepository } from '../domain/contact-repository.js';
 
 export class DeleteContactUseCase {
-  constructor(private readonly contactRepository: ContactRepository) {}
+  private readonly contactRepository: ContactRepository;
+
+  constructor(contactRepository: ContactRepository) {
+    this.contactRepository = contactRepository;
+  }
 
   async execute(id: number): Promise<void> {
     if (!(await this.contactRepository.delete(id))) {

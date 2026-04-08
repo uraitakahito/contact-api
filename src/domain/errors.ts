@@ -6,9 +6,12 @@
  */
 
 export class ContactNotFoundError extends Error {
-  constructor(public readonly id: number) {
+  public readonly id: number;
+
+  constructor(id: number) {
     super(`Contact with id ${id.toString()} not found`);
     this.name = 'ContactNotFoundError';
+    this.id = id;
   }
 }
 
