@@ -161,14 +161,7 @@ npm run seed:down
 ## テスト
 
 ```bash
-# 全テスト実行
 npm test
-
-# Unit テスト（ドメイン層 + アプリケーション層、DB 不要）
-npm run test:unit
-
-# DB テスト（インフラ層 + プレゼンテーション層、PostgreSQL 必要）
-npm run test:db
 ```
 
 ## ヘキサゴナルアーキテクチャ（Ports and Adapters）
