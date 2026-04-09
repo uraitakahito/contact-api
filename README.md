@@ -60,21 +60,11 @@ curl -s http://localhost:3000/health/ready | jq
 ### 問い合わせ種別一覧取得
 
 ```bash
-# デフォルト（日本語）
+# デフォルト（英語）
 curl -s http://localhost:3000/contact-categories | jq
 
-# ロケール指定（英語）
-curl -s "http://localhost:3000/contact-categories?locale=en" | jq
-```
-
-レスポンス（日本語）:
-```json
-[
-  { "id": 1, "name": "一般的なお問合せ", "displayOrder": 1, "createdAt": "2026-04-08T12:00:00.000Z" },
-  { "id": 2, "name": "製品/サービスについて", "displayOrder": 2, "createdAt": "2026-04-08T12:00:00.000Z" },
-  { "id": 3, "name": "採用について", "displayOrder": 3, "createdAt": "2026-04-08T12:00:00.000Z" },
-  { "id": 4, "name": "その他", "displayOrder": 4, "createdAt": "2026-04-08T12:00:00.000Z" }
-]
+# ロケール指定（日本語）
+curl -s "http://localhost:3000/contact-categories?locale=ja" | jq
 ```
 
 レスポンス（英語）:
@@ -84,6 +74,16 @@ curl -s "http://localhost:3000/contact-categories?locale=en" | jq
   { "id": 2, "name": "Products/Services", "displayOrder": 2, "createdAt": "2026-04-08T12:00:00.000Z" },
   { "id": 3, "name": "Recruitment", "displayOrder": 3, "createdAt": "2026-04-08T12:00:00.000Z" },
   { "id": 4, "name": "Other", "displayOrder": 4, "createdAt": "2026-04-08T12:00:00.000Z" }
+]
+```
+
+レスポンス（日本語）:
+```json
+[
+  { "id": 1, "name": "一般的なお問合せ", "displayOrder": 1, "createdAt": "2026-04-08T12:00:00.000Z" },
+  { "id": 2, "name": "製品/サービスについて", "displayOrder": 2, "createdAt": "2026-04-08T12:00:00.000Z" },
+  { "id": 3, "name": "採用について", "displayOrder": 3, "createdAt": "2026-04-08T12:00:00.000Z" },
+  { "id": 4, "name": "その他", "displayOrder": 4, "createdAt": "2026-04-08T12:00:00.000Z" }
 ]
 ```
 
