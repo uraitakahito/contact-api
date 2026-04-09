@@ -8,11 +8,12 @@
 
 import type { Command } from 'commander';
 import { Option } from 'commander';
+import { parsePort } from './cli-parsers.js';
 import type { DbConfig } from './connection.js';
 
 export interface RawDbOptions {
   readonly dbHost: string;
-  readonly dbPort: string;
+  readonly dbPort: number;
   readonly dbUser?: string;
   readonly dbPassword?: string;
   readonly dbDatabase?: string;
@@ -21,7 +22,7 @@ export interface RawDbOptions {
 export function addDbOptions(cmd: Command): Command {
   return cmd
     .addOption(new Option('--db-host <host>', 'Database host').env('DATABASE_HOST').default('localhost'))
-    .addOption(new Option('--db-port <port>', 'Database port').env('DATABASE_PORT').default('5432'))
+    .addOption(new Option('--db-port <port>', 'Database port').env('DATABASE_PORT').default(5432).argParser(parsePort))
     .addOption(new Option('--db-user <user>', 'Database user').env('DATABASE_USER'))
     .addOption(new Option('--db-password <password>', 'Database password').env('DATABASE_PASSWORD'))
     .addOption(new Option('--db-database <name>', 'Database name').env('DATABASE_NAME'));
@@ -30,7 +31,7 @@ export function addDbOptions(cmd: Command): Command {
 export function extractDbConfig(opts: RawDbOptions): DbConfig {
   return {
     host: opts.dbHost,
-    port: Number(opts.dbPort),
+    port: opts.dbPort,
     user: opts.dbUser,
     password: opts.dbPassword,
     database: opts.dbDatabase,
