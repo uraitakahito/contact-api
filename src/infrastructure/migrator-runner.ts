@@ -17,6 +17,8 @@ export interface RunMigratorConfig {
   readonly migrationFolder: URL;
   /** Kysely の管理テーブル名 */
   readonly tableName: string;
+  /** Kysely のロックテーブル名 */
+  readonly lockTableName: string;
 }
 
 export async function runMigrator(
@@ -33,6 +35,7 @@ export async function runMigrator(
       migrationFolder: fileURLToPath(config.migrationFolder),
     }),
     migrationTableName: config.tableName,
+    migrationLockTableName: config.lockTableName,
   });
 
   return direction === 'down'

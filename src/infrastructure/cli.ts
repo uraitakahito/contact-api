@@ -37,6 +37,7 @@ function registerMigratorCommand(
       {
         migrationFolder: definition.folder,
         tableName: definition.tableName,
+        lockTableName: definition.lockTableName,
       },
       direction,
     );
