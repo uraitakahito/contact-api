@@ -4,7 +4,7 @@
  * contact_categories.name カラムの削除。
  */
 
-import type { Kysely } from 'kysely';
+import { type Kysely, sql } from 'kysely';
 
 export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
@@ -13,6 +13,8 @@ export async function up(db: Kysely<unknown>): Promise<void> {
       col.notNull().references('contact_categories.id').onDelete('cascade'))
     .addColumn('locale', 'varchar(10)', (col) => col.notNull())
     .addColumn('name', 'varchar(255)', (col) => col.notNull())
+    .addColumn('created_at', 'timestamptz', (col) => col.notNull().defaultTo(sql`now()`))
+    .addColumn('updated_at', 'timestamptz', (col) => col.notNull().defaultTo(sql`now()`))
     .addPrimaryKeyConstraint('contact_category_translations_pkey', [
       'category_id',
       'locale',

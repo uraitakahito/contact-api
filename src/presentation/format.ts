@@ -43,6 +43,7 @@ export interface ContactCategoryResponse {
   name: string;
   displayOrder: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 export function formatContactCategory(
@@ -57,6 +58,7 @@ export function formatContactCategory(
     name,
     displayOrder: category.displayOrder,
     createdAt: category.createdAt.toISOString(),
+    updatedAt: category.updatedAt.toISOString(),
   };
 }
 

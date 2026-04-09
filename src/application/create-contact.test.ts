@@ -28,6 +28,7 @@ const sampleCategory: ContactCategory = {
   translations: new Map([['ja', '一般的なお問合せ']]),
   displayOrder: 1,
   createdAt: new Date('2026-01-01'),
+  updatedAt: new Date('2026-01-01'),
 };
 
 const sampleContact: Contact = {

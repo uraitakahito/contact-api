@@ -11,4 +11,5 @@ export interface ContactCategory {
   translations: Map<string, string>;
   displayOrder: number;
   createdAt: Date;
+  updatedAt: Date;
 }
