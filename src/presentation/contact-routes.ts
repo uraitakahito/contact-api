@@ -11,20 +11,20 @@ import type { CreateContactUseCase } from '../application/create-contact.js';
 import type { DeleteContactUseCase } from '../application/delete-contact.js';
 import type { GetContactByIdUseCase } from '../application/get-contact-by-id.js';
 import type { GetContactsUseCase } from '../application/get-contacts.js';
-import type { UpdateContactUseCase } from '../application/update-contact.js';
+import type { UpdateContactStatusUseCase } from '../application/update-contact-status.js';
 import { formatContact, formatContacts } from './format.js';
 import {
   contactIdParamSchema,
   contactsQuerySchema,
   createContactBodySchema,
-  updateContactBodySchema,
+  updateContactStatusBodySchema,
 } from './schemas.js';
 
 export interface ContactUseCases {
   createContact: CreateContactUseCase;
   getContacts: GetContactsUseCase;
   getContactById: GetContactByIdUseCase;
-  updateContact: UpdateContactUseCase;
+  updateContactStatus: UpdateContactStatusUseCase;
   deleteContact: DeleteContactUseCase;
 }
 
@@ -52,10 +52,10 @@ export function registerContactRoutes(
     return formatContact(contact);
   });
 
-  app.put('/contacts/:id', async (request) => {
+  app.patch('/contacts/:id/status', async (request) => {
     const params = contactIdParamSchema.parse(request.params);
-    const body = updateContactBodySchema.parse(request.body);
-    const contact = await useCases.updateContact.execute(params.id, body);
+    const body = updateContactStatusBodySchema.parse(request.body);
+    const contact = await useCases.updateContactStatus.execute(params.id, body.status);
     return formatContact(contact);
   });
 

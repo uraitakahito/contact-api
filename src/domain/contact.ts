@@ -27,11 +27,13 @@ export interface CreateContactInput {
   message: string;
 }
 
-export interface UpdateContactInput {
-  lastName?: string | undefined;
-  firstName?: string | undefined;
-  email?: string | undefined;
-  phone?: string | null | undefined;
-  message?: string | undefined;
-  status?: ContactStatus | undefined;
+const validNextStatus: Record<ContactStatus, ContactStatus | null> = {
+  new: 'in_progress',
+  in_progress: 'resolved',
+  resolved: 'closed',
+  closed: null,
+};
+
+export function isValidStatusTransition(from: ContactStatus, to: ContactStatus): boolean {
+  return validNextStatus[from] === to;
 }

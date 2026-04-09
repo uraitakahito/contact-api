@@ -61,7 +61,7 @@ describe('KyselyContactRepository', () => {
   it('should filter contacts by status', async () => {
     await repository.create(sampleInput);
     const contact2 = await repository.create({ ...sampleInput, lastName: 'User', firstName: '2' });
-    await repository.update(contact2.id, { status: 'resolved' });
+    await repository.updateStatus(contact2.id, 'resolved');
 
     const resolvedContacts = await repository.findAll({ status: 'resolved' });
     const newContacts = await repository.findAll({ status: 'new' });
@@ -85,21 +85,18 @@ describe('KyselyContactRepository', () => {
     expect(found).toBeUndefined();
   });
 
-  it('should update a contact', async () => {
+  it('should update status', async () => {
     const created = await repository.create(sampleInput);
-    const updated = await repository.update(created.id, {
-      lastName: 'Updated',
-      status: 'in_progress',
-    });
+    const updated = await repository.updateStatus(created.id, 'in_progress');
 
     expect(updated).toBeDefined();
-    expect(updated?.lastName).toBe('Updated');
     expect(updated?.status).toBe('in_progress');
+    expect(updated?.lastName).toBe('Test');
     expect(updated?.updatedAt.getTime()).toBeGreaterThanOrEqual(created.updatedAt.getTime());
   });
 
-  it('should return undefined when updating non-existent contact', async () => {
-    const result = await repository.update(999, { lastName: 'Updated' });
+  it('should return undefined when updating status of non-existent contact', async () => {
+    const result = await repository.updateStatus(999, 'in_progress');
     expect(result).toBeUndefined();
   });
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ContactNotFoundError, ContactValidationError } from './errors.js';
+import { ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from './errors.js';
 
 describe('ContactNotFoundError', () => {
   it('should have the correct message and id', () => {
@@ -16,6 +16,17 @@ describe('ContactValidationError', () => {
     const error = new ContactValidationError('Name cannot be empty');
     expect(error.message).toBe('Name cannot be empty');
     expect(error.name).toBe('ContactValidationError');
+    expect(error).toBeInstanceOf(Error);
+  });
+});
+
+describe('InvalidStatusTransitionError', () => {
+  it('should have the correct message, from, and to', () => {
+    const error = new InvalidStatusTransitionError('new', 'closed');
+    expect(error.message).toBe("Invalid status transition from 'new' to 'closed'");
+    expect(error.from).toBe('new');
+    expect(error.to).toBe('closed');
+    expect(error.name).toBe('InvalidStatusTransitionError');
     expect(error).toBeInstanceOf(Error);
   });
 });

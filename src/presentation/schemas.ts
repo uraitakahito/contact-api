@@ -17,13 +17,8 @@ export const createContactBodySchema = z.object({
   message: z.string().min(1, 'Message cannot be empty'),
 });
 
-export const updateContactBodySchema = z.object({
-  lastName: z.string().min(1, 'Last name cannot be empty').optional(),
-  firstName: z.string().min(1, 'First name cannot be empty').optional(),
-  email: z.string().email('Invalid email format').optional(),
-  phone: z.string().nullable().optional(),
-  message: z.string().min(1, 'Message cannot be empty').optional(),
-  status: contactStatusSchema.optional(),
+export const updateContactStatusBodySchema = z.object({
+  status: contactStatusSchema,
 });
 
 export const contactIdParamSchema = z.object({

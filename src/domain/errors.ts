@@ -21,3 +21,15 @@ export class ContactValidationError extends Error {
     this.name = 'ContactValidationError';
   }
 }
+
+export class InvalidStatusTransitionError extends Error {
+  public readonly from: string;
+  public readonly to: string;
+
+  constructor(from: string, to: string) {
+    super(`Invalid status transition from '${from}' to '${to}'`);
+    this.name = 'InvalidStatusTransitionError';
+    this.from = from;
+    this.to = to;
+  }
+}

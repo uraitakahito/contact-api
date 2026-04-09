@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ZodError } from 'zod';
-import { ContactNotFoundError, ContactValidationError } from '../domain/errors.js';
+import { ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from '../domain/errors.js';
 import { errorHandler } from './error-handler.js';
 
 function createMockRequest() {
@@ -30,6 +30,16 @@ describe('errorHandler', () => {
     const reply = createMockReply();
 
     errorHandler(new ContactValidationError('Name cannot be empty'), request, reply);
+
+    expect(reply.status).toHaveBeenCalledWith(400);
+    expect(request.log.error).not.toHaveBeenCalled();
+  });
+
+  it('should return 400 for InvalidStatusTransitionError without logging', () => {
+    const request = createMockRequest();
+    const reply = createMockReply();
+
+    errorHandler(new InvalidStatusTransitionError('new', 'closed'), request, reply);
 
     expect(reply.status).toHaveBeenCalledWith(400);
     expect(request.log.error).not.toHaveBeenCalled();

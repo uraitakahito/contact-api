@@ -5,7 +5,7 @@
 
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ZodError } from 'zod';
-import { ContactNotFoundError, ContactValidationError } from '../domain/errors.js';
+import { ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from '../domain/errors.js';
 
 export function errorHandler(
   error: Error,
@@ -18,6 +18,11 @@ export function errorHandler(
   }
 
   if (error instanceof ContactValidationError) {
+    void reply.status(400).send({ error: error.message });
+    return;
+  }
+
+  if (error instanceof InvalidStatusTransitionError) {
     void reply.status(400).send({ error: error.message });
     return;
   }
