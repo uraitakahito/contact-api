@@ -14,8 +14,8 @@ import type { Kysely, MigrationResultSet } from 'kysely';
 export interface RunMigratorConfig {
   /** マイグレーションファイルのディレクトリ (絶対パス) */
   readonly migrationFolder: string;
-  /** Kysely の管理テーブル名 (省略時: デフォルト kysely_migration) */
-  readonly tableName?: string | undefined;
+  /** Kysely の管理テーブル名 */
+  readonly tableName: string;
 }
 
 export async function runMigrator(
@@ -31,7 +31,7 @@ export async function runMigrator(
       path,
       migrationFolder: config.migrationFolder,
     }),
-    ...(config.tableName !== undefined ? { migrationTableName: config.tableName } : {}),
+    migrationTableName: config.tableName,
   });
 
   return direction === 'down'
