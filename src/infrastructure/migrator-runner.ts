@@ -39,7 +39,7 @@ export async function runMigrator(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Kysely<any> を要求するため
   db: Kysely<any>,
   config: RunMigratorConfig,
-  direction: 'down' | 'latest',
+  direction: 'up' | 'down',
 ): Promise<MigrationResultSet> {
   const migrator = createMigrator(db, config);
   return direction === 'down'
