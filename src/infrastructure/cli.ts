@@ -13,7 +13,7 @@ import { addVerboseOption } from './cli-verbose-option.js';
 import { createDb } from './connection.js';
 import { migratorDefinitions } from './migrator-definitions.js';
 import type { MigratorDefinition } from './migrator-definitions.js';
-import { runMigrator } from './migrator-runner.js';
+import { getMigrationInfos, runMigrator } from './migrator-runner.js';
 
 const program = new Command();
 program.name('contact-cli').description('Contact API database CLI');
@@ -54,6 +54,29 @@ function registerMigratorCommand(
         console.error(
           `Failed to ${direction === 'down' ? 'revert' : 'execute'} ${definition.label.toLowerCase()} "${result.migrationName}"`,
         );
+      }
+    }
+
+    if (results?.length === 0) {
+      console.log(`No pending ${definition.label.toLowerCase()} to execute`);
+
+      if (opts.verbose === true) {
+        const migratorConfig = {
+          migrationFolder: definition.folder,
+          tableName: definition.tableName,
+          lockTableName: definition.lockTableName,
+        };
+        const infos = await getMigrationInfos(db, migratorConfig);
+        if (infos.length > 0) {
+          console.log(`\n${definition.label} status:`);
+          for (const info of infos) {
+            if (info.executedAt) {
+              console.log(`  ✓ ${info.name} (applied at ${info.executedAt.toISOString()})`);
+            } else {
+              console.log(`  - ${info.name} (not applied)`);
+            }
+          }
+        }
       }
     }
 
