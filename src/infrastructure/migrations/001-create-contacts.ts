@@ -15,14 +15,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn('created_at', 'timestamptz', (col) => col.notNull().defaultTo(sql`now()`))
     .execute();
 
-  await sql`
-    INSERT INTO contact_categories (name, display_order) VALUES
-      ('一般的なお問合せ', 1),
-      ('製品/サービスについて', 2),
-      ('採用について', 3),
-      ('その他', 4)
-  `.execute(db);
-
   await db.schema
     .createTable('contacts')
     .addColumn('id', 'serial', (col) => col.primaryKey())
