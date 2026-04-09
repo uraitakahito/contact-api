@@ -6,6 +6,7 @@
  */
 
 import { Command } from 'commander';
+import { Argument } from 'commander';
 import type { RawDbOptions } from '../infrastructure/cli-db-options.js';
 import { addDbOptions, extractDbConfig } from '../infrastructure/cli-db-options.js';
 import type { RawVerboseOption } from '../infrastructure/cli-verbose-option.js';
@@ -26,13 +27,12 @@ function registerMigratorCommand(
   const cmd = parent
     .command(name)
     .description(`Run ${definition.label.toLowerCase()}`)
-    .option('--down', `Revert the last ${definition.label.toLowerCase()}`);
+    .addArgument(new Argument('<direction>', 'Migration direction').choices(['up', 'down']));
 
   addDbOptions(cmd);
   addVerboseOption(cmd);
 
-  cmd.action(async (opts: { down?: true } & RawDbOptions & RawVerboseOption) => {
-    const direction = opts.down === true ? 'down' : 'latest';
+  cmd.action(async (direction: 'up' | 'down', opts: RawDbOptions & RawVerboseOption) => {
     const db = createDb({ ...extractDbConfig(opts), verbose: opts.verbose === true });
 
     const { error, results } = await runMigrator(
