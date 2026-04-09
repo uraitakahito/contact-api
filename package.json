@@ -1,4 +1,8 @@
 {
+  "//": [
+    "Discussion on how to write comments in package.json:",
+    "https://stackoverflow.com/questions/14221579/how-do-i-add-comments-to-package-json-for-npm-install"
+  ],
   "name": "contact-api",
   "version": "1.0.0",
   "description": "Contact Form API",
