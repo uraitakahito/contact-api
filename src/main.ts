@@ -2,9 +2,11 @@
  * @module main
  * @description Composition Root — 全層を組み立てるエントリーポイント。
  *
+ * Commander.js で DB 接続オプションとサーバーポートを受け取り、
  * Port と Adapter を結合し、依存性の注入を行う。
  */
 
+import { Command } from 'commander';
 import Fastify from 'fastify';
 import { CreateContactUseCase } from './application/create-contact.js';
 import { DeleteContactUseCase } from './application/delete-contact.js';
@@ -12,6 +14,8 @@ import { GetContactByIdUseCase } from './application/get-contact-by-id.js';
 import { GetContactCategoriesUseCase } from './application/get-contact-categories.js';
 import { GetContactsUseCase } from './application/get-contacts.js';
 import { UpdateContactStatusUseCase } from './application/update-contact-status.js';
+import type { RawDbOptions } from './infrastructure/cli-db-options.js';
+import { addDbOptions, extractDbConfig } from './infrastructure/cli-db-options.js';
 import { createDb } from './infrastructure/connection.js';
 import { KyselyContactCategoryRepository } from './infrastructure/kysely-contact-category-repository.js';
 import { KyselyContactRepository } from './infrastructure/kysely-contact-repository.js';
@@ -19,8 +23,20 @@ import { errorHandler } from './presentation/error-handler.js';
 import { registerHealthRoutes } from './presentation/health-routes.js';
 import { registerContactRoutes } from './presentation/contact-routes.js';
 
+// CLI
+const program = new Command();
+program
+  .name('contact-api')
+  .description('Contact API server')
+  .option('--port <port>', 'Server listen port', '3000');
+
+addDbOptions(program);
+program.parse();
+
+const opts = program.opts<{ port: string } & RawDbOptions>();
+
 // Infrastructure
-const db = createDb();
+const db = createDb(extractDbConfig(opts));
 const contactRepository = new KyselyContactRepository(db);
 const contactCategoryRepository = new KyselyContactCategoryRepository(db);
 
@@ -57,4 +73,4 @@ const gracefulShutdown = async (): Promise<void> => {
 process.on('SIGTERM', () => void gracefulShutdown());
 process.on('SIGINT', () => void gracefulShutdown());
 
-await app.listen({ port: 3000, host: '0.0.0.0' });
+await app.listen({ port: Number(opts.port), host: '0.0.0.0' });

@@ -13,13 +13,14 @@
     "test:unit": "vitest run --project unit",
     "test:db": "vitest run --project db",
     "migrate": "node dist/src/infrastructure/cli.js migrate",
-    "migrate:down": "node dist/src/infrastructure/cli.js migrate down",
+    "migrate:down": "node dist/src/infrastructure/cli.js migrate --down",
     "seed": "node dist/src/infrastructure/cli.js seed",
-    "seed:down": "node dist/src/infrastructure/cli.js seed down"
+    "seed:down": "node dist/src/infrastructure/cli.js seed --down"
   },
   "author": "",
   "license": "Unlicense",
   "dependencies": {
+    "commander": "^14.0.3",
     "fastify": "^5.3.3",
     "kysely": "^0.28.0",
     "pg": "^8.13.0",
