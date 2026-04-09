@@ -14,6 +14,7 @@ import { createDb } from '../infrastructure/connection.js';
 import type { Database } from '../infrastructure/database.js';
 import { KyselyContactCategoryRepository } from '../infrastructure/kysely-contact-category-repository.js';
 import { KyselyContactRepository } from '../infrastructure/kysely-contact-repository.js';
+import * as contactCategoriesSeed from '../infrastructure/seeds/001-contact-categories.js';
 import { errorHandler } from '../presentation/error-handler.js';
 import { registerHealthRoutes } from '../presentation/health-routes.js';
 import { registerContactRoutes } from '../presentation/contact-routes.js';
@@ -42,21 +43,18 @@ export async function runMigrations(db: Kysely<Database>): Promise<void> {
   }
 }
 
+/**
+ * テスト用シード投入。
+ * 外部からの seed 操作（npm run seed / seed:down）で DB の ID シーケンスや
+ * kysely_seed 追跡テーブルが不整合になっても、テストが安定して動作するよう
+ * 毎回 TRUNCATE → 再投入する。
+ *
+ * FileMigrationProvider の動的 import() は @vite-ignore により vitest の
+ * モジュール解決を経由しないため、静的インポートで seed モジュールを直接呼ぶ。
+ */
 export async function runSeeds(db: Kysely<Database>): Promise<void> {
-  const migrator = new Migrator({
-    db,
-    provider: new FileMigrationProvider({
-      fs,
-      path,
-      migrationFolder: path.join(currentDir, '..', 'infrastructure', 'seeds'),
-    }),
-    migrationTableName: 'kysely_seed',
-  });
-
-  const { error } = await migrator.migrateToLatest();
-  if (error) {
-    throw error instanceof Error ? error : new Error('Seed failed');
-  }
+  await sql`TRUNCATE TABLE contacts, contact_categories RESTART IDENTITY CASCADE`.execute(db);
+  await contactCategoriesSeed.up(db);
 }
 
 export async function cleanDatabase(db: Kysely<Database>): Promise<void> {

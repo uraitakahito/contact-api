@@ -1,21 +1,28 @@
 /**
  * @module 001-contact-categories
  * @description Seed — contact_categories テーブルの初期データ投入。
+ *
+ * データは data/seeds/contact-categories.csv で管理。
  */
 
 import type { Kysely } from 'kysely';
-import { sql } from 'kysely';
+import { type SeedDefinition, revertSeed, runSeed } from '../seed-runner.js';
 
-export async function up(db: Kysely<unknown>): Promise<void> {
-  await sql`
-    INSERT INTO contact_categories (name, display_order) VALUES
-      ('一般的なお問合せ', 1),
-      ('製品/サービスについて', 2),
-      ('採用について', 3),
-      ('その他', 4)
-  `.execute(db);
+const definition: SeedDefinition = {
+  tableName: 'contactCategories',
+  csvPath: 'data/seeds/contact-categories.csv',
+  columns: {
+    name: { property: 'name', convert: String },
+    display_order: { property: 'displayOrder', convert: Number },
+  },
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely Migrator の Migration インターフェースに準拠
+export async function up(db: Kysely<any>): Promise<void> {
+  await runSeed(db, definition);
 }
 
-export async function down(db: Kysely<unknown>): Promise<void> {
-  await sql`DELETE FROM contact_categories`.execute(db);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely Migrator の Migration インターフェースに準拠
+export async function down(db: Kysely<any>): Promise<void> {
+  await revertSeed(db, definition);
 }
