@@ -5,13 +5,9 @@
  * argv 解析、DB ライフサイクル、ログ出力、exitCode 設定を担う薄いグルーコード。
  */
 
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createDb } from './connection.js';
 import { migratorDefinitions } from './migrator-definitions.js';
 import { runMigrator } from './migrator-runner.js';
-
-const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 const command = process.argv[2];
 const definition = command !== undefined ? migratorDefinitions[command] : undefined;
@@ -27,7 +23,7 @@ if (!definition) {
   const { error, results } = await runMigrator(
     db,
     {
-      migrationFolder: path.join(currentDir, definition.folder),
+      migrationFolder: definition.folder,
       tableName: definition.tableName,
     },
     direction,
