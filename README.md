@@ -96,9 +96,6 @@ curl -s http://localhost:3000/contacts | jq
 
 # ステータスでフィルタ
 curl -s "http://localhost:3000/contacts?status=new" | jq
-curl -s "http://localhost:3000/contacts?status=in_progress" | jq
-curl -s "http://localhost:3000/contacts?status=resolved" | jq
-curl -s "http://localhost:3000/contacts?status=closed" | jq
 ```
 
 ### 問い合わせ個別取得
