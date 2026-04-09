@@ -10,7 +10,8 @@ export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
     .createTable('contacts')
     .addColumn('id', 'serial', (col) => col.primaryKey())
-    .addColumn('name', 'varchar(255)', (col) => col.notNull())
+    .addColumn('last_name', 'varchar(255)', (col) => col.notNull())
+    .addColumn('first_name', 'varchar(255)', (col) => col.notNull())
     .addColumn('email', 'varchar(255)', (col) => col.notNull())
     .addColumn('phone', 'varchar(50)')
     .addColumn('message', 'text', (col) => col.notNull())

@@ -7,7 +7,8 @@ import type { Contact } from '../domain/contact.js';
 
 export interface ContactResponse {
   id: number;
-  name: string;
+  lastName: string;
+  firstName: string;
   email: string;
   phone: string | null;
   message: string;
@@ -19,7 +20,8 @@ export interface ContactResponse {
 export function formatContact(contact: Contact): ContactResponse {
   return {
     id: contact.id,
-    name: contact.name,
+    lastName: contact.lastName,
+    firstName: contact.firstName,
     email: contact.email,
     phone: contact.phone,
     message: contact.message,

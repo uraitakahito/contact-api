@@ -16,7 +16,8 @@ function createMockRepository(): ContactRepository {
 
 const sampleContact: Contact = {
   id: 1,
-  name: 'Test User',
+  lastName: 'Test',
+  firstName: 'User',
   email: 'test@example.com',
   phone: null,
   message: 'Test message body',

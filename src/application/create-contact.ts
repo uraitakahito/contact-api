@@ -17,8 +17,11 @@ export class CreateContactUseCase {
   }
 
   async execute(input: CreateContactInput): Promise<Contact> {
-    if (!input.name.trim()) {
-      throw new ContactValidationError('Name cannot be empty');
+    if (!input.lastName.trim()) {
+      throw new ContactValidationError('Last name cannot be empty');
+    }
+    if (!input.firstName.trim()) {
+      throw new ContactValidationError('First name cannot be empty');
     }
     if (!input.message.trim()) {
       throw new ContactValidationError('Message cannot be empty');

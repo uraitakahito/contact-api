@@ -24,7 +24,8 @@ afterAll(async () => {
 });
 
 const samplePayload = {
-  name: 'Test User',
+  lastName: 'Test',
+  firstName: 'User',
   email: 'test@example.com',
   message: 'Test message body',
 };
@@ -39,7 +40,8 @@ describe('POST /contacts', () => {
 
     expect(response.statusCode).toBe(201);
     const body = response.json() as ContactResponse;
-    expect(body.name).toBe('Test User');
+    expect(body.lastName).toBe('Test');
+    expect(body.firstName).toBe('User');
     expect(body.email).toBe('test@example.com');
     expect(body.phone).toBeNull();
     expect(body.message).toBe('Test message body');
@@ -60,11 +62,11 @@ describe('POST /contacts', () => {
     expect((response.json() as ContactResponse).phone).toBe('090-1234-5678');
   });
 
-  it('should return 400 for empty name', async () => {
+  it('should return 400 for empty lastName', async () => {
     const response = await app.inject({
       method: 'POST',
       url: '/contacts',
-      payload: { ...samplePayload, name: '' },
+      payload: { ...samplePayload, lastName: '' },
     });
 
     expect(response.statusCode).toBe(400);
@@ -97,7 +99,7 @@ describe('GET /contacts', () => {
     await app.inject({
       method: 'POST',
       url: '/contacts',
-      payload: { ...samplePayload, name: 'User 2' },
+      payload: { ...samplePayload, lastName: 'User', firstName: '2' },
     });
 
     const response = await app.inject({ method: 'GET', url: '/contacts' });
@@ -123,7 +125,7 @@ describe('GET /contacts', () => {
     await app.inject({
       method: 'POST',
       url: '/contacts',
-      payload: { ...samplePayload, name: 'User 2' },
+      payload: { ...samplePayload, lastName: 'User', firstName: '2' },
     });
 
     const resolvedRes = await app.inject({
@@ -156,7 +158,7 @@ describe('GET /contacts/:id', () => {
     const response = await app.inject({ method: 'GET', url: `/contacts/${contactId}` });
 
     expect(response.statusCode).toBe(200);
-    expect((response.json() as ContactResponse).name).toBe('Test User');
+    expect((response.json() as ContactResponse).lastName).toBe('Test');
   });
 
   it('should return 404 for non-existent contact', async () => {
@@ -182,12 +184,12 @@ describe('PUT /contacts/:id', () => {
     const response = await app.inject({
       method: 'PUT',
       url: `/contacts/${contactId}`,
-      payload: { name: 'Updated User', status: 'in_progress' },
+      payload: { lastName: 'Updated', status: 'in_progress' },
     });
 
     expect(response.statusCode).toBe(200);
     const body = response.json() as ContactResponse;
-    expect(body.name).toBe('Updated User');
+    expect(body.lastName).toBe('Updated');
     expect(body.status).toBe('in_progress');
   });
 
@@ -195,7 +197,7 @@ describe('PUT /contacts/:id', () => {
     const response = await app.inject({
       method: 'PUT',
       url: '/contacts/999',
-      payload: { name: 'Updated' },
+      payload: { lastName: 'Updated' },
     });
     expect(response.statusCode).toBe(404);
   });

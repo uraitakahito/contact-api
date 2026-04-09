@@ -9,7 +9,8 @@ import type { ColumnType, Generated } from 'kysely';
 
 export interface ContactTable {
   id: Generated<number>;
-  name: string;
+  lastName: string;
+  firstName: string;
   email: string;
   phone: string | null;
   message: string;

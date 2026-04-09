@@ -23,7 +23,8 @@ export class KyselyContactRepository implements ContactRepository {
     return this.db
       .insertInto('contacts')
       .values({
-        name: input.name,
+        lastName: input.lastName,
+        firstName: input.firstName,
         email: input.email,
         phone: input.phone ?? null,
         message: input.message,
@@ -53,8 +54,11 @@ export class KyselyContactRepository implements ContactRepository {
   async update(id: number, input: UpdateContactInput): Promise<Contact | undefined> {
     const values: Record<string, unknown> = {};
 
-    if (input.name !== undefined) {
-      values['name'] = input.name;
+    if (input.lastName !== undefined) {
+      values['lastName'] = input.lastName;
+    }
+    if (input.firstName !== undefined) {
+      values['firstName'] = input.firstName;
     }
     if (input.email !== undefined) {
       values['email'] = input.email;
