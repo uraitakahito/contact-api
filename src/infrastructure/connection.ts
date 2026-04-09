@@ -13,14 +13,14 @@ import { createChildLogger } from './logger.js';
 
 const kyselyLogger = createChildLogger({ module: 'kysely' });
 
-function createKyselyLog(isVerbose: boolean): (event: LogEvent) => void {
+function createKyselyLog(): (event: LogEvent) => void {
   return (event: LogEvent): void => {
     if (event.level === 'error') {
       kyselyLogger.error(
         { sql: event.query.sql, durationMs: event.queryDurationMillis, err: event.error },
         'Query error',
       );
-    } else if (isVerbose) {
+    } else if (kyselyLogger.isLevelEnabled('debug')) {
       kyselyLogger.debug(
         { sql: event.query.sql, durationMs: event.queryDurationMillis },
         'Query executed',
@@ -36,7 +36,6 @@ export interface DbConfig {
   password?: string | undefined;
   database?: string | undefined;
   max?: number;
-  verbose?: boolean;
 }
 
 export function createDb(config: DbConfig): Kysely<Database> {
@@ -54,6 +53,6 @@ export function createDb(config: DbConfig): Kysely<Database> {
   return new Kysely<Database>({
     dialect,
     plugins: [new CamelCasePlugin()],
-    log: createKyselyLog(config.verbose === true),
+    log: createKyselyLog(),
   });
 }

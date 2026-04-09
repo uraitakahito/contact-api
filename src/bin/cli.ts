@@ -9,8 +9,8 @@ import { Command } from 'commander';
 import { Argument } from 'commander';
 import type { RawDbOptions } from '../infrastructure/cli-db-options.js';
 import { addDbOptions, extractDbConfig } from '../infrastructure/cli-db-options.js';
-import type { RawVerboseOption } from '../infrastructure/cli-verbose-option.js';
-import { addVerboseOption } from '../infrastructure/cli-verbose-option.js';
+import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
+import { addLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import { createDb } from '../infrastructure/connection.js';
 import { logger, createChildLogger } from '../infrastructure/logger.js';
 import { migratorDefinitions } from '../infrastructure/migrator-definitions.js';
@@ -31,15 +31,13 @@ function registerMigratorCommand(
     .addArgument(new Argument('<direction>', 'Migration direction').choices(['up', 'down']));
 
   addDbOptions(cmd);
-  addVerboseOption(cmd);
+  addLogLevelOption(cmd);
 
-  cmd.action(async (direction: 'up' | 'down', opts: RawDbOptions & RawVerboseOption) => {
-    if (opts.verbose === true) {
-      logger.level = 'debug';
-    }
+  cmd.action(async (direction: 'up' | 'down', opts: RawDbOptions & RawLogLevelOption) => {
+    logger.level = opts.logLevel;
     const cliLogger = createChildLogger({ command: name, direction });
 
-    const db = createDb({ ...extractDbConfig(opts), verbose: opts.verbose === true });
+    const db = createDb(extractDbConfig(opts));
 
     const { error, results } = await runMigrator(
       db,
@@ -68,7 +66,7 @@ function registerMigratorCommand(
     if (results?.length === 0) {
       cliLogger.info(`No pending ${definition.label.toLowerCase()} to execute`);
 
-      if (opts.verbose === true) {
+      if (logger.isLevelEnabled('debug')) {
         const migratorConfig = {
           migrationFolder: definition.folder,
           tableName: definition.tableName,

@@ -18,8 +18,8 @@ import { UpdateContactStatusUseCase } from '../application/update-contact-status
 import type { RawDbOptions } from '../infrastructure/cli-db-options.js';
 import { addDbOptions, extractDbConfig } from '../infrastructure/cli-db-options.js';
 import { parsePort } from '../infrastructure/cli-parsers.js';
-import type { RawVerboseOption } from '../infrastructure/cli-verbose-option.js';
-import { addVerboseOption } from '../infrastructure/cli-verbose-option.js';
+import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
+import { addLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import { createDb } from '../infrastructure/connection.js';
 import { logger } from '../infrastructure/logger.js';
 import { KyselyContactCategoryRepository } from '../infrastructure/kysely-contact-category-repository.js';
@@ -36,17 +36,15 @@ program
   .addOption(new Option('--port <port>', 'Server listen port').default(3000).argParser(parsePort));
 
 addDbOptions(program);
-addVerboseOption(program);
+addLogLevelOption(program);
 program.parse();
 
-const opts = program.opts<{ port: number } & RawDbOptions & RawVerboseOption>();
+const opts = program.opts<{ port: number } & RawDbOptions & RawLogLevelOption>();
 
-if (opts.verbose === true) {
-  logger.level = 'debug';
-}
+logger.level = opts.logLevel;
 
 // Infrastructure
-const db = createDb({ ...extractDbConfig(opts), verbose: opts.verbose === true });
+const db = createDb(extractDbConfig(opts));
 const contactRepository = new KyselyContactRepository(db);
 const contactCategoryRepository = new KyselyContactCategoryRepository(db);
 
