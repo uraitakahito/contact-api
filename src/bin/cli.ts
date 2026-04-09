@@ -12,6 +12,7 @@ import { addDbOptions, extractDbConfig } from '../infrastructure/cli-db-options.
 import type { RawVerboseOption } from '../infrastructure/cli-verbose-option.js';
 import { addVerboseOption } from '../infrastructure/cli-verbose-option.js';
 import { createDb } from '../infrastructure/connection.js';
+import { logger, createChildLogger } from '../infrastructure/logger.js';
 import { migratorDefinitions } from '../infrastructure/migrator-definitions.js';
 import type { MigratorDefinition } from '../infrastructure/migrator-definitions.js';
 import { getMigrationInfos, runMigrator } from '../infrastructure/migrator-runner.js';
@@ -33,6 +34,11 @@ function registerMigratorCommand(
   addVerboseOption(cmd);
 
   cmd.action(async (direction: 'up' | 'down', opts: RawDbOptions & RawVerboseOption) => {
+    if (opts.verbose === true) {
+      logger.level = 'debug';
+    }
+    const cliLogger = createChildLogger({ command: name, direction });
+
     const db = createDb({ ...extractDbConfig(opts), verbose: opts.verbose === true });
 
     const { error, results } = await runMigrator(
@@ -47,18 +53,20 @@ function registerMigratorCommand(
 
     for (const result of results ?? []) {
       if (result.status === 'Success') {
-        console.log(
+        cliLogger.info(
+          { migration: result.migrationName },
           `${definition.label} "${result.migrationName}" was ${direction === 'down' ? 'reverted' : 'executed'} successfully`,
         );
       } else if (result.status === 'Error') {
-        console.error(
+        cliLogger.error(
+          { migration: result.migrationName },
           `Failed to ${direction === 'down' ? 'revert' : 'execute'} ${definition.label.toLowerCase()} "${result.migrationName}"`,
         );
       }
     }
 
     if (results?.length === 0) {
-      console.log(`No pending ${definition.label.toLowerCase()} to execute`);
+      cliLogger.info(`No pending ${definition.label.toLowerCase()} to execute`);
 
       if (opts.verbose === true) {
         const migratorConfig = {
@@ -68,12 +76,15 @@ function registerMigratorCommand(
         };
         const infos = await getMigrationInfos(db, migratorConfig);
         if (infos.length > 0) {
-          console.log(`\n${definition.label} status:`);
+          cliLogger.info(`${definition.label} status:`);
           for (const info of infos) {
             if (info.executedAt) {
-              console.log(`  ✓ ${info.name} (applied at ${info.executedAt.toISOString()})`);
+              cliLogger.info(
+                { name: info.name, executedAt: info.executedAt.toISOString() },
+                `${info.name} applied`,
+              );
             } else {
-              console.log(`  - ${info.name} (not applied)`);
+              cliLogger.info({ name: info.name }, `${info.name} not applied`);
             }
           }
         }
@@ -81,10 +92,10 @@ function registerMigratorCommand(
     }
 
     if (error) {
-      console.error(
+      cliLogger.error(
+        { err: error },
         `Failed to ${definition.label.toLowerCase()}${direction === 'down' ? ' down' : ''}`,
       );
-      console.error(error);
       process.exitCode = 1;
     }
 
