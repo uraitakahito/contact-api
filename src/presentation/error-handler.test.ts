@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { ZodError } from 'zod';
+import { z } from 'zod/v4';
 import { ContactCategoryNotFoundError, ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from '../domain/errors.js';
 import { errorHandler } from './error-handler.js';
 
@@ -59,7 +59,7 @@ describe('errorHandler', () => {
     const request = createMockRequest();
     const reply = createMockReply();
 
-    errorHandler(new ZodError([]), request, reply);
+    errorHandler(new z.ZodError([]), request, reply);
 
     expect(reply.status).toHaveBeenCalledWith(400);
     expect(request.log.error).not.toHaveBeenCalled();
