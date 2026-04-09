@@ -122,26 +122,6 @@ curl -s -X DELETE http://localhost:3000/contacts/1 -w "\nHTTP Status: %{http_cod
 
 [docs/error-responses.md](docs/error-responses.md) を参照。
 
-## シードデータ
-
-マイグレーションはスキーマ定義のみを管理し、初期データ（シード）は別途管理します。
-
-```bash
-# シードデータ投入
-npm run seed
-
-# シードデータ取り消し
-npm run seed:down
-```
-
-シードの適用状態は `kysely_seed` テーブルで追跡され、スキーマ用の `kysely_migration` テーブルとは独立しています。
-
-## テスト
-
-```bash
-npm test
-```
-
 ## ヘキサゴナルアーキテクチャ（Ports and Adapters）
 
 本プロジェクトは DDD のレイヤードアーキテクチャに、ヘキサゴナルアーキテクチャの考え方を取り入れています。アプリケーションのコアロジックを外部の技術的詳細（HTTP、データベース）から分離し、Port（インターフェース）と Adapter（実装）で接続します。
