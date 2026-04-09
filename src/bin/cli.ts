@@ -1,19 +1,19 @@
 /**
  * @module cli
- * @description Infrastructure — マイグレーション / シード CLI エントリーポイント。
+ * @description マイグレーション / シード CLI エントリーポイント。
  *
  * Commander.js でサブコマンド (migrate / seed) と DB 接続オプションを提供する。
  */
 
 import { Command } from 'commander';
-import type { RawDbOptions } from './cli-db-options.js';
-import { addDbOptions, extractDbConfig } from './cli-db-options.js';
-import type { RawVerboseOption } from './cli-verbose-option.js';
-import { addVerboseOption } from './cli-verbose-option.js';
-import { createDb } from './connection.js';
-import { migratorDefinitions } from './migrator-definitions.js';
-import type { MigratorDefinition } from './migrator-definitions.js';
-import { getMigrationInfos, runMigrator } from './migrator-runner.js';
+import type { RawDbOptions } from '../infrastructure/cli-db-options.js';
+import { addDbOptions, extractDbConfig } from '../infrastructure/cli-db-options.js';
+import type { RawVerboseOption } from '../infrastructure/cli-verbose-option.js';
+import { addVerboseOption } from '../infrastructure/cli-verbose-option.js';
+import { createDb } from '../infrastructure/connection.js';
+import { migratorDefinitions } from '../infrastructure/migrator-definitions.js';
+import type { MigratorDefinition } from '../infrastructure/migrator-definitions.js';
+import { getMigrationInfos, runMigrator } from '../infrastructure/migrator-runner.js';
 
 const program = new Command();
 program.name('contact-cli').description('Contact API database CLI');
