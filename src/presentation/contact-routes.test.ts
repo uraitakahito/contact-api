@@ -2,7 +2,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import type { Kysely } from 'kysely';
 import type { Database } from '../infrastructure/database.js';
-import type { ContactResponse } from './format.js';
+import type { ContactCategoryResponse, ContactResponse } from './format.js';
 import { cleanDatabase, createTestApp } from '../test-helpers/setup.js';
 
 let app: FastifyInstance;
@@ -27,8 +27,23 @@ const samplePayload = {
   lastName: 'Test',
   firstName: 'User',
   email: 'test@example.com',
+  categoryId: 1,
   message: 'Test message body',
 };
+
+describe('GET /contact-categories', () => {
+  it('should return all categories', async () => {
+    const response = await app.inject({ method: 'GET', url: '/contact-categories' });
+
+    expect(response.statusCode).toBe(200);
+    const body = response.json() as ContactCategoryResponse[];
+    expect(body).toHaveLength(4);
+    expect(body[0]?.name).toBe('一般的なお問合せ');
+    expect(body[1]?.name).toBe('製品/サービスについて');
+    expect(body[2]?.name).toBe('採用について');
+    expect(body[3]?.name).toBe('その他');
+  });
+});
 
 describe('POST /contacts', () => {
   it('should create a contact', async () => {
@@ -44,6 +59,7 @@ describe('POST /contacts', () => {
     expect(body.firstName).toBe('User');
     expect(body.email).toBe('test@example.com');
     expect(body.phone).toBeNull();
+    expect(body.categoryId).toBe(1);
     expect(body.message).toBe('Test message body');
     expect(body.status).toBe('new');
     expect(body.id).toBeDefined();
@@ -87,6 +103,16 @@ describe('POST /contacts', () => {
       method: 'POST',
       url: '/contacts',
       payload: {},
+    });
+
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('should return 400 for non-existent categoryId', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/contacts',
+      payload: { ...samplePayload, categoryId: 999 },
     });
 
     expect(response.statusCode).toBe(400);

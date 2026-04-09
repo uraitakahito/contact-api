@@ -27,6 +27,7 @@ export class KyselyContactRepository implements ContactRepository {
         firstName: input.firstName,
         email: input.email,
         phone: input.phone ?? null,
+        categoryId: input.categoryId,
         message: input.message,
       })
       .returningAll()

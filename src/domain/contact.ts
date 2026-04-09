@@ -13,6 +13,7 @@ export interface Contact {
   firstName: string;
   email: string;
   phone: string | null;
+  categoryId: number;
   message: string;
   status: ContactStatus;
   createdAt: Date;
@@ -24,6 +25,7 @@ export interface CreateContactInput {
   firstName: string;
   email: string;
   phone?: string | undefined;
+  categoryId: number;
   message: string;
 }
 

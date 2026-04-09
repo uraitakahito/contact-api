@@ -10,9 +10,10 @@ import type { FastifyInstance } from 'fastify';
 import type { CreateContactUseCase } from '../application/create-contact.js';
 import type { DeleteContactUseCase } from '../application/delete-contact.js';
 import type { GetContactByIdUseCase } from '../application/get-contact-by-id.js';
+import type { GetContactCategoriesUseCase } from '../application/get-contact-categories.js';
 import type { GetContactsUseCase } from '../application/get-contacts.js';
 import type { UpdateContactStatusUseCase } from '../application/update-contact-status.js';
-import { formatContact, formatContacts } from './format.js';
+import { formatContact, formatContactCategories, formatContacts } from './format.js';
 import {
   contactIdParamSchema,
   contactsQuerySchema,
@@ -26,12 +27,18 @@ export interface ContactUseCases {
   getContactById: GetContactByIdUseCase;
   updateContactStatus: UpdateContactStatusUseCase;
   deleteContact: DeleteContactUseCase;
+  getContactCategories: GetContactCategoriesUseCase;
 }
 
 export function registerContactRoutes(
   app: FastifyInstance,
   useCases: ContactUseCases,
 ): void {
+  app.get('/contact-categories', async () => {
+    const categories = await useCases.getContactCategories.execute();
+    return formatContactCategories(categories);
+  });
+
   app.post('/contacts', async (request, reply) => {
     const body = createContactBodySchema.parse(request.body);
     const contact = await useCases.createContact.execute(body);

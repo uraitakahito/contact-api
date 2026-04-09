@@ -15,6 +15,16 @@ export class ContactNotFoundError extends Error {
   }
 }
 
+export class ContactCategoryNotFoundError extends Error {
+  public readonly id: number;
+
+  constructor(id: number) {
+    super(`Contact category with id ${id.toString()} not found`);
+    this.name = 'ContactCategoryNotFoundError';
+    this.id = id;
+  }
+}
+
 export class ContactValidationError extends Error {
   constructor(message: string) {
     super(message);

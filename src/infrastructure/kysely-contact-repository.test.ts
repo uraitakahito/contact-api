@@ -25,6 +25,7 @@ const sampleInput = {
   lastName: 'Test',
   firstName: 'User',
   email: 'test@example.com',
+  categoryId: 1,
   message: 'Test message body',
 };
 
@@ -37,6 +38,7 @@ describe('KyselyContactRepository', () => {
     expect(contact.firstName).toBe('User');
     expect(contact.email).toBe('test@example.com');
     expect(contact.phone).toBeNull();
+    expect(contact.categoryId).toBe(1);
     expect(contact.message).toBe('Test message body');
     expect(contact.status).toBe('new');
     expect(contact.createdAt).toBeInstanceOf(Date);

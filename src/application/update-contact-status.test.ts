@@ -20,6 +20,7 @@ const sampleContact: Contact = {
   firstName: 'User',
   email: 'test@example.com',
   phone: null,
+  categoryId: 1,
   message: 'Test message body',
   status: 'new',
   createdAt: new Date('2026-01-01'),

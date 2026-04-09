@@ -14,6 +14,7 @@ export const createContactBodySchema = z.object({
   firstName: z.string().min(1, 'First name cannot be empty'),
   email: z.string().email('Invalid email format'),
   phone: z.string().optional(),
+  categoryId: z.number().int().positive(),
   message: z.string().min(1, 'Message cannot be empty'),
 });
 

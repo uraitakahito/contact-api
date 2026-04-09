@@ -9,9 +9,11 @@ import Fastify from 'fastify';
 import { CreateContactUseCase } from './application/create-contact.js';
 import { DeleteContactUseCase } from './application/delete-contact.js';
 import { GetContactByIdUseCase } from './application/get-contact-by-id.js';
+import { GetContactCategoriesUseCase } from './application/get-contact-categories.js';
 import { GetContactsUseCase } from './application/get-contacts.js';
 import { UpdateContactStatusUseCase } from './application/update-contact-status.js';
 import { createDb } from './infrastructure/connection.js';
+import { KyselyContactCategoryRepository } from './infrastructure/kysely-contact-category-repository.js';
 import { KyselyContactRepository } from './infrastructure/kysely-contact-repository.js';
 import { errorHandler } from './presentation/error-handler.js';
 import { registerHealthRoutes } from './presentation/health-routes.js';
@@ -20,13 +22,15 @@ import { registerContactRoutes } from './presentation/contact-routes.js';
 // Infrastructure
 const db = createDb();
 const contactRepository = new KyselyContactRepository(db);
+const contactCategoryRepository = new KyselyContactCategoryRepository(db);
 
 // Application (Use Cases)
-const createContact = new CreateContactUseCase(contactRepository);
+const createContact = new CreateContactUseCase(contactRepository, contactCategoryRepository);
 const getContacts = new GetContactsUseCase(contactRepository);
 const getContactById = new GetContactByIdUseCase(contactRepository);
 const updateContactStatus = new UpdateContactStatusUseCase(contactRepository);
 const deleteContact = new DeleteContactUseCase(contactRepository);
+const getContactCategories = new GetContactCategoriesUseCase(contactCategoryRepository);
 
 // Presentation
 const app = Fastify({ logger: true });
@@ -41,6 +45,7 @@ registerContactRoutes(app, {
   getContactById,
   updateContactStatus,
   deleteContact,
+  getContactCategories,
 });
 
 // Graceful shutdown
