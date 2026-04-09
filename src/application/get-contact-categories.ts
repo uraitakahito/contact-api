@@ -1,6 +1,6 @@
 /**
  * @module get-contact-categories
- * @description Driving Port（駆動するポート） — 問い合わせ種別一覧取得ユースケース。
+ * @description Driving Ports — 問い合わせ種別一覧取得ユースケース。
  */
 
 import type { ContactCategory } from '../domain/contact-category.js';
