@@ -2,20 +2,11 @@ name: test
 on:
   pull_request:
     branches: [main, develop]
+  # develop では pull_request イベントのみでテストを実行する。
+  # push も develop に含めると、同一コミットで push と pull_request が
+  # 同時発火しテストが二重実行されてしまうため、push は main のみに限定する。
   push:
-    branches: [main, develop]
-
-# develop へ push すると push と pull_request の両イベントが発火し、
-# 同じコミットに対してテストが2回実行されてしまう。
-# concurrency group を設定し、同一ブランチの重複実行を防ぐ。
-#
-# グループ名の仕組み:
-#   - pull_request イベント: github.head_ref = "develop"  → group = "test-develop"
-#   - push イベント:         github.head_ref = ""(空)     → github.ref_name = "develop" → group = "test-develop"
-# 両イベントで同じグループ名になるため、後発の実行が先行をキャンセルする。
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
+    branches: [main]
 
 jobs:
   test:
