@@ -32,7 +32,7 @@ const samplePayload = {
 };
 
 describe('GET /contact-categories', () => {
-  it('should return all categories', async () => {
+  it('should return all categories in Japanese by default', async () => {
     const response = await app.inject({ method: 'GET', url: '/contact-categories' });
 
     expect(response.statusCode).toBe(200);
@@ -42,6 +42,18 @@ describe('GET /contact-categories', () => {
     expect(body[1]?.name).toBe('製品/サービスについて');
     expect(body[2]?.name).toBe('採用について');
     expect(body[3]?.name).toBe('その他');
+  });
+
+  it('should return all categories in English when locale=en', async () => {
+    const response = await app.inject({ method: 'GET', url: '/contact-categories?locale=en' });
+
+    expect(response.statusCode).toBe(200);
+    const body = response.json() as ContactCategoryResponse[];
+    expect(body).toHaveLength(4);
+    expect(body[0]?.name).toBe('General Inquiry');
+    expect(body[1]?.name).toBe('Products/Services');
+    expect(body[2]?.name).toBe('Recruitment');
+    expect(body[3]?.name).toBe('Other');
   });
 });
 

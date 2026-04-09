@@ -9,9 +9,14 @@ import type { ColumnType, Generated } from 'kysely';
 
 export interface ContactCategoryTable {
   id: Generated<number>;
-  name: string;
   displayOrder: number;
   createdAt: ColumnType<Date, string | undefined, never>;
+}
+
+export interface ContactCategoryTranslationTable {
+  categoryId: number;
+  locale: string;
+  name: string;
 }
 
 export interface ContactTable {
@@ -29,5 +34,6 @@ export interface ContactTable {
 
 export interface Database {
   contactCategories: ContactCategoryTable;
+  contactCategoryTranslations: ContactCategoryTranslationTable;
   contacts: ContactTable;
 }

@@ -45,15 +45,24 @@ export interface ContactCategoryResponse {
   createdAt: string;
 }
 
-export function formatContactCategory(category: ContactCategory): ContactCategoryResponse {
+export function formatContactCategory(
+  category: ContactCategory,
+  locale: string,
+): ContactCategoryResponse {
+  const name = category.translations.get(locale)
+    ?? category.translations.values().next().value
+    ?? '';
   return {
     id: category.id,
-    name: category.name,
+    name,
     displayOrder: category.displayOrder,
     createdAt: category.createdAt.toISOString(),
   };
 }
 
-export function formatContactCategories(categories: ContactCategory[]): ContactCategoryResponse[] {
-  return categories.map(formatContactCategory);
+export function formatContactCategories(
+  categories: ContactCategory[],
+  locale: string,
+): ContactCategoryResponse[] {
+  return categories.map((c) => formatContactCategory(c, locale));
 }
