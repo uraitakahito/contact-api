@@ -31,5 +31,5 @@ export const contactsQuerySchema = z.object({
 });
 
 export const contactCategoriesQuerySchema = z.object({
-  locale: z.string().min(1).default('ja'),
+  locale: z.string().min(1).default('en'),
 });
