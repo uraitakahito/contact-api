@@ -3,12 +3,12 @@
  * @description Infrastructure — 宣言的シードランナー。
  *
  * SeedDefinition と CSV ファイルから Kysely クエリビルダで
- * シードデータを投入する汎用ランナー。DB 固有の SQL を使わないため、
- * PostgreSQL 以外のデータベースでも動作する。
+ * シードデータを投入する汎用ランナー。
+ * revertSeed は PostgreSQL の TRUNCATE ... RESTART IDENTITY CASCADE を使用する。
  */
 
 import path from 'node:path';
-import type { Kysely } from 'kysely';
+import { sql, type Kysely } from 'kysely';
 import { readCsv } from './csv-reader.js';
 
 /** CSV 列 → Kysely プロパティの変換定義 */
@@ -57,9 +57,9 @@ export async function runSeed(db: Kysely<any>, definition: SeedDefinition): Prom
 }
 
 /**
- * SeedDefinition に対応するテーブルの全データを削除する。
+ * SeedDefinition に対応するテーブルを TRUNCATE し、SERIAL シーケンスをリセットする。
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Migration.down に Kysely<any> を渡すため
 export async function revertSeed(db: Kysely<any>, definition: SeedDefinition): Promise<void> {
-  await db.deleteFrom(definition.tableName).execute();
+  await sql`TRUNCATE TABLE ${sql.table(definition.tableName)} RESTART IDENTITY CASCADE`.execute(db);
 }
