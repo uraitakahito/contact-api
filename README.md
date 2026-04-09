@@ -50,10 +50,6 @@ npm start
 ### 問い合わせ種別一覧取得
 
 ```bash
-# デフォルト（英語）
-curl -s http://localhost:3000/contact-categories | jq
-
-# ロケール指定（日本語）
 curl -s "http://localhost:3000/contact-categories?locale=ja" | jq
 ```
 
