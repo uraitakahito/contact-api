@@ -6,16 +6,16 @@
   "scripts": {
     "clean": "node -e \"var fs = require('fs'); try{['dist','node_modules'].map((fpath) => fs.rmdirSync(fpath, { recursive: true }))}catch(err){console.log(err)}; process.exit(0);\"",
     "build": "tsc -b -v --listFiles",
-    "start": "node dist/src/main.js",
-    "dev": "node --watch dist/src/main.js",
+    "start": "node dist/src/bin/server.js",
+    "dev": "node --watch dist/src/bin/server.js",
     "lint": "eslint .",
     "test": "vitest run",
     "test:unit": "vitest run --project unit",
     "test:db": "vitest run --project db",
-    "migrate": "node dist/src/infrastructure/cli.js migrate",
-    "migrate:down": "node dist/src/infrastructure/cli.js migrate --down",
-    "seed": "node dist/src/infrastructure/cli.js seed",
-    "seed:down": "node dist/src/infrastructure/cli.js seed --down"
+    "migrate": "node dist/src/bin/cli.js migrate",
+    "migrate:down": "node dist/src/bin/cli.js migrate --down",
+    "seed": "node dist/src/bin/cli.js seed",
+    "seed:down": "node dist/src/bin/cli.js seed --down"
   },
   "author": "",
   "license": "Unlicense",
