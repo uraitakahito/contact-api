@@ -7,10 +7,12 @@ import { FileMigrationProvider, type Kysely, Migrator, sql } from 'kysely';
 import { CreateContactUseCase } from '../application/create-contact.js';
 import { DeleteContactUseCase } from '../application/delete-contact.js';
 import { GetContactByIdUseCase } from '../application/get-contact-by-id.js';
+import { GetContactCategoriesUseCase } from '../application/get-contact-categories.js';
 import { GetContactsUseCase } from '../application/get-contacts.js';
 import { UpdateContactStatusUseCase } from '../application/update-contact-status.js';
 import { createDb } from '../infrastructure/connection.js';
 import type { Database } from '../infrastructure/database.js';
+import { KyselyContactCategoryRepository } from '../infrastructure/kysely-contact-category-repository.js';
 import { KyselyContactRepository } from '../infrastructure/kysely-contact-repository.js';
 import { errorHandler } from '../presentation/error-handler.js';
 import { registerHealthRoutes } from '../presentation/health-routes.js';
@@ -54,11 +56,13 @@ export async function createTestApp(): Promise<TestApp> {
   await runMigrations(db);
 
   const contactRepository = new KyselyContactRepository(db);
-  const createContact = new CreateContactUseCase(contactRepository);
+  const contactCategoryRepository = new KyselyContactCategoryRepository(db);
+  const createContact = new CreateContactUseCase(contactRepository, contactCategoryRepository);
   const getContacts = new GetContactsUseCase(contactRepository);
   const getContactById = new GetContactByIdUseCase(contactRepository);
   const updateContactStatus = new UpdateContactStatusUseCase(contactRepository);
   const deleteContact = new DeleteContactUseCase(contactRepository);
+  const getContactCategories = new GetContactCategoriesUseCase(contactCategoryRepository);
 
   const app = Fastify({ logger: false });
   app.setErrorHandler(errorHandler);
@@ -69,6 +73,7 @@ export async function createTestApp(): Promise<TestApp> {
     getContactById,
     updateContactStatus,
     deleteContact,
+    getContactCategories,
   });
 
   return { app, db };

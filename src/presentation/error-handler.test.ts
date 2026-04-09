@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ZodError } from 'zod';
-import { ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from '../domain/errors.js';
+import { ContactCategoryNotFoundError, ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from '../domain/errors.js';
 import { errorHandler } from './error-handler.js';
 
 function createMockRequest() {
@@ -22,6 +22,16 @@ describe('errorHandler', () => {
     errorHandler(new ContactNotFoundError(1), request, reply);
 
     expect(reply.status).toHaveBeenCalledWith(404);
+    expect(request.log.error).not.toHaveBeenCalled();
+  });
+
+  it('should return 400 for ContactCategoryNotFoundError without logging', () => {
+    const request = createMockRequest();
+    const reply = createMockReply();
+
+    errorHandler(new ContactCategoryNotFoundError(5), request, reply);
+
+    expect(reply.status).toHaveBeenCalledWith(400);
     expect(request.log.error).not.toHaveBeenCalled();
   });
 

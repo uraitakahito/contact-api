@@ -7,12 +7,20 @@
 
 import type { ColumnType, Generated } from 'kysely';
 
+export interface ContactCategoryTable {
+  id: Generated<number>;
+  name: string;
+  displayOrder: number;
+  createdAt: ColumnType<Date, string | undefined, never>;
+}
+
 export interface ContactTable {
   id: Generated<number>;
   lastName: string;
   firstName: string;
   email: string;
   phone: string | null;
+  categoryId: number;
   message: string;
   status: ColumnType<string, string | undefined, string>;
   createdAt: ColumnType<Date, string | undefined, never>;
@@ -20,5 +28,6 @@ export interface ContactTable {
 }
 
 export interface Database {
+  contactCategories: ContactCategoryTable;
   contacts: ContactTable;
 }

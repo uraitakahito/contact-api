@@ -1,8 +1,9 @@
 /**
  * @module format
- * @description Driving Adapter 補助 — Contact エンティティを JSON レスポンス形式に変換するフォーマッタ。
+ * @description Driving Adapter 補助 — エンティティを JSON レスポンス形式に変換するフォーマッタ。
  */
 
+import type { ContactCategory } from '../domain/contact-category.js';
 import type { Contact } from '../domain/contact.js';
 
 export interface ContactResponse {
@@ -11,6 +12,7 @@ export interface ContactResponse {
   firstName: string;
   email: string;
   phone: string | null;
+  categoryId: number;
   message: string;
   status: string;
   createdAt: string;
@@ -24,6 +26,7 @@ export function formatContact(contact: Contact): ContactResponse {
     firstName: contact.firstName,
     email: contact.email,
     phone: contact.phone,
+    categoryId: contact.categoryId,
     message: contact.message,
     status: contact.status,
     createdAt: contact.createdAt.toISOString(),
@@ -33,4 +36,24 @@ export function formatContact(contact: Contact): ContactResponse {
 
 export function formatContacts(contacts: Contact[]): ContactResponse[] {
   return contacts.map(formatContact);
+}
+
+export interface ContactCategoryResponse {
+  id: number;
+  name: string;
+  displayOrder: number;
+  createdAt: string;
+}
+
+export function formatContactCategory(category: ContactCategory): ContactCategoryResponse {
+  return {
+    id: category.id,
+    name: category.name,
+    displayOrder: category.displayOrder,
+    createdAt: category.createdAt.toISOString(),
+  };
+}
+
+export function formatContactCategories(categories: ContactCategory[]): ContactCategoryResponse[] {
+  return categories.map(formatContactCategory);
 }

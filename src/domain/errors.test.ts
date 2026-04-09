@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from './errors.js';
+import { ContactCategoryNotFoundError, ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from './errors.js';
+
+describe('ContactCategoryNotFoundError', () => {
+  it('should have the correct message and id', () => {
+    const error = new ContactCategoryNotFoundError(5);
+    expect(error.message).toBe('Contact category with id 5 not found');
+    expect(error.id).toBe(5);
+    expect(error.name).toBe('ContactCategoryNotFoundError');
+    expect(error).toBeInstanceOf(Error);
+  });
+});
 
 describe('ContactNotFoundError', () => {
   it('should have the correct message and id', () => {
