@@ -16,6 +16,8 @@ import { GetContactsUseCase } from './application/get-contacts.js';
 import { UpdateContactStatusUseCase } from './application/update-contact-status.js';
 import type { RawDbOptions } from './infrastructure/cli-db-options.js';
 import { addDbOptions, extractDbConfig } from './infrastructure/cli-db-options.js';
+import type { RawVerboseOption } from './infrastructure/cli-verbose-option.js';
+import { addVerboseOption } from './infrastructure/cli-verbose-option.js';
 import { createDb } from './infrastructure/connection.js';
 import { KyselyContactCategoryRepository } from './infrastructure/kysely-contact-category-repository.js';
 import { KyselyContactRepository } from './infrastructure/kysely-contact-repository.js';
@@ -31,12 +33,14 @@ program
   .option('--port <port>', 'Server listen port', '3000');
 
 addDbOptions(program);
+addVerboseOption(program);
 program.parse();
 
-const opts = program.opts<{ port: string } & RawDbOptions>();
+const opts = program.opts<{ port: string } & RawDbOptions & RawVerboseOption>();
+const verbose = opts.verbose === true;
 
 // Infrastructure
-const db = createDb(extractDbConfig(opts));
+const db = createDb({ ...extractDbConfig(opts), verbose });
 const contactRepository = new KyselyContactRepository(db);
 const contactCategoryRepository = new KyselyContactCategoryRepository(db);
 
@@ -49,7 +53,7 @@ const deleteContact = new DeleteContactUseCase(contactRepository);
 const getContactCategories = new GetContactCategoriesUseCase(contactCategoryRepository);
 
 // Presentation
-const app = Fastify({ logger: true });
+const app = Fastify({ logger: { level: verbose ? 'debug' : 'info' } });
 
 app.setErrorHandler(errorHandler);
 
