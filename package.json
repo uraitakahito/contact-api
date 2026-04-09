@@ -1,7 +1,7 @@
 {
   "name": "contact-api",
   "version": "1.0.0",
-  "description": "DDD-based Contact Form API with Fastify + Kysely + PostgreSQL",
+  "description": "Contact Form API",
   "type": "module",
   "scripts": {
     "clean": "node -e \"var fs = require('fs'); try{['dist','node_modules'].map((fpath) => fs.rmdirSync(fpath, { recursive: true }))}catch(err){console.log(err)}; process.exit(0);\"",

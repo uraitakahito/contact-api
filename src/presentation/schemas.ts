@@ -29,3 +29,7 @@ export const contactIdParamSchema = z.object({
 export const contactsQuerySchema = z.object({
   status: contactStatusSchema.optional(),
 });
+
+export const contactCategoriesQuerySchema = z.object({
+  locale: z.string().min(1).default('ja'),
+});

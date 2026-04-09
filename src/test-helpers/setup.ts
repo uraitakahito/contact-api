@@ -53,7 +53,7 @@ export async function runMigrations(db: Kysely<Database>): Promise<void> {
  * モジュール解決を経由しないため、静的インポートで seed モジュールを直接呼ぶ。
  */
 export async function runSeeds(db: Kysely<Database>): Promise<void> {
-  await sql`TRUNCATE TABLE contacts, contact_categories RESTART IDENTITY CASCADE`.execute(db);
+  await sql`TRUNCATE TABLE contacts, contact_category_translations, contact_categories RESTART IDENTITY CASCADE`.execute(db);
   await contactCategoriesSeed.up(db);
 }
 

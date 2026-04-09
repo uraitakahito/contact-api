@@ -23,17 +23,19 @@ describe('KyselyContactCategoryRepository', () => {
     const categories = await repository.findAll();
 
     expect(categories).toHaveLength(4);
-    expect(categories[0]?.name).toBe('一般的なお問合せ');
-    expect(categories[1]?.name).toBe('製品/サービスについて');
-    expect(categories[2]?.name).toBe('採用について');
-    expect(categories[3]?.name).toBe('その他');
+    expect(categories[0]?.translations.get('ja')).toBe('一般的なお問合せ');
+    expect(categories[0]?.translations.get('en')).toBe('General Inquiry');
+    expect(categories[1]?.translations.get('ja')).toBe('製品/サービスについて');
+    expect(categories[2]?.translations.get('ja')).toBe('採用について');
+    expect(categories[3]?.translations.get('ja')).toBe('その他');
   });
 
   it('should find a category by id', async () => {
     const category = await repository.findById(1);
 
     expect(category).toBeDefined();
-    expect(category?.name).toBe('一般的なお問合せ');
+    expect(category?.translations.get('ja')).toBe('一般的なお問合せ');
+    expect(category?.translations.get('en')).toBe('General Inquiry');
     expect(category?.displayOrder).toBe(1);
     expect(category?.createdAt).toBeInstanceOf(Date);
   });

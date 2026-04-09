@@ -25,7 +25,7 @@ function createMockCategoryRepository(): ContactCategoryRepository {
 
 const sampleCategory: ContactCategory = {
   id: 1,
-  name: '一般的なお問合せ',
+  translations: new Map([['ja', '一般的なお問合せ']]),
   displayOrder: 1,
   createdAt: new Date('2026-01-01'),
 };

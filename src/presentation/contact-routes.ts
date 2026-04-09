@@ -15,6 +15,7 @@ import type { GetContactsUseCase } from '../application/get-contacts.js';
 import type { UpdateContactStatusUseCase } from '../application/update-contact-status.js';
 import { formatContact, formatContactCategories, formatContacts } from './format.js';
 import {
+  contactCategoriesQuerySchema,
   contactIdParamSchema,
   contactsQuerySchema,
   createContactBodySchema,
@@ -34,9 +35,10 @@ export function registerContactRoutes(
   app: FastifyInstance,
   useCases: ContactUseCases,
 ): void {
-  app.get('/contact-categories', async () => {
+  app.get('/contact-categories', async (request) => {
+    const query = contactCategoriesQuerySchema.parse(request.query);
     const categories = await useCases.getContactCategories.execute();
-    return formatContactCategories(categories);
+    return formatContactCategories(categories, query.locale);
   });
 
   app.post('/contacts', async (request, reply) => {
