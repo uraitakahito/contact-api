@@ -42,6 +42,23 @@ export async function runMigrations(db: Kysely<Database>): Promise<void> {
   }
 }
 
+export async function runSeeds(db: Kysely<Database>): Promise<void> {
+  const migrator = new Migrator({
+    db,
+    provider: new FileMigrationProvider({
+      fs,
+      path,
+      migrationFolder: path.join(currentDir, '..', 'infrastructure', 'seeds'),
+    }),
+    migrationTableName: 'kysely_seed',
+  });
+
+  const { error } = await migrator.migrateToLatest();
+  if (error) {
+    throw error instanceof Error ? error : new Error('Seed failed');
+  }
+}
+
 export async function cleanDatabase(db: Kysely<Database>): Promise<void> {
   await sql`TRUNCATE TABLE contacts RESTART IDENTITY CASCADE`.execute(db);
 }
@@ -54,6 +71,7 @@ export interface TestApp {
 export async function createTestApp(): Promise<TestApp> {
   const db = createTestDb();
   await runMigrations(db);
+  await runSeeds(db);
 
   const contactRepository = new KyselyContactRepository(db);
   const contactCategoryRepository = new KyselyContactCategoryRepository(db);

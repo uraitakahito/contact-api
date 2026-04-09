@@ -13,7 +13,9 @@
     "test:unit": "vitest run --project unit",
     "test:db": "vitest run --project db",
     "migrate": "node dist/src/infrastructure/migrate.js",
-    "migrate:down": "node dist/src/infrastructure/migrate.js down"
+    "migrate:down": "node dist/src/infrastructure/migrate.js down",
+    "seed": "node dist/src/infrastructure/seed.js",
+    "seed:down": "node dist/src/infrastructure/seed.js down"
   },
   "author": "",
   "license": "Unlicense",

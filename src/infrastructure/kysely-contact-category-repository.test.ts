@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Kysely } from 'kysely';
 import type { Database } from './database.js';
 import { KyselyContactCategoryRepository } from './kysely-contact-category-repository.js';
-import { createTestDb, runMigrations } from '../test-helpers/setup.js';
+import { createTestDb, runMigrations, runSeeds } from '../test-helpers/setup.js';
 
 let db: Kysely<Database>;
 let repository: KyselyContactCategoryRepository;
@@ -10,6 +10,7 @@ let repository: KyselyContactCategoryRepository;
 beforeAll(async () => {
   db = createTestDb();
   await runMigrations(db);
+  await runSeeds(db);
   repository = new KyselyContactCategoryRepository(db);
 });
 

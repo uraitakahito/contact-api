@@ -41,6 +41,7 @@ docker compose --profile dev up -d
 npm install
 npm run build
 npm run migrate
+npm run seed
 npm start
 ```
 
@@ -151,6 +152,20 @@ curl -s -X POST http://localhost:3000/contacts \
 # 404 の例: 存在しない ID
 curl -s http://localhost:3000/contacts/999 | jq
 ```
+
+## シードデータ
+
+マイグレーションはスキーマ定義のみを管理し、初期データ（シード）は別途管理します。
+
+```bash
+# シードデータ投入
+npm run seed
+
+# シードデータ取り消し
+npm run seed:down
+```
+
+シードの適用状態は `kysely_seed` テーブルで追跡され、スキーマ用の `kysely_migration` テーブルとは独立しています。
 
 ## テスト
 
