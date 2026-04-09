@@ -4,7 +4,7 @@
  */
 
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { ZodError } from 'zod';
+import { z } from 'zod/v4';
 import { ContactCategoryNotFoundError, ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from '../domain/errors.js';
 
 export function errorHandler(
@@ -32,7 +32,7 @@ export function errorHandler(
     return;
   }
 
-  if (error instanceof ZodError) {
+  if (error instanceof z.ZodError) {
     void reply.status(400).send({
       error: 'Validation error',
       details: error.issues,
