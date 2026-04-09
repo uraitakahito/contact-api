@@ -6,8 +6,8 @@
  */
 
 export interface MigratorDefinition {
-  /** サブフォルダ名 (infrastructure/ からの相対) */
-  readonly folder: string;
+  /** マイグレーションファイルのディレクトリ (file: URL) */
+  readonly folder: URL;
   /** Kysely の管理テーブル名 */
   readonly tableName: string;
   /** ログ出力用ラベル */
@@ -16,6 +16,6 @@ export interface MigratorDefinition {
 
 export const migratorDefinitions: Record<string, MigratorDefinition> = {
   // NOTE: 'kysely_migration' は Kysely Migrator のデフォルトテーブル名に由来する
-  migrate: { folder: 'migrations', tableName: 'kysely_migration', label: 'Migration' },
-  seed: { folder: 'seeds', tableName: 'kysely_seed', label: 'Seed' },
+  migrate: { folder: new URL('./migrations', import.meta.url), tableName: 'kysely_migration', label: 'Migration' },
+  seed: { folder: new URL('./seeds', import.meta.url), tableName: 'kysely_seed', label: 'Seed' },
 };

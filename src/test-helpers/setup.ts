@@ -1,6 +1,6 @@
+import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { promises as fs } from 'node:fs';
 import Fastify from 'fastify';
 import type { FastifyInstance } from 'fastify';
 import { FileMigrationProvider, type Kysely, Migrator, sql } from 'kysely';
@@ -19,7 +19,6 @@ import { errorHandler } from '../presentation/error-handler.js';
 import { registerHealthRoutes } from '../presentation/health-routes.js';
 import { registerContactRoutes } from '../presentation/contact-routes.js';
 
-const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 export function createTestDb(): Kysely<Database> {
   return createDb({
@@ -33,7 +32,7 @@ export async function runMigrations(db: Kysely<Database>): Promise<void> {
     provider: new FileMigrationProvider({
       fs,
       path,
-      migrationFolder: path.join(currentDir, '..', 'infrastructure', 'migrations'),
+      migrationFolder: fileURLToPath(new URL('../infrastructure/migrations', import.meta.url)),
     }),
   });
 

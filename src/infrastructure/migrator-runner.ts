@@ -8,12 +8,13 @@
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { FileMigrationProvider, Migrator } from 'kysely';
 import type { Kysely, MigrationResultSet } from 'kysely';
 
 export interface RunMigratorConfig {
-  /** マイグレーションファイルのディレクトリ (絶対パス) */
-  readonly migrationFolder: string;
+  /** マイグレーションファイルのディレクトリ (file: URL) */
+  readonly migrationFolder: URL;
   /** Kysely の管理テーブル名 */
   readonly tableName: string;
 }
@@ -29,7 +30,7 @@ export async function runMigrator(
     provider: new FileMigrationProvider({
       fs,
       path,
-      migrationFolder: config.migrationFolder,
+      migrationFolder: fileURLToPath(config.migrationFolder),
     }),
     migrationTableName: config.tableName,
   });
