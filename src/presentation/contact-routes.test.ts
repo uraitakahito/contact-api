@@ -118,8 +118,13 @@ describe('GET /contacts', () => {
     const { id: contactId } = createRes.json() as ContactResponse;
 
     await app.inject({
-      method: 'PUT',
-      url: `/contacts/${contactId}`,
+      method: 'PATCH',
+      url: `/contacts/${contactId}/status`,
+      payload: { status: 'in_progress' },
+    });
+    await app.inject({
+      method: 'PATCH',
+      url: `/contacts/${contactId}/status`,
       payload: { status: 'resolved' },
     });
     await app.inject({
@@ -172,8 +177,8 @@ describe('GET /contacts/:id', () => {
   });
 });
 
-describe('PUT /contacts/:id', () => {
-  it('should update a contact', async () => {
+describe('PATCH /contacts/:id/status', () => {
+  it('should update contact status', async () => {
     const createRes = await app.inject({
       method: 'POST',
       url: '/contacts',
@@ -182,24 +187,40 @@ describe('PUT /contacts/:id', () => {
     const { id: contactId } = createRes.json() as ContactResponse;
 
     const response = await app.inject({
-      method: 'PUT',
-      url: `/contacts/${contactId}`,
-      payload: { lastName: 'Updated', status: 'in_progress' },
+      method: 'PATCH',
+      url: `/contacts/${contactId}/status`,
+      payload: { status: 'in_progress' },
     });
 
     expect(response.statusCode).toBe(200);
     const body = response.json() as ContactResponse;
-    expect(body.lastName).toBe('Updated');
     expect(body.status).toBe('in_progress');
+    expect(body.lastName).toBe('Test');
   });
 
   it('should return 404 for non-existent contact', async () => {
     const response = await app.inject({
-      method: 'PUT',
-      url: '/contacts/999',
-      payload: { lastName: 'Updated' },
+      method: 'PATCH',
+      url: '/contacts/999/status',
+      payload: { status: 'in_progress' },
     });
     expect(response.statusCode).toBe(404);
+  });
+
+  it('should return 400 for invalid status transition', async () => {
+    const createRes = await app.inject({
+      method: 'POST',
+      url: '/contacts',
+      payload: samplePayload,
+    });
+    const { id: contactId } = createRes.json() as ContactResponse;
+
+    const response = await app.inject({
+      method: 'PATCH',
+      url: `/contacts/${contactId}/status`,
+      payload: { status: 'closed' },
+    });
+    expect(response.statusCode).toBe(400);
   });
 });
 

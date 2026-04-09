@@ -9,7 +9,7 @@ function createMockRepository(): ContactRepository {
     create: vi.fn(),
     findAll: vi.fn(),
     findById: vi.fn(),
-    update: vi.fn(),
+    updateStatus: vi.fn(),
     delete: vi.fn(),
   };
 }

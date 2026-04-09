@@ -8,7 +8,7 @@ import { CreateContactUseCase } from '../application/create-contact.js';
 import { DeleteContactUseCase } from '../application/delete-contact.js';
 import { GetContactByIdUseCase } from '../application/get-contact-by-id.js';
 import { GetContactsUseCase } from '../application/get-contacts.js';
-import { UpdateContactUseCase } from '../application/update-contact.js';
+import { UpdateContactStatusUseCase } from '../application/update-contact-status.js';
 import { createDb } from '../infrastructure/connection.js';
 import type { Database } from '../infrastructure/database.js';
 import { KyselyContactRepository } from '../infrastructure/kysely-contact-repository.js';
@@ -57,7 +57,7 @@ export async function createTestApp(): Promise<TestApp> {
   const createContact = new CreateContactUseCase(contactRepository);
   const getContacts = new GetContactsUseCase(contactRepository);
   const getContactById = new GetContactByIdUseCase(contactRepository);
-  const updateContact = new UpdateContactUseCase(contactRepository);
+  const updateContactStatus = new UpdateContactStatusUseCase(contactRepository);
   const deleteContact = new DeleteContactUseCase(contactRepository);
 
   const app = Fastify({ logger: false });
@@ -67,7 +67,7 @@ export async function createTestApp(): Promise<TestApp> {
     createContact,
     getContacts,
     getContactById,
-    updateContact,
+    updateContactStatus,
     deleteContact,
   });
 

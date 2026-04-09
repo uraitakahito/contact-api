@@ -13,12 +13,12 @@
  * @see {@link file://../infrastructure/kysely-contact-repository.ts} Driven Adapter（Kysely 実装）
  */
 
-import type { ContactStatus, CreateContactInput, Contact, UpdateContactInput } from './contact.js';
+import type { ContactStatus, CreateContactInput, Contact } from './contact.js';
 
 export interface ContactRepository {
   create(input: CreateContactInput): Promise<Contact>;
   findAll(filter?: { status?: ContactStatus }): Promise<Contact[]>;
   findById(id: number): Promise<Contact | undefined>;
-  update(id: number, input: UpdateContactInput): Promise<Contact | undefined>;
+  updateStatus(id: number, status: ContactStatus): Promise<Contact | undefined>;
   delete(id: number): Promise<boolean>;
 }

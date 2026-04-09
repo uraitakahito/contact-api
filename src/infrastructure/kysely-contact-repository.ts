@@ -8,7 +8,7 @@
 
 import type { Kysely } from 'kysely';
 import { sql } from 'kysely';
-import type { Contact, ContactStatus, CreateContactInput, UpdateContactInput } from '../domain/contact.js';
+import type { Contact, ContactStatus, CreateContactInput } from '../domain/contact.js';
 import type { ContactRepository } from '../domain/contact-repository.js';
 import type { Database } from './database.js';
 
@@ -51,37 +51,10 @@ export class KyselyContactRepository implements ContactRepository {
       .executeTakeFirst() as Promise<Contact | undefined>;
   }
 
-  async update(id: number, input: UpdateContactInput): Promise<Contact | undefined> {
-    const values: Record<string, unknown> = {};
-
-    if (input.lastName !== undefined) {
-      values['lastName'] = input.lastName;
-    }
-    if (input.firstName !== undefined) {
-      values['firstName'] = input.firstName;
-    }
-    if (input.email !== undefined) {
-      values['email'] = input.email;
-    }
-    if (input.phone !== undefined) {
-      values['phone'] = input.phone;
-    }
-    if (input.message !== undefined) {
-      values['message'] = input.message;
-    }
-    if (input.status !== undefined) {
-      values['status'] = input.status;
-    }
-
-    if (Object.keys(values).length === 0) {
-      return this.findById(id);
-    }
-
-    values['updatedAt'] = sql`now()`;
-
+  async updateStatus(id: number, status: ContactStatus): Promise<Contact | undefined> {
     return this.db
       .updateTable('contacts')
-      .set(values)
+      .set({ status, updatedAt: sql`now()` })
       .where('id', '=', id)
       .returningAll()
       .executeTakeFirst() as Promise<Contact | undefined>;
