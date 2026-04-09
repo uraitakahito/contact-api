@@ -12,10 +12,10 @@
     "test": "vitest run",
     "test:unit": "vitest run --project unit",
     "test:db": "vitest run --project db",
-    "migrate": "node dist/src/infrastructure/migrate.js",
-    "migrate:down": "node dist/src/infrastructure/migrate.js down",
-    "seed": "node dist/src/infrastructure/seed.js",
-    "seed:down": "node dist/src/infrastructure/seed.js down"
+    "migrate": "node dist/src/infrastructure/cli.js migrate",
+    "migrate:down": "node dist/src/infrastructure/cli.js migrate down",
+    "seed": "node dist/src/infrastructure/cli.js seed",
+    "seed:down": "node dist/src/infrastructure/cli.js seed down"
   },
   "author": "",
   "license": "Unlicense",
