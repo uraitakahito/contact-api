@@ -15,6 +15,7 @@ export default defineConfig({
             'src/domain/**/*.test.ts',
             'src/application/**/*.test.ts',
             'src/presentation/error-handler.test.ts',
+            'src/infrastructure/csv-reader.test.ts',
           ],
         },
       },
