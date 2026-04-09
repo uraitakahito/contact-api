@@ -26,7 +26,6 @@ afterAll(async () => {
 const samplePayload = {
   name: 'Test User',
   email: 'test@example.com',
-  subject: 'Test Subject',
   message: 'Test message body',
 };
 
@@ -43,7 +42,6 @@ describe('POST /contacts', () => {
     expect(body.name).toBe('Test User');
     expect(body.email).toBe('test@example.com');
     expect(body.phone).toBeNull();
-    expect(body.subject).toBe('Test Subject');
     expect(body.message).toBe('Test message body');
     expect(body.status).toBe('new');
     expect(body.id).toBeDefined();

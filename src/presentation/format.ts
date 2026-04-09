@@ -10,7 +10,6 @@ export interface ContactResponse {
   name: string;
   email: string;
   phone: string | null;
-  subject: string;
   message: string;
   status: string;
   createdAt: string;
@@ -23,7 +22,6 @@ export function formatContact(contact: Contact): ContactResponse {
     name: contact.name,
     email: contact.email,
     phone: contact.phone,
-    subject: contact.subject,
     message: contact.message,
     status: contact.status,
     createdAt: contact.createdAt.toISOString(),

@@ -20,9 +20,6 @@ export class CreateContactUseCase {
     if (!input.name.trim()) {
       throw new ContactValidationError('Name cannot be empty');
     }
-    if (!input.subject.trim()) {
-      throw new ContactValidationError('Subject cannot be empty');
-    }
     if (!input.message.trim()) {
       throw new ContactValidationError('Message cannot be empty');
     }

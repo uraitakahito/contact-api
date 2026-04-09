@@ -26,7 +26,6 @@ export class KyselyContactRepository implements ContactRepository {
         name: input.name,
         email: input.email,
         phone: input.phone ?? null,
-        subject: input.subject,
         message: input.message,
       })
       .returningAll()
@@ -62,9 +61,6 @@ export class KyselyContactRepository implements ContactRepository {
     }
     if (input.phone !== undefined) {
       values['phone'] = input.phone;
-    }
-    if (input.subject !== undefined) {
-      values['subject'] = input.subject;
     }
     if (input.message !== undefined) {
       values['message'] = input.message;

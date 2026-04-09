@@ -24,7 +24,6 @@ afterAll(async () => {
 const sampleInput = {
   name: 'Test User',
   email: 'test@example.com',
-  subject: 'Test Subject',
   message: 'Test message body',
 };
 
@@ -36,7 +35,6 @@ describe('KyselyContactRepository', () => {
     expect(contact.name).toBe('Test User');
     expect(contact.email).toBe('test@example.com');
     expect(contact.phone).toBeNull();
-    expect(contact.subject).toBe('Test Subject');
     expect(contact.message).toBe('Test message body');
     expect(contact.status).toBe('new');
     expect(contact.createdAt).toBeInstanceOf(Date);

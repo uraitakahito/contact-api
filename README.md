@@ -61,7 +61,7 @@ curl -s http://localhost:3000/health/ready | jq
 ```bash
 curl -s -X POST http://localhost:3000/contacts \
   -H "Content-Type: application/json" \
-  -d '{"name": "山田太郎", "email": "yamada@example.com", "phone": "090-1234-5678", "subject": "サービスについて", "message": "詳細を教えてください"}' | jq
+  -d '{"name": "山田太郎", "email": "yamada@example.com", "phone": "090-1234-5678", "message": "詳細を教えてください"}' | jq
 ```
 
 レスポンス:
@@ -71,7 +71,6 @@ curl -s -X POST http://localhost:3000/contacts \
   "name": "山田太郎",
   "email": "yamada@example.com",
   "phone": "090-1234-5678",
-  "subject": "サービスについて",
   "message": "詳細を教えてください",
   "status": "new",
   "createdAt": "2026-04-08T12:00:00.000Z",
@@ -109,7 +108,7 @@ curl -s -X PUT http://localhost:3000/contacts/1 \
 # 内容の修正
 curl -s -X PUT http://localhost:3000/contacts/1 \
   -H "Content-Type: application/json" \
-  -d '{"name": "山田太郎（更新）", "subject": "料金について"}' | jq
+  -d '{"name": "山田太郎（更新）"}' | jq
 ```
 
 ### 問い合わせ削除
@@ -130,7 +129,7 @@ curl -s -X DELETE http://localhost:3000/contacts/1 -w "\nHTTP Status: %{http_cod
 # 400 の例: 不正なメールアドレス
 curl -s -X POST http://localhost:3000/contacts \
   -H "Content-Type: application/json" \
-  -d '{"name": "Test", "email": "bad", "subject": "Sub", "message": "Msg"}' | jq
+  -d '{"name": "Test", "email": "bad", "message": "Msg"}' | jq
 
 # 404 の例: 存在しない ID
 curl -s http://localhost:3000/contacts/999 | jq

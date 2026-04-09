@@ -19,7 +19,6 @@ const sampleContact: Contact = {
   name: 'Test User',
   email: 'test@example.com',
   phone: null,
-  subject: 'Test Subject',
   message: 'Test message body',
   status: 'new',
   createdAt: new Date('2026-01-01'),
