@@ -37,10 +37,11 @@ addVerboseOption(program);
 program.parse();
 
 const opts = program.opts<{ port: string } & RawDbOptions & RawVerboseOption>();
-const verbose = opts.verbose === true;
+// eslint-disable-next-line @typescript-eslint/naming-convention
+const isVerbose = opts.verbose === true;
 
 // Infrastructure
-const db = createDb({ ...extractDbConfig(opts), verbose });
+const db = createDb({ ...extractDbConfig(opts), verbose: isVerbose });
 const contactRepository = new KyselyContactRepository(db);
 const contactCategoryRepository = new KyselyContactCategoryRepository(db);
 
@@ -53,7 +54,7 @@ const deleteContact = new DeleteContactUseCase(contactRepository);
 const getContactCategories = new GetContactCategoriesUseCase(contactCategoryRepository);
 
 // Presentation
-const app = Fastify({ logger: { level: verbose ? 'debug' : 'info' } });
+const app = Fastify({ logger: { level: isVerbose ? 'debug' : 'info' } });
 
 app.setErrorHandler(errorHandler);
 
