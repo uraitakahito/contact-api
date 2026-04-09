@@ -16,10 +16,10 @@ function createMockRepository(): ContactRepository {
 
 const sampleContact: Contact = {
   id: 1,
-  name: 'Test User',
+  lastName: 'Test',
+  firstName: 'User',
   email: 'test@example.com',
   phone: null,
-  subject: 'Test Subject',
   message: 'Test message body',
   status: 'new',
   createdAt: new Date('2026-01-01'),
@@ -33,9 +33,9 @@ describe('CreateContactUseCase', () => {
     const useCase = new CreateContactUseCase(repo);
 
     const input = {
-      name: 'Test User',
+      lastName: 'Test',
+      firstName: 'User',
       email: 'test@example.com',
-      subject: 'Test Subject',
       message: 'Test message body',
     };
     const result = await useCase.execute(input);
@@ -44,32 +44,42 @@ describe('CreateContactUseCase', () => {
     expect(repo.create).toHaveBeenCalledWith(input);
   });
 
-  it('should throw ContactValidationError for empty name', async () => {
+  it('should throw ContactValidationError for empty lastName', async () => {
     const repo = createMockRepository();
     const useCase = new CreateContactUseCase(repo);
 
     await expect(
-      useCase.execute({ name: '', email: 'test@example.com', subject: 'Sub', message: 'Msg' }),
+      useCase.execute({ lastName: '', firstName: 'User', email: 'test@example.com', message: 'Msg' }),
     ).rejects.toThrow(ContactValidationError);
     expect(repo.create).not.toHaveBeenCalled();
   });
 
-  it('should throw ContactValidationError for whitespace-only name', async () => {
+  it('should throw ContactValidationError for whitespace-only lastName', async () => {
     const repo = createMockRepository();
     const useCase = new CreateContactUseCase(repo);
 
     await expect(
-      useCase.execute({ name: '   ', email: 'test@example.com', subject: 'Sub', message: 'Msg' }),
+      useCase.execute({ lastName: '   ', firstName: 'User', email: 'test@example.com', message: 'Msg' }),
     ).rejects.toThrow(ContactValidationError);
     expect(repo.create).not.toHaveBeenCalled();
   });
 
-  it('should throw ContactValidationError for empty subject', async () => {
+  it('should throw ContactValidationError for empty firstName', async () => {
     const repo = createMockRepository();
     const useCase = new CreateContactUseCase(repo);
 
     await expect(
-      useCase.execute({ name: 'User', email: 'test@example.com', subject: '', message: 'Msg' }),
+      useCase.execute({ lastName: 'Test', firstName: '', email: 'test@example.com', message: 'Msg' }),
+    ).rejects.toThrow(ContactValidationError);
+    expect(repo.create).not.toHaveBeenCalled();
+  });
+
+  it('should throw ContactValidationError for whitespace-only firstName', async () => {
+    const repo = createMockRepository();
+    const useCase = new CreateContactUseCase(repo);
+
+    await expect(
+      useCase.execute({ lastName: 'Test', firstName: '   ', email: 'test@example.com', message: 'Msg' }),
     ).rejects.toThrow(ContactValidationError);
     expect(repo.create).not.toHaveBeenCalled();
   });
@@ -79,7 +89,7 @@ describe('CreateContactUseCase', () => {
     const useCase = new CreateContactUseCase(repo);
 
     await expect(
-      useCase.execute({ name: 'User', email: 'test@example.com', subject: 'Sub', message: '' }),
+      useCase.execute({ lastName: 'Test', firstName: 'User', email: 'test@example.com', message: '' }),
     ).rejects.toThrow(ContactValidationError);
     expect(repo.create).not.toHaveBeenCalled();
   });

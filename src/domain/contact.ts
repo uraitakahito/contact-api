@@ -9,10 +9,10 @@ export type ContactStatus = 'new' | 'in_progress' | 'resolved' | 'closed';
 
 export interface Contact {
   id: number;
-  name: string;
+  lastName: string;
+  firstName: string;
   email: string;
   phone: string | null;
-  subject: string;
   message: string;
   status: ContactStatus;
   createdAt: Date;
@@ -20,18 +20,18 @@ export interface Contact {
 }
 
 export interface CreateContactInput {
-  name: string;
+  lastName: string;
+  firstName: string;
   email: string;
   phone?: string | undefined;
-  subject: string;
   message: string;
 }
 
 export interface UpdateContactInput {
-  name?: string | undefined;
+  lastName?: string | undefined;
+  firstName?: string | undefined;
   email?: string | undefined;
   phone?: string | null | undefined;
-  subject?: string | undefined;
   message?: string | undefined;
   status?: ContactStatus | undefined;
 }

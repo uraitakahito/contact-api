@@ -22,9 +22,9 @@ afterAll(async () => {
 });
 
 const sampleInput = {
-  name: 'Test User',
+  lastName: 'Test',
+  firstName: 'User',
   email: 'test@example.com',
-  subject: 'Test Subject',
   message: 'Test message body',
 };
 
@@ -33,10 +33,10 @@ describe('KyselyContactRepository', () => {
     const contact = await repository.create(sampleInput);
 
     expect(contact.id).toBeDefined();
-    expect(contact.name).toBe('Test User');
+    expect(contact.lastName).toBe('Test');
+    expect(contact.firstName).toBe('User');
     expect(contact.email).toBe('test@example.com');
     expect(contact.phone).toBeNull();
-    expect(contact.subject).toBe('Test Subject');
     expect(contact.message).toBe('Test message body');
     expect(contact.status).toBe('new');
     expect(contact.createdAt).toBeInstanceOf(Date);
@@ -51,7 +51,7 @@ describe('KyselyContactRepository', () => {
 
   it('should find all contacts', async () => {
     await repository.create(sampleInput);
-    await repository.create({ ...sampleInput, name: 'User 2' });
+    await repository.create({ ...sampleInput, lastName: 'User', firstName: '2' });
 
     const contacts = await repository.findAll();
 
@@ -60,16 +60,16 @@ describe('KyselyContactRepository', () => {
 
   it('should filter contacts by status', async () => {
     await repository.create(sampleInput);
-    const contact2 = await repository.create({ ...sampleInput, name: 'User 2' });
+    const contact2 = await repository.create({ ...sampleInput, lastName: 'User', firstName: '2' });
     await repository.update(contact2.id, { status: 'resolved' });
 
     const resolvedContacts = await repository.findAll({ status: 'resolved' });
     const newContacts = await repository.findAll({ status: 'new' });
 
     expect(resolvedContacts).toHaveLength(1);
-    expect(resolvedContacts[0]?.name).toBe('User 2');
+    expect(resolvedContacts[0]?.lastName).toBe('User');
     expect(newContacts).toHaveLength(1);
-    expect(newContacts[0]?.name).toBe('Test User');
+    expect(newContacts[0]?.lastName).toBe('Test');
   });
 
   it('should find a contact by id', async () => {
@@ -77,7 +77,7 @@ describe('KyselyContactRepository', () => {
     const found = await repository.findById(created.id);
 
     expect(found).toBeDefined();
-    expect(found?.name).toBe('Test User');
+    expect(found?.lastName).toBe('Test');
   });
 
   it('should return undefined for non-existent id', async () => {
@@ -88,18 +88,18 @@ describe('KyselyContactRepository', () => {
   it('should update a contact', async () => {
     const created = await repository.create(sampleInput);
     const updated = await repository.update(created.id, {
-      name: 'Updated User',
+      lastName: 'Updated',
       status: 'in_progress',
     });
 
     expect(updated).toBeDefined();
-    expect(updated?.name).toBe('Updated User');
+    expect(updated?.lastName).toBe('Updated');
     expect(updated?.status).toBe('in_progress');
     expect(updated?.updatedAt.getTime()).toBeGreaterThanOrEqual(created.updatedAt.getTime());
   });
 
   it('should return undefined when updating non-existent contact', async () => {
-    const result = await repository.update(999, { name: 'Updated' });
+    const result = await repository.update(999, { lastName: 'Updated' });
     expect(result).toBeUndefined();
   });
 
