@@ -8,13 +8,14 @@
 export interface MigratorDefinition {
   /** サブフォルダ名 (infrastructure/ からの相対) */
   readonly folder: string;
-  /** Kysely の管理テーブル名 (省略時: デフォルト kysely_migration) */
-  readonly tableName?: string | undefined;
+  /** Kysely の管理テーブル名 */
+  readonly tableName: string;
   /** ログ出力用ラベル */
   readonly label: string;
 }
 
 export const migratorDefinitions: Record<string, MigratorDefinition> = {
-  migrate: { folder: 'migrations', label: 'Migration' },
+  // NOTE: 'kysely_migration' は Kysely Migrator のデフォルトテーブル名に由来する
+  migrate: { folder: 'migrations', tableName: 'kysely_migration', label: 'Migration' },
   seed: { folder: 'seeds', tableName: 'kysely_seed', label: 'Seed' },
 };
