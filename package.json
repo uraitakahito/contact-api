@@ -7,6 +7,10 @@
   "version": "1.0.0",
   "description": "Contact Form API",
   "type": "module",
+  "// scripts": [
+    "test:unit — Unit テスト（ドメイン層 + アプリケーション層、DB 不要）",
+    "test:db   — DB テスト（インフラ層 + プレゼンテーション層、PostgreSQL 必要）"
+  ],
   "scripts": {
     "clean": "node -e \"var fs = require('fs'); try{['dist','node_modules'].map((fpath) => fs.rmdirSync(fpath, { recursive: true }))}catch(err){console.log(err)}; process.exit(0);\"",
     "build": "tsc -b -v --listFiles",
