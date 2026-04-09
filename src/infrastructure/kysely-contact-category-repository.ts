@@ -17,6 +17,7 @@ interface CategoryRow {
   id: number;
   displayOrder: number;
   createdAt: Date;
+  updatedAt: Date;
   locale: string | null;
   name: string | null;
 }
@@ -32,6 +33,7 @@ function groupByCategory(rows: CategoryRow[]): ContactCategory[] {
         translations: new Map<string, string>(),
         displayOrder: row.displayOrder,
         createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
       };
       map.set(row.id, category);
     }
@@ -62,6 +64,7 @@ export class KyselyContactCategoryRepository implements ContactCategoryRepositor
         'contactCategories.id',
         'contactCategories.displayOrder',
         'contactCategories.createdAt',
+        'contactCategories.updatedAt',
         'contactCategoryTranslations.locale',
         'contactCategoryTranslations.name',
       ])
@@ -83,6 +86,7 @@ export class KyselyContactCategoryRepository implements ContactCategoryRepositor
         'contactCategories.id',
         'contactCategories.displayOrder',
         'contactCategories.createdAt',
+        'contactCategories.updatedAt',
         'contactCategoryTranslations.locale',
         'contactCategoryTranslations.name',
       ])

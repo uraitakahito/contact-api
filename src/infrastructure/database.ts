@@ -11,12 +11,15 @@ export interface ContactCategoryTable {
   id: Generated<number>;
   displayOrder: number;
   createdAt: ColumnType<Date, string | undefined, never>;
+  updatedAt: ColumnType<Date, string | undefined, string>;
 }
 
 export interface ContactCategoryTranslationTable {
   categoryId: number;
   locale: string;
   name: string;
+  createdAt: ColumnType<Date, string | undefined, never>;
+  updatedAt: ColumnType<Date, string | undefined, never>;
 }
 
 export interface ContactTable {

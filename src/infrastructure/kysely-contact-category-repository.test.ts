@@ -38,6 +38,7 @@ describe('KyselyContactCategoryRepository', () => {
     expect(category?.translations.get('en')).toBe('General Inquiry');
     expect(category?.displayOrder).toBe(1);
     expect(category?.createdAt).toBeInstanceOf(Date);
+    expect(category?.updatedAt).toBeInstanceOf(Date);
   });
 
   it('should return undefined for non-existent id', async () => {
