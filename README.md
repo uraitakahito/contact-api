@@ -96,9 +96,6 @@ curl -s http://localhost:3000/contacts | jq
 
 # ステータスでフィルタ
 curl -s "http://localhost:3000/contacts?status=new" | jq
-curl -s "http://localhost:3000/contacts?status=in_progress" | jq
-curl -s "http://localhost:3000/contacts?status=resolved" | jq
-curl -s "http://localhost:3000/contacts?status=closed" | jq
 ```
 
 ### 問い合わせ個別取得
@@ -123,53 +120,7 @@ curl -s -X DELETE http://localhost:3000/contacts/1 -w "\nHTTP Status: %{http_cod
 
 ## エラーレスポンス
 
-| HTTP Status | 説明 |
-|-------------|------|
-| 400 | バリデーションエラー（空の姓/名、不正なメールアドレス、不正な ID、存在しない問い合わせ種別、不正なステータス遷移など） |
-| 404 | 指定された問い合わせが見つからない |
-| 500 | 内部サーバーエラー |
-
-```bash
-# 400 の例: 不正なメールアドレス
-curl -s -X POST http://localhost:3000/contacts \
-  -H "Content-Type: application/json" \
-  -d '{"lastName": "Test", "firstName": "User", "email": "bad", "categoryId": 1, "message": "Msg"}' | jq
-
-# 400 の例: 存在しない問い合わせ種別
-curl -s -X POST http://localhost:3000/contacts \
-  -H "Content-Type: application/json" \
-  -d '{"lastName": "Test", "firstName": "User", "email": "test@example.com", "categoryId": 999, "message": "Msg"}' | jq
-
-# 404 の例: 存在しない ID
-curl -s http://localhost:3000/contacts/999 | jq
-```
-
-## シードデータ
-
-マイグレーションはスキーマ定義のみを管理し、初期データ（シード）は別途管理します。
-
-```bash
-# シードデータ投入
-npm run seed
-
-# シードデータ取り消し
-npm run seed:down
-```
-
-シードの適用状態は `kysely_seed` テーブルで追跡され、スキーマ用の `kysely_migration` テーブルとは独立しています。
-
-## テスト
-
-```bash
-# 全テスト実行
-npm test
-
-# Unit テスト（ドメイン層 + アプリケーション層、DB 不要）
-npm run test:unit
-
-# DB テスト（インフラ層 + プレゼンテーション層、PostgreSQL 必要）
-npm run test:db
-```
+[docs/error-responses.md](docs/error-responses.md) を参照。
 
 ## ヘキサゴナルアーキテクチャ（Ports and Adapters）
 
