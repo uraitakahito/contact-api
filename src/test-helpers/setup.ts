@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Fastify from 'fastify';
-import type { FastifyInstance } from 'fastify';
+import type { FastifyBaseLogger, FastifyInstance } from 'fastify';
 import { FileMigrationProvider, type Kysely, Migrator, sql } from 'kysely';
 import { CreateContactUseCase } from '../application/create-contact.js';
 import { DeleteContactUseCase } from '../application/delete-contact.js';
@@ -14,6 +14,7 @@ import { createDb } from '../infrastructure/connection.js';
 import type { Database } from '../infrastructure/database.js';
 import { KyselyContactCategoryRepository } from '../infrastructure/kysely-contact-category-repository.js';
 import { KyselyContactRepository } from '../infrastructure/kysely-contact-repository.js';
+import { logger } from '../infrastructure/logger.js';
 import * as contactCategoriesSeed from '../infrastructure/seeds/001-contact-categories.js';
 import { errorHandler } from '../presentation/error-handler.js';
 import { registerHealthRoutes } from '../presentation/health-routes.js';
@@ -79,7 +80,7 @@ export async function createTestApp(): Promise<TestApp> {
   const deleteContact = new DeleteContactUseCase(contactRepository);
   const getContactCategories = new GetContactCategoriesUseCase(contactCategoryRepository);
 
-  const app = Fastify({ logger: false });
+  const app = Fastify({ loggerInstance: logger as FastifyBaseLogger });
   app.setErrorHandler(errorHandler);
   registerHealthRoutes(app, db);
   registerContactRoutes(app, {

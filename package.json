@@ -7,15 +7,15 @@
     "clean": "node -e \"var fs = require('fs'); try{['dist','node_modules'].map((fpath) => fs.rmdirSync(fpath, { recursive: true }))}catch(err){console.log(err)}; process.exit(0);\"",
     "build": "tsc -b -v --listFiles",
     "start": "node dist/src/bin/server.js",
-    "dev": "node --watch dist/src/bin/server.js",
+    "dev": "node --watch dist/src/bin/server.js | pino-pretty",
     "lint": "eslint .",
     "test": "vitest run",
     "test:unit": "vitest run --project unit",
     "test:db": "vitest run --project db",
-    "migrate": "node dist/src/bin/cli.js migrate up",
-    "migrate:down": "node dist/src/bin/cli.js migrate down",
-    "seed": "node dist/src/bin/cli.js seed up",
-    "seed:down": "node dist/src/bin/cli.js seed down"
+    "migrate": "node dist/src/bin/cli.js migrate up | pino-pretty",
+    "migrate:down": "node dist/src/bin/cli.js migrate down | pino-pretty",
+    "seed": "node dist/src/bin/cli.js seed up | pino-pretty",
+    "seed:down": "node dist/src/bin/cli.js seed down | pino-pretty"
   },
   "author": "",
   "license": "Unlicense",
@@ -24,6 +24,7 @@
     "fastify": "^5.3.3",
     "kysely": "^0.28.0",
     "pg": "^8.13.0",
+    "pino": "^10.3.1",
     "zod": "^3.25.7"
   },
   "devDependencies": {
@@ -33,6 +34,7 @@
     "eslint": "^10.1.0",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import-x": "^4.16.2",
+    "pino-pretty": "^13.1.3",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.58.0",
     "vitest": "^3.2.1"

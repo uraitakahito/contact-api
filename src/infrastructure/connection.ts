@@ -5,9 +5,29 @@
  * Driven Adapter が使用するDB接続を生成する。
  */
 
+import type { LogEvent } from 'kysely';
 import { CamelCasePlugin, Kysely, PostgresDialect } from 'kysely';
 import pg from 'pg';
 import type { Database } from './database.js';
+import { createChildLogger } from './logger.js';
+
+const kyselyLogger = createChildLogger({ module: 'kysely' });
+
+function createKyselyLog(isVerbose: boolean): (event: LogEvent) => void {
+  return (event: LogEvent): void => {
+    if (event.level === 'error') {
+      kyselyLogger.error(
+        { sql: event.query.sql, durationMs: event.queryDurationMillis, err: event.error },
+        'Query error',
+      );
+    } else if (isVerbose) {
+      kyselyLogger.debug(
+        { sql: event.query.sql, durationMs: event.queryDurationMillis },
+        'Query executed',
+      );
+    }
+  };
+}
 
 export interface DbConfig {
   host: string;
@@ -34,6 +54,6 @@ export function createDb(config?: Partial<DbConfig>): Kysely<Database> {
   return new Kysely<Database>({
     dialect,
     plugins: [new CamelCasePlugin()],
-    ...(config?.verbose ? { log: ['query', 'error'] as const } : {}),
+    log: createKyselyLog(config?.verbose === true),
   });
 }

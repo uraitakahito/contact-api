@@ -8,6 +8,7 @@
 
 import { Command } from 'commander';
 import Fastify from 'fastify';
+import type { FastifyBaseLogger } from 'fastify';
 import { CreateContactUseCase } from '../application/create-contact.js';
 import { DeleteContactUseCase } from '../application/delete-contact.js';
 import { GetContactByIdUseCase } from '../application/get-contact-by-id.js';
@@ -19,6 +20,7 @@ import { addDbOptions, extractDbConfig } from '../infrastructure/cli-db-options.
 import type { RawVerboseOption } from '../infrastructure/cli-verbose-option.js';
 import { addVerboseOption } from '../infrastructure/cli-verbose-option.js';
 import { createDb } from '../infrastructure/connection.js';
+import { logger } from '../infrastructure/logger.js';
 import { KyselyContactCategoryRepository } from '../infrastructure/kysely-contact-category-repository.js';
 import { KyselyContactRepository } from '../infrastructure/kysely-contact-repository.js';
 import { errorHandler } from '../presentation/error-handler.js';
@@ -37,11 +39,13 @@ addVerboseOption(program);
 program.parse();
 
 const opts = program.opts<{ port: string } & RawDbOptions & RawVerboseOption>();
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const isVerbose = opts.verbose === true;
+
+if (opts.verbose === true) {
+  logger.level = 'debug';
+}
 
 // Infrastructure
-const db = createDb({ ...extractDbConfig(opts), verbose: isVerbose });
+const db = createDb({ ...extractDbConfig(opts), verbose: opts.verbose === true });
 const contactRepository = new KyselyContactRepository(db);
 const contactCategoryRepository = new KyselyContactCategoryRepository(db);
 
@@ -54,7 +58,7 @@ const deleteContact = new DeleteContactUseCase(contactRepository);
 const getContactCategories = new GetContactCategoriesUseCase(contactCategoryRepository);
 
 // Presentation
-const app = Fastify({ logger: { level: isVerbose ? 'debug' : 'info' } });
+const app = Fastify({ loggerInstance: logger as FastifyBaseLogger });
 
 app.setErrorHandler(errorHandler);
 
