@@ -10,7 +10,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FileMigrationProvider, Migrator } from 'kysely';
-import type { Kysely, MigrationResultSet } from 'kysely';
+import type { Kysely, MigrationInfo, MigrationResultSet } from 'kysely';
 
 export interface RunMigratorConfig {
   /** マイグレーションファイルのディレクトリ (file: URL) */
@@ -21,13 +21,9 @@ export interface RunMigratorConfig {
   readonly lockTableName: string;
 }
 
-export async function runMigrator(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Kysely<any> を要求するため
-  db: Kysely<any>,
-  config: RunMigratorConfig,
-  direction: 'down' | 'latest',
-): Promise<MigrationResultSet> {
-  const migrator = new Migrator({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Kysely<any> を要求するため
+function createMigrator(db: Kysely<any>, config: RunMigratorConfig): Migrator {
+  return new Migrator({
     db,
     provider: new FileMigrationProvider({
       fs,
@@ -37,8 +33,25 @@ export async function runMigrator(
     migrationTableName: config.tableName,
     migrationLockTableName: config.lockTableName,
   });
+}
 
+export async function runMigrator(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Kysely<any> を要求するため
+  db: Kysely<any>,
+  config: RunMigratorConfig,
+  direction: 'down' | 'latest',
+): Promise<MigrationResultSet> {
+  const migrator = createMigrator(db, config);
   return direction === 'down'
     ? migrator.migrateDown()
     : migrator.migrateToLatest();
+}
+
+export async function getMigrationInfos(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Kysely<any> を要求するため
+  db: Kysely<any>,
+  config: RunMigratorConfig,
+): Promise<readonly MigrationInfo[]> {
+  const migrator = createMigrator(db, config);
+  return migrator.getMigrations();
 }

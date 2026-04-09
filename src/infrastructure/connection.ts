@@ -16,6 +16,7 @@ export interface DbConfig {
   password: string;
   database: string;
   max?: number;
+  verbose?: boolean;
 }
 
 export function createDb(config?: Partial<DbConfig>): Kysely<Database> {
@@ -33,5 +34,6 @@ export function createDb(config?: Partial<DbConfig>): Kysely<Database> {
   return new Kysely<Database>({
     dialect,
     plugins: [new CamelCasePlugin()],
+    ...(config?.verbose ? { log: ['query', 'error'] as const } : {}),
   });
 }
