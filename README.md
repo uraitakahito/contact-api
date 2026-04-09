@@ -47,16 +47,6 @@ npm start
 
 ## API エンドポイント
 
-### ヘルスチェック
-
-```bash
-# Liveness: プロセスが生きているか
-curl -s http://localhost:3000/health/live | jq
-
-# Readiness: DB に接続できるか
-curl -s http://localhost:3000/health/ready | jq
-```
-
 ### 問い合わせ種別一覧取得
 
 ```bash
