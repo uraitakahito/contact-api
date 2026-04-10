@@ -4,7 +4,6 @@
 
 - **OpenFGA による関係ベースアクセス制御（ReBAC）** — OpenFGA を Policy Decision Point（PDP）として認可判断を委譲
 - **多言語対応（i18n）** — 問い合わせ種別がロケール別翻訳に対応
-- **本番向け distroless コンテナ** — Multi-stage ビルドで軽量・安全なプロダクションイメージ
 
 ## アーキテクチャ
 
