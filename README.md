@@ -32,6 +32,11 @@ npm run openfga:setup
 `openfga:setup` が出力する `OPENFGA_STORE_ID` と `OPENFGA_AUTH_MODEL_ID` を指定してサーバーを起動します。
 
 ```bash
+# 方法1: eval でワンライナーで環境変数をセット（ログは stderr に出力される）
+eval $(node dist/src/bin/setup-openfga.js)
+npm start
+
+# 方法2: 手動で環境変数を指定
 OPENFGA_STORE_ID=xxxxx OPENFGA_AUTH_MODEL_ID=yyyyy npm start
 ```
 
