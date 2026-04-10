@@ -2,7 +2,7 @@
  * @module server
  * @description Composition Root — HTTP サーバーのエントリーポイント。
  *
- * Commander.js で DB 接続オプション、OpenFGA オプション、サーバーポートを受け取り、
+ * DB 接続オプション、OpenFGA オプション、サーバーポートを受け取り、
  * Port と Adapter を結合し、依存性の注入を行う。
  */
 
