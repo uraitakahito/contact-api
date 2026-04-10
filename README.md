@@ -53,6 +53,8 @@ npm run openfga:setup
 OPENFGA_STORE_ID=xxxxx OPENFGA_AUTH_MODEL_ID=yyyyy npm start
 ```
 
+`.env` に設定してコンテナを再起動する方法でも問題ありません。
+
 ### 再セットアップ
 
 既存のデータベースを破棄して作り直す場合:
