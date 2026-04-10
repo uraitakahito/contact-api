@@ -19,25 +19,27 @@ const sampleInput: CreateFormTemplateInput = {
     {
       name: 'name',
       fieldType: 'text',
-      validationType: 'none',
+      validation: { type: 'none' },
       isRequired: true,
       displayOrder: 1,
       options: [],
+      presentation: {},
       translations: new Map([
-        ['ja', { label: '名前', placeholder: '' }],
-        ['en', { label: 'Name', placeholder: '' }],
+        ['ja', { label: '名前', placeholder: '', helpText: '' }],
+        ['en', { label: 'Name', placeholder: '', helpText: '' }],
       ]),
     },
     {
       name: 'email',
       fieldType: 'text',
-      validationType: 'email',
+      validation: { type: 'email' },
       isRequired: true,
       displayOrder: 2,
       options: [],
+      presentation: {},
       translations: new Map([
-        ['ja', { label: 'メール', placeholder: '' }],
-        ['en', { label: 'Email', placeholder: '' }],
+        ['ja', { label: 'メール', placeholder: '', helpText: '' }],
+        ['en', { label: 'Email', placeholder: '', helpText: '' }],
       ]),
     },
   ],
@@ -96,7 +98,7 @@ describe('KyselyFormTemplateRepository', () => {
       expect(created.translations.get('ja')).toBe('テストフォーム');
       expect(created.fields).toHaveLength(2);
       expect(created.fields[0]!.name).toBe('name');
-      expect(created.fields[1]!.validationType).toBe('email');
+      expect(created.fields[1]!.validation.type).toBe('email');
 
       // Verify persistence
       const found = await repository.findById(created.id);
@@ -111,14 +113,15 @@ describe('KyselyFormTemplateRepository', () => {
         fields: [{
           name: 'color',
           fieldType: 'select',
-          validationType: 'none',
+          validation: { type: 'none' },
           isRequired: true,
           displayOrder: 1,
           options: [
             { value: 'red', labels: new Map([['en', 'Red'], ['ja', '赤']]) },
             { value: 'blue', labels: new Map([['en', 'Blue'], ['ja', '青']]) },
           ],
-          translations: new Map([['en', { label: 'Color', placeholder: '' }]]),
+          presentation: {},
+          translations: new Map([['en', { label: 'Color', placeholder: '', helpText: '' }]]),
         }],
       };
 
@@ -128,6 +131,30 @@ describe('KyselyFormTemplateRepository', () => {
       expect(found!.fields[0]!.options).toHaveLength(2);
       expect(found!.fields[0]!.options[0]!.value).toBe('red');
       expect(found!.fields[0]!.options[0]!.labels.get('ja')).toBe('赤');
+    });
+
+    it('should persist validation with minLength/maxLength', async () => {
+      const input: CreateFormTemplateInput = {
+        name: 'validated-form',
+        translations: new Map([['en', 'Validated']]),
+        fields: [{
+          name: 'bio',
+          fieldType: 'textarea',
+          validation: { type: 'none', minLength: 10, maxLength: 500 },
+          isRequired: true,
+          displayOrder: 1,
+          options: [],
+          presentation: { cssClass: 'input-lg', htmlId: 'bio-field' },
+          translations: new Map([['en', { label: 'Bio', placeholder: 'Tell us about yourself', helpText: 'At least 10 characters' }]]),
+        }],
+      };
+
+      const created = await repository.create(input);
+      const found = await repository.findById(created.id);
+
+      expect(found!.fields[0]!.validation).toEqual({ type: 'none', minLength: 10, maxLength: 500 });
+      expect(found!.fields[0]!.presentation).toEqual({ cssClass: 'input-lg', htmlId: 'bio-field' });
+      expect(found!.fields[0]!.translations.get('en')?.helpText).toBe('At least 10 characters');
     });
   });
 
@@ -153,10 +180,11 @@ describe('KyselyFormTemplateRepository', () => {
         fields: [{
           name: 'message',
           fieldType: 'textarea',
-          validationType: 'none',
+          validation: { type: 'none' },
           isRequired: true,
           displayOrder: 1,
           options: [],
+          presentation: {},
           translations: new Map(),
         }],
       });

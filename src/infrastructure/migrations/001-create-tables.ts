@@ -31,10 +31,11 @@ export async function up(db: Kysely<unknown>): Promise<void> {
       col.notNull().references('form_templates.id').onDelete('cascade'))
     .addColumn('name', 'varchar(100)', (col) => col.notNull())
     .addColumn('field_type', 'varchar(50)', (col) => col.notNull())
-    .addColumn('validation_type', 'varchar(50)', (col) => col.notNull().defaultTo('none'))
+    .addColumn('validation', 'jsonb', (col) => col.notNull().defaultTo(sql`'{"type":"none"}'::jsonb`))
     .addColumn('is_required', 'boolean', (col) => col.notNull().defaultTo(false))
     .addColumn('display_order', 'integer', (col) => col.notNull())
     .addColumn('options', 'jsonb')
+    .addColumn('presentation', 'jsonb', (col) => col.notNull().defaultTo(sql`'{}'::jsonb`))
     .addColumn('created_at', 'timestamptz', (col) => col.notNull().defaultTo(sql`now()`))
     .addColumn('updated_at', 'timestamptz', (col) => col.notNull().defaultTo(sql`now()`))
     .execute();
@@ -46,6 +47,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn('locale', 'varchar(10)', (col) => col.notNull())
     .addColumn('label', 'varchar(255)', (col) => col.notNull())
     .addColumn('placeholder', 'varchar(255)', (col) => col.notNull().defaultTo(''))
+    .addColumn('help_text', 'varchar(500)', (col) => col.notNull().defaultTo(''))
     .addPrimaryKeyConstraint('form_field_translations_pkey', ['field_id', 'locale'])
     .execute();
 

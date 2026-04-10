@@ -34,6 +34,17 @@ export const contactsQuerySchema = z.object({
 const fieldTypeSchema = z.enum(['text', 'textarea', 'select']);
 const validationTypeSchema = z.enum(['none', 'email', 'phone', 'url']);
 
+const validationSchema = z.object({
+  type: validationTypeSchema.default('none'),
+  minLength: z.number().int().min(0).optional(),
+  maxLength: z.number().int().positive().optional(),
+}).default({ type: 'none' });
+
+const presentationSchema = z.object({
+  cssClass: z.string().optional(),
+  htmlId: z.string().optional(),
+}).default({});
+
 const formFieldOptionSchema = z.object({
   value: z.string().min(1),
   labels: z.record(z.string(), z.string()),
@@ -42,13 +53,15 @@ const formFieldOptionSchema = z.object({
 const formFieldInputSchema = z.object({
   name: z.string().min(1),
   fieldType: fieldTypeSchema,
-  validationType: validationTypeSchema.default('none'),
+  validation: validationSchema,
   isRequired: z.boolean().default(false),
   displayOrder: z.number().int(),
   options: z.array(formFieldOptionSchema).default([]),
+  presentation: presentationSchema,
   translations: z.record(z.string(), z.object({
     label: z.string(),
     placeholder: z.string().default(''),
+    helpText: z.string().default(''),
   })).default({}),
 });
 
