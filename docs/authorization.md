@@ -91,23 +91,7 @@ sequenceDiagram
 
 ## 認可モデル
 
-```
-type user
-
-type system
-  relations
-    define admin: [user]
-
-type contact
-  relations
-    define parent: [system]
-    define owner: [user]
-    define editor: [user] or owner or admin from parent
-    define viewer: [user] or editor or admin from parent
-    define can_view: viewer
-    define can_edit: editor
-    define can_delete: owner
-```
+[data/openfga/model.fga](../data/openfga/model.fga) を参照。
 
 ## リレーションと権限
 
