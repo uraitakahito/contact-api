@@ -10,7 +10,7 @@ import type { OpenFgaConfig } from './cli-openfga-options.js';
 
 export function createOpenFgaClient(config: OpenFgaConfig): OpenFgaClient {
   return new OpenFgaClient({
-    apiUrl: config.apiUrl,
+    apiUrl: config.apiUrl.href,
     storeId: config.storeId,
     authorizationModelId: config.authorizationModelId,
   });
