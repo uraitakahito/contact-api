@@ -56,16 +56,31 @@ graph TD
 
 ## 認可の処理フロー（例: 問い合わせ作成）
 
-```
-1. POST /contacts  (X-User-Id: alice)
-2. contact-routes.ts  → userId = "alice" を抽出
-3. CreateContactUseCase.execute("alice", input)
-4.   → contactRepository.create(input)          → PostgreSQL に INSERT → contact.id = 42
-5.   → authorizationService.grantOwnership("alice", 42)
-6.       → OpenFGA に 2 タプル書込:
-7.           user:alice  #owner   contact:42     (alice は contact:42 の owner)
-8.           system:global #system contact:42     (admin 継承用の parent リンク)
-9. レスポンス: 201 Created
+```mermaid
+sequenceDiagram
+    participant Client as HTTP Client
+    participant Routes as contact-routes.ts
+    participant UC as CreateContactUseCase
+    participant Repo as ContactRepository
+    participant DB as PostgreSQL
+    participant Authz as AuthorizationService
+    participant FGA as OpenFGA
+
+    Client->>Routes: POST /contacts (X-User-Id: alice)
+    Routes->>Routes: userId = "alice" を抽出
+    Routes->>UC: execute("alice", input)
+    UC->>Repo: create(input)
+    Repo->>DB: INSERT
+    DB-->>Repo: contact.id = 42
+    Repo-->>UC: Contact
+    UC->>Authz: grantOwnership("alice", 42)
+    Authz->>FGA: write 2 タプル
+    Note over FGA: user:alice #owner contact:42<br/>(alice は contact:42 の owner)
+    Note over FGA: system:global #system contact:42<br/>(admin 継承用の parent リンク)
+    FGA-->>Authz: OK
+    Authz-->>UC: OK
+    UC-->>Routes: Contact
+    Routes-->>Client: 201 Created
 ```
 
 ## 認証
