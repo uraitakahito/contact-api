@@ -38,7 +38,7 @@ export interface DbConfig {
   max?: number;
 }
 
-export function createDb(config: DbConfig): Kysely<Database> {
+export function createKyselyClient(config: DbConfig): Kysely<Database> {
   const dialect = new PostgresDialect({
     pool: new pg.Pool({
       host: config.host,

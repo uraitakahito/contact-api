@@ -10,7 +10,7 @@ import { GetContactByIdUseCase } from '../application/get-contact-by-id.js';
 import { GetContactCategoriesUseCase } from '../application/get-contact-categories.js';
 import { GetContactsUseCase } from '../application/get-contacts.js';
 import { UpdateContactStatusUseCase } from '../application/update-contact-status.js';
-import { createDb } from '../infrastructure/connection.js';
+import { createKyselyClient } from '../infrastructure/connection.js';
 import type { Database } from '../infrastructure/database.js';
 import { KyselyContactCategoryRepository } from '../infrastructure/kysely-contact-category-repository.js';
 import { KyselyContactRepository } from '../infrastructure/kysely-contact-repository.js';
@@ -23,7 +23,7 @@ import { InMemoryContactAuthorizationService } from './in-memory-contact-authori
 
 
 export function createTestDb(): Kysely<Database> {
-  return createDb({
+  return createKyselyClient({
     host: process.env['CONTACT_API_DB_HOST'] ?? 'localhost',
     port: Number(process.env['CONTACT_API_DB_PORT'] ?? 5432),
     user: process.env['CONTACT_API_DB_USER'],

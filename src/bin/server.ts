@@ -22,7 +22,7 @@ import { addOpenFgaOptions, extractOpenFgaConfig } from '../infrastructure/cli-o
 import { parsePort } from '../infrastructure/cli-parsers.js';
 import { addLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
-import { createDb } from '../infrastructure/connection.js';
+import { createKyselyClient } from '../infrastructure/connection.js';
 import { logger } from '../infrastructure/logger.js';
 import { KyselyContactCategoryRepository } from '../infrastructure/kysely-contact-category-repository.js';
 import { KyselyContactRepository } from '../infrastructure/kysely-contact-repository.js';
@@ -49,10 +49,10 @@ logger.level = program.opts<RawLogLevelOption>().logLevel;
 const opts = program.opts<{ port: number } & RawDbOptions & RawOpenFgaOptions>();
 
 // Infrastructure
-const db = createDb(extractDbConfig(opts));
+const kyselyClient = createKyselyClient(extractDbConfig(opts));
 const fgaClient = createOpenFgaClient(extractOpenFgaConfig(opts));
-const contactRepository = new KyselyContactRepository(db);
-const contactCategoryRepository = new KyselyContactCategoryRepository(db);
+const contactRepository = new KyselyContactRepository(kyselyClient);
+const contactCategoryRepository = new KyselyContactCategoryRepository(kyselyClient);
 const authorizationService = new OpenFgaContactAuthorizationService(fgaClient);
 
 // Application (Use Cases)
@@ -68,7 +68,7 @@ const app = Fastify({ loggerInstance: logger as FastifyBaseLogger });
 
 app.setErrorHandler(errorHandler);
 
-registerHealthRoutes(app, db);
+registerHealthRoutes(app, kyselyClient);
 
 registerContactRoutes(app, {
   createContact,
@@ -82,7 +82,7 @@ registerContactRoutes(app, {
 // Graceful shutdown
 const gracefulShutdown = async (): Promise<void> => {
   await app.close();
-  await db.destroy();
+  await kyselyClient.destroy();
 };
 
 process.on('SIGTERM', () => void gracefulShutdown());
