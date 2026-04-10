@@ -13,10 +13,12 @@ import path from 'node:path';
 import { Command, Option } from 'commander';
 import { OpenFgaClient, type WriteAuthorizationModelRequest } from '@openfga/sdk';
 import { transformDSLToJSON } from '@openfga/syntax-transformer/dist/transformer/dsltojson.js';
+import pino from 'pino';
 import { addLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import { parseUrl } from '../infrastructure/cli-parsers.js';
-import { logger, createChildLogger } from '../infrastructure/logger.js';
+
+const logger = pino({ level: process.env['LOG_LEVEL'] ?? 'info' }, process.stderr);
 
 const program = new Command();
 program
@@ -32,7 +34,7 @@ program.parse();
 const opts = program.opts<{ openfgaUrl: URL; modelPath: string; adminUser?: string } & RawLogLevelOption>();
 logger.level = opts.logLevel;
 
-const cliLogger = createChildLogger({ command: 'setup-openfga' });
+const cliLogger = logger.child({ command: 'setup-openfga' });
 
 // 1. Create Store
 const client = new OpenFgaClient({ apiUrl: opts.openfgaUrl.origin });
@@ -78,7 +80,6 @@ if (opts.adminUser) {
   cliLogger.info('Admin tuple written');
 }
 
-// 4. Output for configuration
-cliLogger.info('Setup complete. Set these environment variables:');
-cliLogger.info(`  OPENFGA_STORE_ID=${storeId}`);
-cliLogger.info(`  OPENFGA_AUTH_MODEL_ID=${modelId}`);
+// 4. Output for configuration (stdout — can be used with eval)
+console.log(`export OPENFGA_STORE_ID=${storeId}`);
+console.log(`export OPENFGA_AUTH_MODEL_ID=${modelId}`);
