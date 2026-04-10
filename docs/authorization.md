@@ -43,7 +43,7 @@ graph TD
     end
 
     AdapterRepo --> PostgreSQL1[("PostgreSQL")]
-    AdapterAuthz --> OpenFGA[("OpenFGA（PDP）")]
+    AdapterAuthz --> OpenFGA[("OpenFGA")]
     AdapterCat --> PostgreSQL2[("PostgreSQL")]
 ```
 
@@ -64,7 +64,7 @@ sequenceDiagram
     participant Repo as ContactRepository
     participant DB as PostgreSQL
     participant Authz as AuthorizationService
-    participant FGA as OpenFGA
+    participant FGA as OpenFGA(PDP)
 
     Client->>Routes: POST /contacts (X-User-Id: alice)
     Routes->>Routes: userId = "alice" を抽出
