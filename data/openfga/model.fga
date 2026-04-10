@@ -2,6 +2,8 @@ model
   schema 1.1
 
 # A user represents an authenticated identity (e.g. user:alice).
+# This type has no relations of its own; it exists solely to be
+# referenced in other types' relation definitions (e.g. [user]).
 type user
 
 # System-level object; admins get elevated access across all resources.
