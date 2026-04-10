@@ -49,7 +49,7 @@ docker compose --profile dev up -d
 
 ## 認可 (OpenFGA)
 
-[docs/authorization.md](docs/authorization.md) を参照。
+[docs/authorization.md](docs/authorization.md) を参照。認可モデルの定義は [data/openfga/model.fga](data/openfga/model.fga) にあります。
 
 ## API エンドポイント
 
