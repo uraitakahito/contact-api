@@ -2,7 +2,8 @@
  * @module setup-openfga
  * @description OpenFGA プロビジョニング CLI エントリーポイント。
  *
- * OpenFGA Store ({@link https://openfga.dev/docs/concepts#what-is-a-store}) とAuthorizationModel を作成し、
+ * OpenFGA Store ({@link https://openfga.dev/docs/concepts#what-is-a-store}) と
+ * AuthorizationModel ({@link https://openfga.dev/docs/concepts#what-is-an-authorization-model}) を作成し、
  * Store ID / Model ID を標準出力に出力する。
  * オプションで初期 admin ユーザーのタプルも書き込む。
  */
@@ -11,6 +12,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { Command, Option } from 'commander';
 import { OpenFgaClient, type WriteAuthorizationModelRequest } from '@openfga/sdk';
+import { transformDSLToJSON } from '@openfga/syntax-transformer/dist/transformer/dsltojson.js';
 import { addLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import { parseUrl } from '../infrastructure/cli-parsers.js';
@@ -21,7 +23,7 @@ program
   .name('setup-openfga')
   .description('Provision OpenFGA store and authorization model')
   .addOption(new Option('--openfga-url <url>', 'OpenFGA API URL').env('OPENFGA_API_URL').default(new URL('http://localhost:8080')).argParser(parseUrl))
-  .addOption(new Option('--model-path <path>', 'Path to OpenFGA authorization model JSON').env('OPENFGA_MODEL_PATH').default('data/openfga/model.json'))
+  .addOption(new Option('--model-path <path>', 'Path to OpenFGA authorization model (.fga DSL)').env('OPENFGA_MODEL_PATH').default('data/openfga/model.fga'))
   .addOption(new Option('--admin-user <userId>', 'Bootstrap admin user ID'));
 
 addLogLevelOption(program);
@@ -33,7 +35,7 @@ logger.level = opts.logLevel;
 const cliLogger = createChildLogger({ command: 'setup-openfga' });
 
 // 1. Create Store
-const client = new OpenFgaClient({ apiUrl: opts.openfgaUrl.href });
+const client = new OpenFgaClient({ apiUrl: opts.openfgaUrl.origin });
 
 cliLogger.info('Creating OpenFGA store...');
 const { id: storeId } = await client.createStore({ name: 'contact-api' });
@@ -45,11 +47,10 @@ if (!storeId) {
 cliLogger.info({ storeId }, 'Store created');
 
 // 2. Write Authorization Model
-const storeClient = new OpenFgaClient({ apiUrl: opts.openfgaUrl.href, storeId });
+const storeClient = new OpenFgaClient({ apiUrl: opts.openfgaUrl.origin, storeId });
 
-const modelJson = JSON.parse(
-  await fs.readFile(path.resolve(process.cwd(), opts.modelPath), 'utf-8'),
-) as WriteAuthorizationModelRequest;
+const dslContent = await fs.readFile(path.resolve(process.cwd(), opts.modelPath), 'utf-8');
+const modelJson = JSON.parse(transformDSLToJSON(dslContent)) as WriteAuthorizationModelRequest;
 
 cliLogger.info('Writing authorization model...');
 const { authorization_model_id: modelId } = await storeClient.writeAuthorizationModel(modelJson);
@@ -63,7 +64,7 @@ cliLogger.info({ modelId }, 'Authorization model written');
 // 3. Optionally write admin tuple
 if (opts.adminUser) {
   const adminClient = new OpenFgaClient({
-    apiUrl: opts.openfgaUrl.href,
+    apiUrl: opts.openfgaUrl.origin,
     storeId,
     authorizationModelId: modelId,
   });
