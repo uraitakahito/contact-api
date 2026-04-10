@@ -37,10 +37,10 @@ export async function up(db: Kysely<any>): Promise<void> {
   const t1Fields = await db
     .insertInto('formFields')
     .values([
-      { templateId: t1Id, name: 'lastName', fieldType: 'text', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 1, options: null, presentation: JSON.stringify({}) },
-      { templateId: t1Id, name: 'firstName', fieldType: 'text', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 2, options: null, presentation: JSON.stringify({}) },
-      { templateId: t1Id, name: 'email', fieldType: 'text', validation: JSON.stringify({ type: 'email' }), isRequired: true, displayOrder: 3, options: null, presentation: JSON.stringify({}) },
-      { templateId: t1Id, name: 'phone', fieldType: 'text', validation: JSON.stringify({ type: 'phone' }), isRequired: false, displayOrder: 4, options: null, presentation: JSON.stringify({}) },
+      { templateId: t1Id, name: 'lastName', fieldType: 'text', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 1, options: null, presentation: JSON.stringify({ cssClass: 'form-control', htmlId: 'field-last-name' }) },
+      { templateId: t1Id, name: 'firstName', fieldType: 'text', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 2, options: null, presentation: JSON.stringify({ cssClass: 'form-control', htmlId: 'field-first-name' }) },
+      { templateId: t1Id, name: 'email', fieldType: 'text', validation: JSON.stringify({ type: 'email' }), isRequired: true, displayOrder: 3, options: null, presentation: JSON.stringify({ cssClass: 'form-control', htmlId: 'field-email' }) },
+      { templateId: t1Id, name: 'phone', fieldType: 'text', validation: JSON.stringify({ type: 'phone' }), isRequired: false, displayOrder: 4, options: null, presentation: JSON.stringify({ cssClass: 'form-control', htmlId: 'field-phone' }) },
       {
         templateId: t1Id, name: 'category', fieldType: 'select', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 5,
         options: JSON.stringify([
@@ -49,9 +49,9 @@ export async function up(db: Kysely<any>): Promise<void> {
           { value: 'recruitment', labels: { ja: '採用について', en: 'Recruitment' } },
           { value: 'other', labels: { ja: 'その他', en: 'Other' } },
         ]),
-        presentation: JSON.stringify({}),
+        presentation: JSON.stringify({ cssClass: 'form-select', htmlId: 'field-category' }),
       },
-      { templateId: t1Id, name: 'message', fieldType: 'textarea', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 6, options: null, presentation: JSON.stringify({}) },
+      { templateId: t1Id, name: 'message', fieldType: 'textarea', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 6, options: null, presentation: JSON.stringify({ cssClass: 'form-control form-textarea', htmlId: 'field-message' }) },
     ])
     .returning('id')
     .execute();
@@ -60,18 +60,18 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db
     .insertInto('formFieldTranslations')
     .values([
-      { fieldId: getFieldId(t1Fields, 0), locale: 'ja', label: '姓', placeholder: '', helpText: '' },
-      { fieldId: getFieldId(t1Fields, 0), locale: 'en', label: 'Last Name', placeholder: '', helpText: '' },
-      { fieldId: getFieldId(t1Fields, 1), locale: 'ja', label: '名', placeholder: '', helpText: '' },
-      { fieldId: getFieldId(t1Fields, 1), locale: 'en', label: 'First Name', placeholder: '', helpText: '' },
-      { fieldId: getFieldId(t1Fields, 2), locale: 'ja', label: 'メールアドレス', placeholder: '例: yamada@example.com', helpText: '' },
-      { fieldId: getFieldId(t1Fields, 2), locale: 'en', label: 'Email', placeholder: 'e.g. yamada@example.com', helpText: '' },
-      { fieldId: getFieldId(t1Fields, 3), locale: 'ja', label: '電話番号', placeholder: '例: 090-1234-5678', helpText: '' },
-      { fieldId: getFieldId(t1Fields, 3), locale: 'en', label: 'Phone', placeholder: 'e.g. 090-1234-5678', helpText: '' },
-      { fieldId: getFieldId(t1Fields, 4), locale: 'ja', label: 'お問い合わせ種別', placeholder: '', helpText: '' },
-      { fieldId: getFieldId(t1Fields, 4), locale: 'en', label: 'Category', placeholder: '', helpText: '' },
-      { fieldId: getFieldId(t1Fields, 5), locale: 'ja', label: 'メッセージ', placeholder: '', helpText: '' },
-      { fieldId: getFieldId(t1Fields, 5), locale: 'en', label: 'Message', placeholder: '', helpText: '' },
+      { fieldId: getFieldId(t1Fields, 0), locale: 'ja', label: '姓', placeholder: '', helpText: '戸籍上の姓を入力してください' },
+      { fieldId: getFieldId(t1Fields, 0), locale: 'en', label: 'Last Name', placeholder: '', helpText: 'Enter your family name' },
+      { fieldId: getFieldId(t1Fields, 1), locale: 'ja', label: '名', placeholder: '', helpText: '戸籍上の名を入力してください' },
+      { fieldId: getFieldId(t1Fields, 1), locale: 'en', label: 'First Name', placeholder: '', helpText: 'Enter your given name' },
+      { fieldId: getFieldId(t1Fields, 2), locale: 'ja', label: 'メールアドレス', placeholder: '例: yamada@example.com', helpText: '返信先として使用します' },
+      { fieldId: getFieldId(t1Fields, 2), locale: 'en', label: 'Email', placeholder: 'e.g. yamada@example.com', helpText: 'Used as the reply-to address' },
+      { fieldId: getFieldId(t1Fields, 3), locale: 'ja', label: '電話番号', placeholder: '例: 090-1234-5678', helpText: '日中に連絡可能な番号を入力してください' },
+      { fieldId: getFieldId(t1Fields, 3), locale: 'en', label: 'Phone', placeholder: 'e.g. 090-1234-5678', helpText: 'A number where we can reach you during business hours' },
+      { fieldId: getFieldId(t1Fields, 4), locale: 'ja', label: 'お問い合わせ種別', placeholder: '', helpText: '最も近い種別を選択してください' },
+      { fieldId: getFieldId(t1Fields, 4), locale: 'en', label: 'Category', placeholder: '', helpText: 'Select the category that best matches your inquiry' },
+      { fieldId: getFieldId(t1Fields, 5), locale: 'ja', label: 'メッセージ', placeholder: '', helpText: 'お問い合わせ内容をできるだけ具体的にご記入ください' },
+      { fieldId: getFieldId(t1Fields, 5), locale: 'en', label: 'Message', placeholder: '', helpText: 'Please describe your inquiry in as much detail as possible' },
     ])
     .execute();
 
@@ -96,9 +96,9 @@ export async function up(db: Kysely<any>): Promise<void> {
   const t2Fields = await db
     .insertInto('formFields')
     .values([
-      { templateId: t2Id, name: 'name', fieldType: 'text', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 1, options: null, presentation: JSON.stringify({}) },
-      { templateId: t2Id, name: 'email', fieldType: 'text', validation: JSON.stringify({ type: 'email' }), isRequired: true, displayOrder: 2, options: null, presentation: JSON.stringify({}) },
-      { templateId: t2Id, name: 'message', fieldType: 'textarea', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 3, options: null, presentation: JSON.stringify({}) },
+      { templateId: t2Id, name: 'name', fieldType: 'text', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 1, options: null, presentation: JSON.stringify({ cssClass: 'form-control', htmlId: 'field-name' }) },
+      { templateId: t2Id, name: 'email', fieldType: 'text', validation: JSON.stringify({ type: 'email' }), isRequired: true, displayOrder: 2, options: null, presentation: JSON.stringify({ cssClass: 'form-control', htmlId: 'field-email' }) },
+      { templateId: t2Id, name: 'message', fieldType: 'textarea', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 3, options: null, presentation: JSON.stringify({ cssClass: 'form-control form-textarea', htmlId: 'field-message' }) },
     ])
     .returning('id')
     .execute();
@@ -106,12 +106,12 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db
     .insertInto('formFieldTranslations')
     .values([
-      { fieldId: getFieldId(t2Fields, 0), locale: 'ja', label: '名前', placeholder: '', helpText: '' },
-      { fieldId: getFieldId(t2Fields, 0), locale: 'en', label: 'Name', placeholder: '', helpText: '' },
-      { fieldId: getFieldId(t2Fields, 1), locale: 'ja', label: 'メールアドレス', placeholder: '', helpText: '' },
-      { fieldId: getFieldId(t2Fields, 1), locale: 'en', label: 'Email', placeholder: '', helpText: '' },
-      { fieldId: getFieldId(t2Fields, 2), locale: 'ja', label: 'メッセージ', placeholder: '', helpText: '' },
-      { fieldId: getFieldId(t2Fields, 2), locale: 'en', label: 'Message', placeholder: '', helpText: '' },
+      { fieldId: getFieldId(t2Fields, 0), locale: 'ja', label: '名前', placeholder: '', helpText: 'お名前を入力してください' },
+      { fieldId: getFieldId(t2Fields, 0), locale: 'en', label: 'Name', placeholder: '', helpText: 'Enter your full name' },
+      { fieldId: getFieldId(t2Fields, 1), locale: 'ja', label: 'メールアドレス', placeholder: '', helpText: '返信先として使用します' },
+      { fieldId: getFieldId(t2Fields, 1), locale: 'en', label: 'Email', placeholder: '', helpText: 'Used as the reply-to address' },
+      { fieldId: getFieldId(t2Fields, 2), locale: 'ja', label: 'メッセージ', placeholder: '', helpText: 'お問い合わせ内容をご記入ください' },
+      { fieldId: getFieldId(t2Fields, 2), locale: 'en', label: 'Message', placeholder: '', helpText: 'Please describe your inquiry' },
     ])
     .execute();
 }
