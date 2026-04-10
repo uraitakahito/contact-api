@@ -7,22 +7,23 @@
 
 import type { Command } from 'commander';
 import { Option } from 'commander';
+import { parseUrl } from './cli-parsers.js';
 
 export interface RawOpenFgaOptions {
-  readonly openfgaUrl: string;
+  readonly openfgaUrl: URL;
   readonly openfgaStoreId?: string;
   readonly openfgaModelId?: string;
 }
 
 export interface OpenFgaConfig {
-  readonly apiUrl: string;
+  readonly apiUrl: URL;
   readonly storeId: string;
   readonly authorizationModelId: string;
 }
 
 export function addOpenFgaOptions(cmd: Command): Command {
   return cmd
-    .addOption(new Option('--openfga-url <url>', 'OpenFGA API URL').env('OPENFGA_API_URL').default('http://localhost:8080'))
+    .addOption(new Option('--openfga-url <url>', 'OpenFGA API URL').env('OPENFGA_API_URL').default(new URL('http://localhost:8080')).argParser(parseUrl))
     .addOption(new Option('--openfga-store-id <id>', 'OpenFGA Store ID').env('OPENFGA_STORE_ID'))
     .addOption(new Option('--openfga-model-id <id>', 'OpenFGA Authorization Model ID').env('OPENFGA_AUTH_MODEL_ID'));
 }
