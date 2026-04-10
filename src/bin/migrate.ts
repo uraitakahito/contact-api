@@ -6,11 +6,14 @@
  * Kysely マイグレーションを実行する。
  */
 
+import { fileURLToPath } from 'node:url';
 import { Argument, Command } from 'commander';
 import type { RawDbOptions } from '../infrastructure/cli-db-options.js';
 import { addDbOptions, extractDbConfig } from '../infrastructure/cli-db-options.js';
 import { addLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
+import type { RawMigrationFolderOption } from '../infrastructure/cli-migration-folder-option.js';
+import { addMigrationFolderOption } from '../infrastructure/cli-migration-folder-option.js';
 import { createKyselyClient } from '../infrastructure/connection.js';
 import { logger, createChildLogger } from '../infrastructure/logger.js';
 import { getMigrationInfos, runMigrator } from '../infrastructure/migrator-runner.js';
@@ -19,32 +22,33 @@ const label = 'Migration';
 
 // CLI
 const program = new Command();
+const defaultMigrationFolder = fileURLToPath(new URL('../infrastructure/migrations', import.meta.url));
+
 program
   .name('migrate')
   .description('Run database migrations')
   .addArgument(new Argument('<direction>', 'Migration direction').choices(['up', 'down']));
 
 addDbOptions(program);
+addMigrationFolderOption(program, { defaultPath: defaultMigrationFolder, envVar: 'MIGRATION_FOLDER' });
 addLogLevelOption(program);
 program.parse();
 
 const direction = program.args[0] as 'up' | 'down';
-logger.level = program.opts<RawLogLevelOption>().logLevel;
+const opts = program.opts<RawDbOptions & RawLogLevelOption & RawMigrationFolderOption>();
+logger.level = opts.logLevel;
 
 const cliLogger = createChildLogger({ command: 'migrate', direction });
 
 // Infrastructure
-const kyselyClient = createKyselyClient(extractDbConfig(program.opts<RawDbOptions>()));
+const kyselyClient = createKyselyClient(extractDbConfig(opts));
+const migratorConfig = {
+  migrationFolder: opts.migrationFolder,
+  tableName: 'kysely_migration',
+  lockTableName: 'kysely_migration_lock',
+};
 
-const { error, results } = await runMigrator(
-  kyselyClient,
-  {
-    migrationFolder: new URL('../infrastructure/migrations', import.meta.url),
-    tableName: 'kysely_migration',
-    lockTableName: 'kysely_migration_lock',
-  },
-  direction,
-);
+const { error, results } = await runMigrator(kyselyClient, migratorConfig, direction);
 
 for (const result of results ?? []) {
   if (result.status === 'Success') {
@@ -64,11 +68,6 @@ if (results?.length === 0) {
   cliLogger.info(`No pending ${label.toLowerCase()} to execute`);
 
   if (logger.isLevelEnabled('debug')) {
-    const migratorConfig = {
-      migrationFolder: new URL('../infrastructure/migrations', import.meta.url),
-      tableName: 'kysely_migration',
-      lockTableName: 'kysely_migration_lock',
-    };
     const infos = await getMigrationInfos(kyselyClient, migratorConfig);
     if (infos.length > 0) {
       cliLogger.info(`${label} status:`);
