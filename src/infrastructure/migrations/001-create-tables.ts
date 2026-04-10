@@ -1,8 +1,6 @@
 /**
  * @module 001-create-tables
  * @description Infrastructure — 全テーブルのマイグレーション定義。
- *
- * form_templates, form_template_translations, form_fields, form_field_translations, contacts を作成する。
  */
 
 import type { Kysely } from 'kysely';
