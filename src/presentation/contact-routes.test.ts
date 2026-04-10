@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import type { Kysely } from 'kysely';
 import type { Database } from '../infrastructure/database.js';
 import type { InMemoryContactAuthorizationService } from '../test-helpers/in-memory-contact-authorization-service.js';
-import type { ContactResponse, ContactCategoryResponse } from './format.js';
+import type { ContactResponse } from './format.js';
 import { cleanDatabase, createTestApp } from '../test-helpers/setup.js';
 
 let app: FastifyInstance;
@@ -29,11 +29,14 @@ afterAll(async () => {
 });
 
 const samplePayload = {
-  lastName: 'Test',
-  firstName: 'User',
-  email: 'test@example.com',
-  categoryId: 1,
-  message: 'Test message body',
+  templateId: 1,
+  data: {
+    lastName: 'Test',
+    firstName: 'User',
+    email: 'test@example.com',
+    category: 'general',
+    message: 'Test message body',
+  },
 };
 
 describe('Authentication (X-User-Id)', () => {
@@ -52,32 +55,6 @@ describe('Authentication (X-User-Id)', () => {
   });
 });
 
-describe('GET /contact-categories', () => {
-  it('should return all categories in English by default (no auth required)', async () => {
-    const response = await app.inject({ method: 'GET', url: '/contact-categories' });
-
-    expect(response.statusCode).toBe(200);
-    const body = response.json() as ContactCategoryResponse[];
-    expect(body).toHaveLength(4);
-    expect(body[0]?.name).toBe('General Inquiry');
-    expect(body[1]?.name).toBe('Products/Services');
-    expect(body[2]?.name).toBe('Recruitment');
-    expect(body[3]?.name).toBe('Other');
-  });
-
-  it('should return all categories in Japanese when locale=ja', async () => {
-    const response = await app.inject({ method: 'GET', url: '/contact-categories?locale=ja' });
-
-    expect(response.statusCode).toBe(200);
-    const body = response.json() as ContactCategoryResponse[];
-    expect(body).toHaveLength(4);
-    expect(body[0]?.name).toBe('一般的なお問合せ');
-    expect(body[1]?.name).toBe('製品/サービスについて');
-    expect(body[2]?.name).toBe('採用について');
-    expect(body[3]?.name).toBe('その他');
-  });
-});
-
 describe('POST /contacts', () => {
   it('should create a contact', async () => {
     const response = await app.inject({
@@ -89,69 +66,60 @@ describe('POST /contacts', () => {
 
     expect(response.statusCode).toBe(201);
     const body = response.json() as ContactResponse;
-    expect(body.lastName).toBe('Test');
-    expect(body.firstName).toBe('User');
-    expect(body.email).toBe('test@example.com');
-    expect(body.phone).toBeNull();
-    expect(body.categoryId).toBe(1);
-    expect(body.message).toBe('Test message body');
+    expect(body.templateId).toBe(1);
+    expect(body.userId).toBe('test-user');
+    expect(body.data).toEqual(samplePayload.data);
     expect(body.status).toBe('new');
     expect(body.id).toBeDefined();
     expect(body.createdAt).toBeDefined();
     expect(body.updatedAt).toBeDefined();
   });
 
-  it('should create a contact with phone', async () => {
+  it('should return 400 for missing required field in data', async () => {
     const response = await app.inject({
       method: 'POST',
       url: '/contacts',
       headers,
-      payload: { ...samplePayload, phone: '090-1234-5678' },
-    });
-
-    expect(response.statusCode).toBe(201);
-    expect((response.json() as ContactResponse).phone).toBe('090-1234-5678');
-  });
-
-  it('should return 400 for empty lastName', async () => {
-    const response = await app.inject({
-      method: 'POST',
-      url: '/contacts',
-      headers,
-      payload: { ...samplePayload, lastName: '' },
+      payload: { templateId: 1, data: { last_name: 'Test' } },
     });
 
     expect(response.statusCode).toBe(400);
   });
 
-  it('should return 400 for invalid email', async () => {
+  it('should return 400 for invalid email in data', async () => {
     const response = await app.inject({
       method: 'POST',
       url: '/contacts',
       headers,
-      payload: { ...samplePayload, email: 'not-an-email' },
+      payload: {
+        templateId: 1,
+        data: { ...samplePayload.data, email: 'not-an-email' },
+      },
     });
 
     expect(response.statusCode).toBe(400);
   });
 
-  it('should return 400 for missing required fields', async () => {
+  it('should return 400 for non-existent templateId', async () => {
     const response = await app.inject({
       method: 'POST',
       url: '/contacts',
       headers,
-      payload: {},
+      payload: { templateId: 999, data: {} },
     });
 
     expect(response.statusCode).toBe(400);
   });
 
-  it('should return 400 for non-existent categoryId', async () => {
+  it('should return 400 for invalid select option', async () => {
     const response = await app.inject({
       method: 'POST',
       url: '/contacts',
       headers,
-      payload: { ...samplePayload, categoryId: 999 },
+      payload: {
+        templateId: 1,
+        data: { ...samplePayload.data, category: 'invalid-option' },
+      },
     });
 
     expect(response.statusCode).toBe(400);
@@ -161,12 +129,7 @@ describe('POST /contacts', () => {
 describe('GET /contacts', () => {
   it('should return only contacts the user owns', async () => {
     await app.inject({ method: 'POST', url: '/contacts', headers, payload: samplePayload });
-    await app.inject({
-      method: 'POST',
-      url: '/contacts',
-      headers,
-      payload: { ...samplePayload, lastName: 'User', firstName: '2' },
-    });
+    await app.inject({ method: 'POST', url: '/contacts', headers, payload: samplePayload });
 
     const response = await app.inject({ method: 'GET', url: '/contacts', headers });
 
@@ -204,36 +167,35 @@ describe('GET /contacts', () => {
       headers,
       payload: { status: 'in_progress' },
     });
-    await app.inject({
-      method: 'PATCH',
-      url: `/contacts/${contactId}/status`,
+
+    await app.inject({ method: 'POST', url: '/contacts', headers, payload: samplePayload });
+
+    const inProgressRes = await app.inject({
+      method: 'GET',
+      url: '/contacts?status=in_progress',
       headers,
-      payload: { status: 'resolved' },
     });
+    expect((inProgressRes.json() as ContactResponse[])).toHaveLength(1);
+  });
+
+  it('should filter by templateId', async () => {
+    await app.inject({ method: 'POST', url: '/contacts', headers, payload: samplePayload });
     await app.inject({
       method: 'POST',
       url: '/contacts',
       headers,
-      payload: { ...samplePayload, lastName: 'User', firstName: '2' },
+      payload: { templateId: 2, data: { name: 'Taro', email: 'taro@example.com', message: 'Hi' } },
     });
 
-    const resolvedRes = await app.inject({
+    const response = await app.inject({
       method: 'GET',
-      url: '/contacts?status=resolved',
+      url: '/contacts?templateId=1',
       headers,
     });
-    const resolvedContacts = resolvedRes.json() as ContactResponse[];
-    expect(resolvedContacts).toHaveLength(1);
-    expect(resolvedContacts[0]?.status).toBe('resolved');
 
-    const newRes = await app.inject({
-      method: 'GET',
-      url: '/contacts?status=new',
-      headers,
-    });
-    const newContacts = newRes.json() as ContactResponse[];
-    expect(newContacts).toHaveLength(1);
-    expect(newContacts[0]?.status).toBe('new');
+    const body = response.json() as ContactResponse[];
+    expect(body).toHaveLength(1);
+    expect(body[0]!.templateId).toBe(1);
   });
 });
 
@@ -250,7 +212,7 @@ describe('GET /contacts/:id', () => {
     const response = await app.inject({ method: 'GET', url: `/contacts/${contactId}`, headers });
 
     expect(response.statusCode).toBe(200);
-    expect((response.json() as ContactResponse).lastName).toBe('Test');
+    expect((response.json() as ContactResponse).templateId).toBe(1);
   });
 
   it('should return 403 for unauthorized access', async () => {
@@ -296,7 +258,6 @@ describe('PATCH /contacts/:id/status', () => {
     expect(response.statusCode).toBe(200);
     const body = response.json() as ContactResponse;
     expect(body.status).toBe('in_progress');
-    expect(body.lastName).toBe('Test');
   });
 
   it('should return 403 for unauthorized update', async () => {

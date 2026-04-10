@@ -3,17 +3,16 @@
  * @description Driving Adapter 補助 — エンティティを JSON レスポンス形式に変換するフォーマッタ。
  */
 
-import type { ContactCategory } from '../domain/contact-category.js';
 import type { Contact } from '../domain/contact.js';
+import type { FormTemplate, FormField, FormFieldOption, FieldTranslation } from '../domain/form-template.js';
+
+// --- Contact ---
 
 export interface ContactResponse {
   id: number;
-  lastName: string;
-  firstName: string;
-  email: string;
-  phone: string | null;
-  categoryId: number;
-  message: string;
+  templateId: number;
+  userId: string;
+  data: Record<string, unknown>;
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -22,12 +21,9 @@ export interface ContactResponse {
 export function formatContact(contact: Contact): ContactResponse {
   return {
     id: contact.id,
-    lastName: contact.lastName,
-    firstName: contact.firstName,
-    email: contact.email,
-    phone: contact.phone,
-    categoryId: contact.categoryId,
-    message: contact.message,
+    templateId: contact.templateId,
+    userId: contact.userId,
+    data: contact.data,
     status: contact.status,
     createdAt: contact.createdAt.toISOString(),
     updatedAt: contact.updatedAt.toISOString(),
@@ -38,33 +34,80 @@ export function formatContacts(contacts: Contact[]): ContactResponse[] {
   return contacts.map(formatContact);
 }
 
-export interface ContactCategoryResponse {
+// --- Form Template ---
+
+export interface FormFieldOptionResponse {
+  value: string;
+  labels: Record<string, string>;
+}
+
+export interface FormFieldResponse {
   id: number;
   name: string;
+  fieldType: string;
+  validationType: string;
+  isRequired: boolean;
   displayOrder: number;
+  label: string;
+  placeholder: string;
+  options: FormFieldOptionResponse[];
+}
+
+export interface FormTemplateResponse {
+  id: number;
+  name: string;
+  displayName: string;
+  fields: FormFieldResponse[];
   createdAt: string;
   updatedAt: string;
 }
 
-export function formatContactCategory(
-  category: ContactCategory,
-  locale: string,
-): ContactCategoryResponse {
-  const name = category.translations.get(locale)
-    ?? category.translations.values().next().value
-    ?? '';
+function formatFieldOption(option: FormFieldOption): FormFieldOptionResponse {
   return {
-    id: category.id,
-    name,
-    displayOrder: category.displayOrder,
-    createdAt: category.createdAt.toISOString(),
-    updatedAt: category.updatedAt.toISOString(),
+    value: option.value,
+    labels: Object.fromEntries(option.labels),
   };
 }
 
-export function formatContactCategories(
-  categories: ContactCategory[],
+function resolveFieldTranslation(
+  translations: Map<string, FieldTranslation>,
   locale: string,
-): ContactCategoryResponse[] {
-  return categories.map((c) => formatContactCategory(c, locale));
+): FieldTranslation {
+  const exact = translations.get(locale);
+  if (exact) return exact;
+  const fallback = translations.values().next().value;
+  return fallback ?? { label: '', placeholder: '' };
+}
+
+function formatField(field: FormField, locale: string): FormFieldResponse {
+  const trans = resolveFieldTranslation(field.translations, locale);
+  return {
+    id: field.id,
+    name: field.name,
+    fieldType: field.fieldType,
+    validationType: field.validationType,
+    isRequired: field.isRequired,
+    displayOrder: field.displayOrder,
+    label: trans.label,
+    placeholder: trans.placeholder,
+    options: field.options.map((opt) => formatFieldOption(opt)),
+  };
+}
+
+export function formatFormTemplate(template: FormTemplate, locale: string): FormTemplateResponse {
+  const displayName = template.translations.get(locale)
+    ?? template.translations.values().next().value
+    ?? template.name;
+  return {
+    id: template.id,
+    name: template.name,
+    displayName,
+    fields: template.fields.map((f) => formatField(f, locale)),
+    createdAt: template.createdAt.toISOString(),
+    updatedAt: template.updatedAt.toISOString(),
+  };
+}
+
+export function formatFormTemplates(templates: FormTemplate[], locale: string): FormTemplateResponse[] {
+  return templates.map((t) => formatFormTemplate(t, locale));
 }

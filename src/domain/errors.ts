@@ -15,12 +15,12 @@ export class ContactNotFoundError extends Error {
   }
 }
 
-export class ContactCategoryNotFoundError extends Error {
+export class FormTemplateNotFoundError extends Error {
   public readonly id: number;
 
   constructor(id: number) {
-    super(`Contact category with id ${id.toString()} not found`);
-    this.name = 'ContactCategoryNotFoundError';
+    super(`Form template with id ${id.toString()} not found`);
+    this.name = 'FormTemplateNotFoundError';
     this.id = id;
   }
 }
@@ -29,6 +29,16 @@ export class ContactValidationError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'ContactValidationError';
+  }
+}
+
+export class FormFieldValidationError extends Error {
+  public readonly errors: string[];
+
+  constructor(errors: string[]) {
+    super(`Form validation failed: ${errors.join('; ')}`);
+    this.name = 'FormFieldValidationError';
+    this.errors = errors;
   }
 }
 

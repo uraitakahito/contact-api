@@ -28,12 +28,9 @@ function createMockAuthorizationService(): ContactAuthorizationService {
 
 const sampleContact: Contact = {
   id: 1,
-  lastName: 'Test',
-  firstName: 'User',
-  email: 'test@example.com',
-  phone: null,
-  categoryId: 1,
-  message: 'Test message body',
+  templateId: 1,
+  userId: 'alice',
+  data: { name: 'Test', email: 'test@example.com', message: 'Hello' },
   status: 'new',
   createdAt: new Date('2026-01-01'),
   updatedAt: new Date('2026-01-01'),

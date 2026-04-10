@@ -172,6 +172,8 @@ export default defineConfig(
       '@typescript-eslint/unbound-method': 'off',
       // テストアサーション内の型アサーションは許容
       '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      // テストアサーションでの non-null assertion は許容
+      '@typescript-eslint/no-non-null-assertion': 'off',
       // テンプレートリテラル内の数値は許容（エラーメッセージの id 埋め込み等）
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
     },

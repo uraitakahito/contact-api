@@ -19,7 +19,6 @@ export default defineConfig({
             'src/application/**/*.test.ts',
             'src/presentation/error-handler.test.ts',
             'src/infrastructure/csv-reader.test.ts',
-            'src/infrastructure/openfga-contact-authorization-service.test.ts',
           ],
         },
       },

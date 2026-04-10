@@ -58,21 +58,25 @@ docker compose --profile dev up -d
 
 ## API エンドポイント
 
-### 問い合わせ種別一覧取得
+### フォームテンプレート一覧取得
 
 ```bash
-curl -s "http://localhost:3000/contact-categories?locale=ja" | jq
+curl -s "http://localhost:3000/form-templates?locale=ja" | jq
 ```
 
-レスポンス例:
+### フォームテンプレート詳細取得
 
-```json
-[
-  { "id": 1, "name": "一般的なお問合せ", "displayOrder": 1, "createdAt": "2026-04-08T12:00:00.000Z", "updatedAt": "2026-04-08T12:00:00.000Z" },
-  { "id": 2, "name": "製品/サービスについて", "displayOrder": 2, "createdAt": "2026-04-08T12:00:00.000Z", "updatedAt": "2026-04-08T12:00:00.000Z" },
-  { "id": 3, "name": "採用について", "displayOrder": 3, "createdAt": "2026-04-08T12:00:00.000Z", "updatedAt": "2026-04-08T12:00:00.000Z" },
-  { "id": 4, "name": "その他", "displayOrder": 4, "createdAt": "2026-04-08T12:00:00.000Z", "updatedAt": "2026-04-08T12:00:00.000Z" }
-]
+```bash
+curl -s "http://localhost:3000/form-templates/1?locale=ja" | jq
+```
+
+### フォームテンプレート作成
+
+```bash
+curl -s -X POST http://localhost:3000/form-templates \
+  -H "Content-Type: application/json" \
+  -H "X-User-Id: admin" \
+  -d '{"name": "feedback-form", "translations": {"ja": "フィードバック", "en": "Feedback"}, "fields": [{"name": "email", "fieldType": "text", "validationType": "email", "isRequired": true, "displayOrder": 1}, {"name": "message", "fieldType": "textarea", "isRequired": true, "displayOrder": 2}]}' | jq
 ```
 
 ### 問い合わせ作成
@@ -81,19 +85,23 @@ curl -s "http://localhost:3000/contact-categories?locale=ja" | jq
 curl -s -X POST http://localhost:3000/contacts \
   -H "Content-Type: application/json" \
   -H "X-User-Id: yamada" \
-  -d '{"lastName": "山田", "firstName": "太郎", "email": "yamada@example.com", "phone": "090-1234-5678", "categoryId": 1, "message": "詳細を教えてください"}' | jq
+  -d '{"templateId": 1, "data": {"lastName": "山田", "firstName": "太郎", "email": "yamada@example.com", "phone": "090-1234-5678", "category": "general", "message": "詳細を教えてください"}}' | jq
 ```
 
 レスポンス:
 ```json
 {
   "id": 1,
-  "lastName": "山田",
-  "firstName": "太郎",
-  "email": "yamada@example.com",
-  "phone": "090-1234-5678",
-  "categoryId": 1,
-  "message": "詳細を教えてください",
+  "templateId": 1,
+  "userId": "yamada",
+  "data": {
+    "lastName": "山田",
+    "firstName": "太郎",
+    "email": "yamada@example.com",
+    "phone": "090-1234-5678",
+    "category": "general",
+    "message": "詳細を教えてください"
+  },
   "status": "new",
   "createdAt": "2026-04-08T12:00:00.000Z",
   "updatedAt": "2026-04-08T12:00:00.000Z"
@@ -108,6 +116,9 @@ curl -s -H "X-User-Id: yamada" http://localhost:3000/contacts | jq
 
 # ステータスでフィルタ
 curl -s -H "X-User-Id: yamada" "http://localhost:3000/contacts?status=new" | jq
+
+# テンプレートでフィルタ
+curl -s -H "X-User-Id: yamada" "http://localhost:3000/contacts?templateId=1" | jq
 ```
 
 ### 問い合わせ個別取得

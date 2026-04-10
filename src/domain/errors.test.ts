@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AuthorizationError, ContactCategoryNotFoundError, ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from './errors.js';
+import { AuthorizationError, ContactNotFoundError, ContactValidationError, FormFieldValidationError, FormTemplateNotFoundError, InvalidStatusTransitionError } from './errors.js';
 
 describe('AuthorizationError', () => {
   it('should have the correct message, userId, and action', () => {
@@ -12,12 +12,12 @@ describe('AuthorizationError', () => {
   });
 });
 
-describe('ContactCategoryNotFoundError', () => {
+describe('FormTemplateNotFoundError', () => {
   it('should have the correct message and id', () => {
-    const error = new ContactCategoryNotFoundError(5);
-    expect(error.message).toBe('Contact category with id 5 not found');
+    const error = new FormTemplateNotFoundError(5);
+    expect(error.message).toBe('Form template with id 5 not found');
     expect(error.id).toBe(5);
-    expect(error.name).toBe('ContactCategoryNotFoundError');
+    expect(error.name).toBe('FormTemplateNotFoundError');
     expect(error).toBeInstanceOf(Error);
   });
 });
@@ -37,6 +37,17 @@ describe('ContactValidationError', () => {
     const error = new ContactValidationError('Name cannot be empty');
     expect(error.message).toBe('Name cannot be empty');
     expect(error.name).toBe('ContactValidationError');
+    expect(error).toBeInstanceOf(Error);
+  });
+});
+
+describe('FormFieldValidationError', () => {
+  it('should have the correct message and errors array', () => {
+    const fieldErrors = ["Field 'name' is required", "Field 'email' has invalid email format"];
+    const error = new FormFieldValidationError(fieldErrors);
+    expect(error.message).toBe("Form validation failed: Field 'name' is required; Field 'email' has invalid email format");
+    expect(error.errors).toEqual(fieldErrors);
+    expect(error.name).toBe('FormFieldValidationError');
     expect(error).toBeInstanceOf(Error);
   });
 });

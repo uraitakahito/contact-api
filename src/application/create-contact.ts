@@ -6,43 +6,39 @@
  */
 
 import type { ContactAuthorizationService } from '../domain/contact-authorization-service.js';
-import type { ContactCategoryRepository } from '../domain/contact-category-repository.js';
-import { ContactCategoryNotFoundError, ContactValidationError } from '../domain/errors.js';
+import type { FormTemplateRepository } from '../domain/form-template-repository.js';
+import { FormFieldValidationError, FormTemplateNotFoundError } from '../domain/errors.js';
+import { validateContactData } from '../domain/form-template.js';
 import type { ContactRepository } from '../domain/contact-repository.js';
 import type { Contact, CreateContactInput } from '../domain/contact.js';
 
 export class CreateContactUseCase {
   private readonly contactRepository: ContactRepository;
-  private readonly contactCategoryRepository: ContactCategoryRepository;
+  private readonly formTemplateRepository: FormTemplateRepository;
   private readonly authorizationService: ContactAuthorizationService;
 
   constructor(
     contactRepository: ContactRepository,
-    contactCategoryRepository: ContactCategoryRepository,
+    formTemplateRepository: FormTemplateRepository,
     authorizationService: ContactAuthorizationService,
   ) {
     this.contactRepository = contactRepository;
-    this.contactCategoryRepository = contactCategoryRepository;
+    this.formTemplateRepository = formTemplateRepository;
     this.authorizationService = authorizationService;
   }
 
   async execute(userId: string, input: CreateContactInput): Promise<Contact> {
-    if (!input.lastName.trim()) {
-      throw new ContactValidationError('Last name cannot be empty');
-    }
-    if (!input.firstName.trim()) {
-      throw new ContactValidationError('First name cannot be empty');
-    }
-    if (!input.message.trim()) {
-      throw new ContactValidationError('Message cannot be empty');
+    const template = await this.formTemplateRepository.findById(input.templateId);
+    if (!template) {
+      throw new FormTemplateNotFoundError(input.templateId);
     }
 
-    const category = await this.contactCategoryRepository.findById(input.categoryId);
-    if (!category) {
-      throw new ContactCategoryNotFoundError(input.categoryId);
+    const errors = validateContactData(template.fields, input.data);
+    if (errors.length > 0) {
+      throw new FormFieldValidationError(errors);
     }
 
-    const contact = await this.contactRepository.create(input);
+    const contact = await this.contactRepository.create(userId, input);
     await this.authorizationService.grantOwnership(userId, contact.id);
     return contact;
   }

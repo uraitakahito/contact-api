@@ -10,12 +10,10 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import type { CreateContactUseCase } from '../application/create-contact.js';
 import type { DeleteContactUseCase } from '../application/delete-contact.js';
 import type { GetContactByIdUseCase } from '../application/get-contact-by-id.js';
-import type { GetContactCategoriesUseCase } from '../application/get-contact-categories.js';
 import type { GetContactsUseCase } from '../application/get-contacts.js';
 import type { UpdateContactStatusUseCase } from '../application/update-contact-status.js';
-import { formatContact, formatContactCategories, formatContacts } from './format.js';
+import { formatContact, formatContacts } from './format.js';
 import {
-  contactCategoriesQuerySchema,
   contactIdParamSchema,
   contactsQuerySchema,
   createContactBodySchema,
@@ -28,7 +26,6 @@ export interface ContactUseCases {
   getContactById: GetContactByIdUseCase;
   updateContactStatus: UpdateContactStatusUseCase;
   deleteContact: DeleteContactUseCase;
-  getContactCategories: GetContactCategoriesUseCase;
 }
 
 function extractUserId(request: FastifyRequest): string | undefined {
@@ -43,12 +40,6 @@ export function registerContactRoutes(
   app: FastifyInstance,
   useCases: ContactUseCases,
 ): void {
-  app.get('/contact-categories', async (request) => {
-    const query = contactCategoriesQuerySchema.parse(request.query);
-    const categories = await useCases.getContactCategories.execute();
-    return formatContactCategories(categories, query.locale);
-  });
-
   app.post('/contacts', async (request, reply) => {
     const userId = extractUserId(request);
     if (!userId) {
@@ -67,7 +58,12 @@ export function registerContactRoutes(
     const query = contactsQuerySchema.parse(request.query);
     const contacts = await useCases.getContacts.execute(
       userId,
-      query.status !== undefined ? { status: query.status } : undefined,
+      query.status !== undefined || query.templateId !== undefined
+        ? {
+            ...(query.status !== undefined ? { status: query.status } : {}),
+            ...(query.templateId !== undefined ? { templateId: query.templateId } : {}),
+          }
+        : undefined,
     );
     return formatContacts(contacts);
   });

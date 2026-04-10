@@ -1,11 +1,17 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import type { Kysely } from 'kysely';
 import type { Database } from './database.js';
+import type { CreateContactInput } from '../domain/contact.js';
 import { KyselyContactRepository } from './kysely-contact-repository.js';
 import { cleanDatabase, createTestDb, runMigrations, runSeeds } from '../test-helpers/setup.js';
 
 let db: Kysely<Database>;
 let repository: KyselyContactRepository;
+
+const sampleInput: CreateContactInput = {
+  templateId: 1,
+  data: { lastName: 'Test', firstName: 'User', email: 'test@example.com', message: 'Hello' },
+};
 
 beforeAll(async () => {
   db = createTestDb();
@@ -22,127 +28,114 @@ afterAll(async () => {
   await db.destroy();
 });
 
-const sampleInput = {
-  lastName: 'Test',
-  firstName: 'User',
-  email: 'test@example.com',
-  categoryId: 1,
-  message: 'Test message body',
-};
-
 describe('KyselyContactRepository', () => {
-  it('should create a contact', async () => {
-    const contact = await repository.create(sampleInput);
+  describe('create', () => {
+    it('should insert a contact and return it', async () => {
+      const contact = await repository.create('test-user', sampleInput);
 
-    expect(contact.id).toBeDefined();
-    expect(contact.lastName).toBe('Test');
-    expect(contact.firstName).toBe('User');
-    expect(contact.email).toBe('test@example.com');
-    expect(contact.phone).toBeNull();
-    expect(contact.categoryId).toBe(1);
-    expect(contact.message).toBe('Test message body');
-    expect(contact.status).toBe('new');
-    expect(contact.createdAt).toBeInstanceOf(Date);
-    expect(contact.updatedAt).toBeInstanceOf(Date);
+      expect(contact.id).toBeDefined();
+      expect(contact.templateId).toBe(1);
+      expect(contact.userId).toBe('test-user');
+      expect(contact.data).toEqual(sampleInput.data);
+      expect(contact.status).toBe('new');
+      expect(contact.createdAt).toBeInstanceOf(Date);
+      expect(contact.updatedAt).toBeInstanceOf(Date);
+    });
   });
 
-  it('should create a contact with phone', async () => {
-    const contact = await repository.create({ ...sampleInput, phone: '090-1234-5678' });
+  describe('findAll', () => {
+    it('should return all contacts', async () => {
+      await repository.create('user1', sampleInput);
+      await repository.create('user2', sampleInput);
 
-    expect(contact.phone).toBe('090-1234-5678');
+      const contacts = await repository.findAll();
+
+      expect(contacts).toHaveLength(2);
+    });
+
+    it('should filter by ids', async () => {
+      const c1 = await repository.create('user1', sampleInput);
+      await repository.create('user2', sampleInput);
+
+      const contacts = await repository.findAll({ ids: [c1.id] });
+
+      expect(contacts).toHaveLength(1);
+      expect(contacts[0]!.id).toBe(c1.id);
+    });
+
+    it('should return empty array for empty ids', async () => {
+      await repository.create('user1', sampleInput);
+
+      const contacts = await repository.findAll({ ids: [] });
+
+      expect(contacts).toHaveLength(0);
+    });
+
+    it('should filter by status', async () => {
+      const c1 = await repository.create('user1', sampleInput);
+      await repository.updateStatus(c1.id, 'in_progress');
+
+      const contacts = await repository.findAll({ status: 'in_progress' });
+
+      expect(contacts).toHaveLength(1);
+    });
+
+    it('should filter by templateId', async () => {
+      await repository.create('user1', sampleInput);
+      await repository.create('user2', { templateId: 2, data: { name: 'Test', email: 'a@b.com', message: 'Hi' } });
+
+      const contacts = await repository.findAll({ templateId: 1 });
+
+      expect(contacts).toHaveLength(1);
+      expect(contacts[0]!.templateId).toBe(1);
+    });
   });
 
-  it('should find all contacts', async () => {
-    await repository.create(sampleInput);
-    await repository.create({ ...sampleInput, lastName: 'User', firstName: '2' });
+  describe('findById', () => {
+    it('should return a contact by id', async () => {
+      const created = await repository.create('test-user', sampleInput);
 
-    const contacts = await repository.findAll();
+      const found = await repository.findById(created.id);
 
-    expect(contacts).toHaveLength(2);
+      expect(found).toBeDefined();
+      expect(found!.id).toBe(created.id);
+      expect(found!.data).toEqual(sampleInput.data);
+    });
+
+    it('should return undefined for non-existent id', async () => {
+      const found = await repository.findById(99999);
+
+      expect(found).toBeUndefined();
+    });
   });
 
-  it('should filter contacts by ids', async () => {
-    const contact1 = await repository.create(sampleInput);
-    await repository.create({ ...sampleInput, lastName: 'User', firstName: '2' });
-    const contact3 = await repository.create({ ...sampleInput, lastName: 'User', firstName: '3' });
+  describe('updateStatus', () => {
+    it('should update the status and return the updated contact', async () => {
+      const created = await repository.create('test-user', sampleInput);
 
-    const filtered = await repository.findAll({ ids: [contact1.id, contact3.id] });
+      const updated = await repository.updateStatus(created.id, 'in_progress');
 
-    expect(filtered).toHaveLength(2);
-    expect(filtered.map((c) => c.id)).toContain(contact1.id);
-    expect(filtered.map((c) => c.id)).toContain(contact3.id);
+      expect(updated).toBeDefined();
+      expect(updated!.status).toBe('in_progress');
+    });
+
+    it('should return undefined for non-existent id', async () => {
+      const updated = await repository.updateStatus(99999, 'in_progress');
+
+      expect(updated).toBeUndefined();
+    });
   });
 
-  it('should return empty array for empty ids filter', async () => {
-    await repository.create(sampleInput);
+  describe('delete', () => {
+    it('should delete a contact and return true', async () => {
+      const created = await repository.create('test-user', sampleInput);
 
-    const filtered = await repository.findAll({ ids: [] });
+      expect(await repository.delete(created.id)).toBe(true);
+      expect(await repository.findById(created.id)).toBeUndefined();
+    });
 
-    expect(filtered).toEqual([]);
-  });
-
-  it('should combine ids and status filters', async () => {
-    const contact1 = await repository.create(sampleInput);
-    const contact2 = await repository.create({ ...sampleInput, lastName: 'User', firstName: '2' });
-    await repository.updateStatus(contact2.id, 'in_progress');
-
-    const filtered = await repository.findAll({ ids: [contact1.id, contact2.id], status: 'new' });
-
-    expect(filtered).toHaveLength(1);
-    expect(filtered[0]?.id).toBe(contact1.id);
-  });
-
-  it('should filter contacts by status', async () => {
-    await repository.create(sampleInput);
-    const contact2 = await repository.create({ ...sampleInput, lastName: 'User', firstName: '2' });
-    await repository.updateStatus(contact2.id, 'resolved');
-
-    const resolvedContacts = await repository.findAll({ status: 'resolved' });
-    const newContacts = await repository.findAll({ status: 'new' });
-
-    expect(resolvedContacts).toHaveLength(1);
-    expect(resolvedContacts[0]?.lastName).toBe('User');
-    expect(newContacts).toHaveLength(1);
-    expect(newContacts[0]?.lastName).toBe('Test');
-  });
-
-  it('should find a contact by id', async () => {
-    const created = await repository.create(sampleInput);
-    const found = await repository.findById(created.id);
-
-    expect(found).toBeDefined();
-    expect(found?.lastName).toBe('Test');
-  });
-
-  it('should return undefined for non-existent id', async () => {
-    const found = await repository.findById(999);
-    expect(found).toBeUndefined();
-  });
-
-  it('should update status', async () => {
-    const created = await repository.create(sampleInput);
-    const updated = await repository.updateStatus(created.id, 'in_progress');
-
-    expect(updated).toBeDefined();
-    expect(updated?.status).toBe('in_progress');
-    expect(updated?.lastName).toBe('Test');
-    expect(updated?.updatedAt.getTime()).toBeGreaterThanOrEqual(created.updatedAt.getTime());
-  });
-
-  it('should return undefined when updating status of non-existent contact', async () => {
-    const result = await repository.updateStatus(999, 'in_progress');
-    expect(result).toBeUndefined();
-  });
-
-  it('should delete a contact', async () => {
-    const created = await repository.create(sampleInput);
-    await expect(repository.delete(created.id)).resolves.toBe(true);
-
-    const found = await repository.findById(created.id);
-    expect(found).toBeUndefined();
-  });
-
-  it('should return false when deleting non-existent contact', async () => {
-    await expect(repository.delete(999)).resolves.toBe(false);
+    it('should return false for non-existent id', async () => {
+      expect(await repository.delete(99999)).toBe(false);
+    });
   });
 });

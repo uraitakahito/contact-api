@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod/v4';
-import { AuthorizationError, ContactCategoryNotFoundError, ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from '../domain/errors.js';
+import { AuthorizationError, ContactNotFoundError, ContactValidationError, FormFieldValidationError, FormTemplateNotFoundError, InvalidStatusTransitionError } from '../domain/errors.js';
 import { errorHandler } from './error-handler.js';
 
 function createMockRequest() {
@@ -35,11 +35,11 @@ describe('errorHandler', () => {
     expect(request.log.error).not.toHaveBeenCalled();
   });
 
-  it('should return 400 for ContactCategoryNotFoundError without logging', () => {
+  it('should return 400 for FormTemplateNotFoundError without logging', () => {
     const request = createMockRequest();
     const reply = createMockReply();
 
-    errorHandler(new ContactCategoryNotFoundError(5), request, reply);
+    errorHandler(new FormTemplateNotFoundError(5), request, reply);
 
     expect(reply.status).toHaveBeenCalledWith(400);
     expect(request.log.error).not.toHaveBeenCalled();
@@ -52,6 +52,18 @@ describe('errorHandler', () => {
     errorHandler(new ContactValidationError('Name cannot be empty'), request, reply);
 
     expect(reply.status).toHaveBeenCalledWith(400);
+    expect(request.log.error).not.toHaveBeenCalled();
+  });
+
+  it('should return 400 for FormFieldValidationError with errors array', () => {
+    const request = createMockRequest();
+    const reply = createMockReply();
+    const fieldErrors = ["Field 'name' is required"];
+
+    errorHandler(new FormFieldValidationError(fieldErrors), request, reply);
+
+    expect(reply.status).toHaveBeenCalledWith(400);
+    expect(reply.send).toHaveBeenCalledWith(expect.objectContaining({ details: fieldErrors }));
     expect(request.log.error).not.toHaveBeenCalled();
   });
 

@@ -10,11 +10,15 @@ import { Command, Option } from 'commander';
 import Fastify from 'fastify';
 import type { FastifyBaseLogger } from 'fastify';
 import { CreateContactUseCase } from '../application/create-contact.js';
+import { CreateFormTemplateUseCase } from '../application/create-form-template.js';
 import { DeleteContactUseCase } from '../application/delete-contact.js';
+import { DeleteFormTemplateUseCase } from '../application/delete-form-template.js';
 import { GetContactByIdUseCase } from '../application/get-contact-by-id.js';
-import { GetContactCategoriesUseCase } from '../application/get-contact-categories.js';
 import { GetContactsUseCase } from '../application/get-contacts.js';
+import { GetFormTemplateByIdUseCase } from '../application/get-form-template-by-id.js';
+import { GetFormTemplatesUseCase } from '../application/get-form-templates.js';
 import { UpdateContactStatusUseCase } from '../application/update-contact-status.js';
+import { UpdateFormTemplateUseCase } from '../application/update-form-template.js';
 import type { RawDbOptions } from '../infrastructure/cli-db-options.js';
 import { addDbOptions, extractDbConfig } from '../infrastructure/cli-db-options.js';
 import type { RawOpenFgaOptions } from '../infrastructure/cli-openfga-options.js';
@@ -24,13 +28,14 @@ import { addLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import { createKyselyClient } from '../infrastructure/connection.js';
 import { logger } from '../infrastructure/logger.js';
-import { KyselyContactCategoryRepository } from '../infrastructure/kysely-contact-category-repository.js';
 import { KyselyContactRepository } from '../infrastructure/kysely-contact-repository.js';
+import { KyselyFormTemplateRepository } from '../infrastructure/kysely-form-template-repository.js';
 import { createOpenFgaClient } from '../infrastructure/openfga-connection.js';
 import { OpenFgaContactAuthorizationService } from '../infrastructure/openfga-contact-authorization-service.js';
 import { errorHandler } from '../presentation/error-handler.js';
 import { registerHealthRoutes } from '../presentation/health-routes.js';
 import { registerContactRoutes } from '../presentation/contact-routes.js';
+import { registerFormTemplateRoutes } from '../presentation/form-template-routes.js';
 
 // CLI
 const program = new Command();
@@ -52,16 +57,20 @@ const opts = program.opts<{ port: number } & RawDbOptions & RawOpenFgaOptions>()
 const kyselyClient = createKyselyClient(extractDbConfig(opts));
 const fgaClient = createOpenFgaClient(extractOpenFgaConfig(opts));
 const contactRepository = new KyselyContactRepository(kyselyClient);
-const contactCategoryRepository = new KyselyContactCategoryRepository(kyselyClient);
+const formTemplateRepository = new KyselyFormTemplateRepository(kyselyClient);
 const authorizationService = new OpenFgaContactAuthorizationService(fgaClient);
 
 // Application (Use Cases)
-const createContact = new CreateContactUseCase(contactRepository, contactCategoryRepository, authorizationService);
+const createContact = new CreateContactUseCase(contactRepository, formTemplateRepository, authorizationService);
 const getContacts = new GetContactsUseCase(contactRepository, authorizationService);
 const getContactById = new GetContactByIdUseCase(contactRepository, authorizationService);
 const updateContactStatus = new UpdateContactStatusUseCase(contactRepository, authorizationService);
 const deleteContact = new DeleteContactUseCase(contactRepository, authorizationService);
-const getContactCategories = new GetContactCategoriesUseCase(contactCategoryRepository);
+const createFormTemplate = new CreateFormTemplateUseCase(formTemplateRepository);
+const getFormTemplates = new GetFormTemplatesUseCase(formTemplateRepository);
+const getFormTemplateById = new GetFormTemplateByIdUseCase(formTemplateRepository);
+const updateFormTemplate = new UpdateFormTemplateUseCase(formTemplateRepository);
+const deleteFormTemplate = new DeleteFormTemplateUseCase(formTemplateRepository);
 
 // Presentation
 const app = Fastify({ loggerInstance: logger as FastifyBaseLogger });
@@ -76,7 +85,13 @@ registerContactRoutes(app, {
   getContactById,
   updateContactStatus,
   deleteContact,
-  getContactCategories,
+});
+registerFormTemplateRoutes(app, {
+  createFormTemplate,
+  getFormTemplates,
+  getFormTemplateById,
+  updateFormTemplate,
+  deleteFormTemplate,
 });
 
 // Graceful shutdown
