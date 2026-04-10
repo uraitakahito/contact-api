@@ -61,6 +61,37 @@ describe('KyselyContactRepository', () => {
     expect(contacts).toHaveLength(2);
   });
 
+  it('should filter contacts by ids', async () => {
+    const contact1 = await repository.create(sampleInput);
+    await repository.create({ ...sampleInput, lastName: 'User', firstName: '2' });
+    const contact3 = await repository.create({ ...sampleInput, lastName: 'User', firstName: '3' });
+
+    const filtered = await repository.findAll({ ids: [contact1.id, contact3.id] });
+
+    expect(filtered).toHaveLength(2);
+    expect(filtered.map((c) => c.id)).toContain(contact1.id);
+    expect(filtered.map((c) => c.id)).toContain(contact3.id);
+  });
+
+  it('should return empty array for empty ids filter', async () => {
+    await repository.create(sampleInput);
+
+    const filtered = await repository.findAll({ ids: [] });
+
+    expect(filtered).toEqual([]);
+  });
+
+  it('should combine ids and status filters', async () => {
+    const contact1 = await repository.create(sampleInput);
+    const contact2 = await repository.create({ ...sampleInput, lastName: 'User', firstName: '2' });
+    await repository.updateStatus(contact2.id, 'in_progress');
+
+    const filtered = await repository.findAll({ ids: [contact1.id, contact2.id], status: 'new' });
+
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0]?.id).toBe(contact1.id);
+  });
+
   it('should filter contacts by status', async () => {
     await repository.create(sampleInput);
     const contact2 = await repository.create({ ...sampleInput, lastName: 'User', firstName: '2' });

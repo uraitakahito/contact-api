@@ -5,13 +5,18 @@
 
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod/v4';
-import { ContactCategoryNotFoundError, ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from '../domain/errors.js';
+import { AuthorizationError, ContactCategoryNotFoundError, ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from '../domain/errors.js';
 
 export function errorHandler(
   error: Error,
   request: FastifyRequest,
   reply: FastifyReply,
 ): void {
+  if (error instanceof AuthorizationError) {
+    void reply.status(403).send({ error: error.message });
+    return;
+  }
+
   if (error instanceof ContactNotFoundError) {
     void reply.status(404).send({ error: error.message });
     return;

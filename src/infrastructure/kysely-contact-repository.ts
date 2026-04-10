@@ -34,8 +34,15 @@ export class KyselyContactRepository implements ContactRepository {
       .executeTakeFirstOrThrow() as Promise<Contact>;
   }
 
-  async findAll(filter?: { status?: ContactStatus }): Promise<Contact[]> {
+  async findAll(filter?: { status?: ContactStatus; ids?: number[] }): Promise<Contact[]> {
     let query = this.db.selectFrom('contacts').selectAll();
+
+    if (filter?.ids !== undefined) {
+      if (filter.ids.length === 0) {
+        return [];
+      }
+      query = query.where('id', 'in', filter.ids);
+    }
 
     if (filter?.status !== undefined) {
       query = query.where('status', '=', filter.status);

@@ -19,6 +19,7 @@ import * as contactCategoriesSeed from '../infrastructure/seeds/001-contact-cate
 import { errorHandler } from '../presentation/error-handler.js';
 import { registerHealthRoutes } from '../presentation/health-routes.js';
 import { registerContactRoutes } from '../presentation/contact-routes.js';
+import { InMemoryContactAuthorizationService } from './in-memory-contact-authorization-service.js';
 
 
 export function createTestDb(): Kysely<Database> {
@@ -61,13 +62,18 @@ export async function runSeeds(db: Kysely<Database>): Promise<void> {
   await contactCategoriesSeed.up(db);
 }
 
-export async function cleanDatabase(db: Kysely<Database>): Promise<void> {
+export async function cleanDatabase(
+  db: Kysely<Database>,
+  authz?: InMemoryContactAuthorizationService,
+): Promise<void> {
   await sql`TRUNCATE TABLE contacts RESTART IDENTITY CASCADE`.execute(db);
+  authz?.clear();
 }
 
 export interface TestApp {
   app: FastifyInstance;
   db: Kysely<Database>;
+  authz: InMemoryContactAuthorizationService;
 }
 
 export async function createTestApp(): Promise<TestApp> {
@@ -75,13 +81,14 @@ export async function createTestApp(): Promise<TestApp> {
   await runMigrations(db);
   await runSeeds(db);
 
+  const authz = new InMemoryContactAuthorizationService();
   const contactRepository = new KyselyContactRepository(db);
   const contactCategoryRepository = new KyselyContactCategoryRepository(db);
-  const createContact = new CreateContactUseCase(contactRepository, contactCategoryRepository);
-  const getContacts = new GetContactsUseCase(contactRepository);
-  const getContactById = new GetContactByIdUseCase(contactRepository);
-  const updateContactStatus = new UpdateContactStatusUseCase(contactRepository);
-  const deleteContact = new DeleteContactUseCase(contactRepository);
+  const createContact = new CreateContactUseCase(contactRepository, contactCategoryRepository, authz);
+  const getContacts = new GetContactsUseCase(contactRepository, authz);
+  const getContactById = new GetContactByIdUseCase(contactRepository, authz);
+  const updateContactStatus = new UpdateContactStatusUseCase(contactRepository, authz);
+  const deleteContact = new DeleteContactUseCase(contactRepository, authz);
   const getContactCategories = new GetContactCategoriesUseCase(contactCategoryRepository);
 
   const app = Fastify({ loggerInstance: logger as FastifyBaseLogger });
@@ -96,5 +103,5 @@ export async function createTestApp(): Promise<TestApp> {
     getContactCategories,
   });
 
-  return { app, db };
+  return { app, db, authz };
 }

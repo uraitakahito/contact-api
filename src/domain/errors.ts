@@ -32,6 +32,18 @@ export class ContactValidationError extends Error {
   }
 }
 
+export class AuthorizationError extends Error {
+  public readonly userId: string;
+  public readonly action: string;
+
+  constructor(userId: string, action: string) {
+    super(`User '${userId}' is not authorized to '${action}'`);
+    this.name = 'AuthorizationError';
+    this.userId = userId;
+    this.action = action;
+  }
+}
+
 export class InvalidStatusTransitionError extends Error {
   public readonly from: string;
   public readonly to: string;

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod/v4';
-import { ContactCategoryNotFoundError, ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from '../domain/errors.js';
+import { AuthorizationError, ContactCategoryNotFoundError, ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from '../domain/errors.js';
 import { errorHandler } from './error-handler.js';
 
 function createMockRequest() {
@@ -15,6 +15,16 @@ function createMockReply() {
 }
 
 describe('errorHandler', () => {
+  it('should return 403 for AuthorizationError without logging', () => {
+    const request = createMockRequest();
+    const reply = createMockReply();
+
+    errorHandler(new AuthorizationError('alice', 'view contact'), request, reply);
+
+    expect(reply.status).toHaveBeenCalledWith(403);
+    expect(request.log.error).not.toHaveBeenCalled();
+  });
+
   it('should return 404 for ContactNotFoundError without logging', () => {
     const request = createMockRequest();
     const reply = createMockReply();
