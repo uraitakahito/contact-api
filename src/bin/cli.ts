@@ -9,8 +9,8 @@ import { Command } from 'commander';
 import { Argument } from 'commander';
 import type { RawDbOptions } from '../infrastructure/cli-db-options.js';
 import { addDbOptions, extractDbConfig } from '../infrastructure/cli-db-options.js';
-import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import { addLogLevelOption } from '../infrastructure/cli-log-level-option.js';
+import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import { createDb } from '../infrastructure/connection.js';
 import { logger, createChildLogger } from '../infrastructure/logger.js';
 import { migratorDefinitions } from '../infrastructure/migrator-definitions.js';
@@ -31,10 +31,8 @@ function registerMigratorCommand(
     .addArgument(new Argument('<direction>', 'Migration direction').choices(['up', 'down']));
 
   addDbOptions(cmd);
-  addLogLevelOption(cmd);
 
-  cmd.action(async (direction: 'up' | 'down', opts: RawDbOptions & RawLogLevelOption) => {
-    logger.level = opts.logLevel;
+  cmd.action(async (direction: 'up' | 'down', opts: RawDbOptions) => {
     const cliLogger = createChildLogger({ command: name, direction });
 
     const db = createDb(extractDbConfig(opts));
@@ -100,6 +98,15 @@ function registerMigratorCommand(
     await db.destroy();
   });
 }
+
+addLogLevelOption(program);
+
+// サブコマンドの action は parseAsync() の中で実行されるため、
+// parseAsync() 後にログレベルを設定しても間に合わない。
+// preAction hook で action 実行前にログレベルを設定する。
+program.hook('preAction', (thisCommand) => {
+  logger.level = thisCommand.opts<RawLogLevelOption>().logLevel;
+});
 
 for (const [name, definition] of Object.entries(migratorDefinitions)) {
   registerMigratorCommand(program, name, definition);
