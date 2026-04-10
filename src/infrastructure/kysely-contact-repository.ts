@@ -13,14 +13,14 @@ import type { ContactRepository } from '../domain/contact-repository.js';
 import type { Database } from './database.js';
 
 export class KyselyContactRepository implements ContactRepository {
-  private readonly db: Kysely<Database>;
+  private readonly kyselyClient: Kysely<Database>;
 
-  constructor(db: Kysely<Database>) {
-    this.db = db;
+  constructor(kyselyClient: Kysely<Database>) {
+    this.kyselyClient = kyselyClient;
   }
 
   async create(userId: string, input: CreateContactInput): Promise<Contact> {
-    const row = await this.db
+    const row = await this.kyselyClient
       .insertInto('contacts')
       .values({
         templateId: input.templateId,
@@ -34,7 +34,7 @@ export class KyselyContactRepository implements ContactRepository {
   }
 
   async findAll(filter?: { status?: ContactStatus; ids?: number[]; templateId?: number }): Promise<Contact[]> {
-    let query = this.db.selectFrom('contacts').selectAll();
+    let query = this.kyselyClient.selectFrom('contacts').selectAll();
 
     if (filter?.ids !== undefined) {
       if (filter.ids.length === 0) {
@@ -56,7 +56,7 @@ export class KyselyContactRepository implements ContactRepository {
   }
 
   async findById(id: number): Promise<Contact | undefined> {
-    const row = await this.db
+    const row = await this.kyselyClient
       .selectFrom('contacts')
       .selectAll()
       .where('id', '=', id)
@@ -66,7 +66,7 @@ export class KyselyContactRepository implements ContactRepository {
   }
 
   async updateStatus(id: number, status: ContactStatus): Promise<Contact | undefined> {
-    const row = await this.db
+    const row = await this.kyselyClient
       .updateTable('contacts')
       .set({ status, updatedAt: sql`now()` })
       .where('id', '=', id)
@@ -77,7 +77,7 @@ export class KyselyContactRepository implements ContactRepository {
   }
 
   async delete(id: number): Promise<boolean> {
-    const { numDeletedRows } = await this.db
+    const { numDeletedRows } = await this.kyselyClient
       .deleteFrom('contacts')
       .where('id', '=', id)
       .executeTakeFirst();

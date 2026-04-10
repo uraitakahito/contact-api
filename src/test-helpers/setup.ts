@@ -27,7 +27,7 @@ import { registerFormTemplateRoutes } from '../presentation/form-template-routes
 import { InMemoryContactAuthorizationService } from './in-memory-contact-authorization-service.js';
 
 
-export function createTestDb(): Kysely<Database> {
+export function createTestKyselyClient(): Kysely<Database> {
   return createKyselyClient({
     host: process.env['CONTACT_API_DB_HOST'] ?? 'localhost',
     port: Number(process.env['CONTACT_API_DB_PORT'] ?? 5432),
@@ -37,9 +37,9 @@ export function createTestDb(): Kysely<Database> {
   });
 }
 
-export async function runMigrations(db: Kysely<Database>): Promise<void> {
+export async function runMigrations(kyselyClient: Kysely<Database>): Promise<void> {
   const migrator = new Migrator({
-    db,
+    db: kyselyClient,
     provider: new FileMigrationProvider({
       fs,
       path,
@@ -57,33 +57,33 @@ export async function runMigrations(db: Kysely<Database>): Promise<void> {
  * テスト用シード投入。
  * 毎回 TRUNCATE → 再投入する。
  */
-export async function runSeeds(db: Kysely<Database>): Promise<void> {
-  await sql`TRUNCATE TABLE contacts, form_field_translations, form_fields, form_template_translations, form_templates RESTART IDENTITY CASCADE`.execute(db);
-  await formTemplatesSeed.up(db);
+export async function runSeeds(kyselyClient: Kysely<Database>): Promise<void> {
+  await sql`TRUNCATE TABLE contacts, form_field_translations, form_fields, form_template_translations, form_templates RESTART IDENTITY CASCADE`.execute(kyselyClient);
+  await formTemplatesSeed.up(kyselyClient);
 }
 
 export async function cleanDatabase(
-  db: Kysely<Database>,
+  kyselyClient: Kysely<Database>,
   authz?: InMemoryContactAuthorizationService,
 ): Promise<void> {
-  await sql`TRUNCATE TABLE contacts RESTART IDENTITY CASCADE`.execute(db);
+  await sql`TRUNCATE TABLE contacts RESTART IDENTITY CASCADE`.execute(kyselyClient);
   authz?.clear();
 }
 
 export interface TestApp {
   app: FastifyInstance;
-  db: Kysely<Database>;
+  kyselyClient: Kysely<Database>;
   authz: InMemoryContactAuthorizationService;
 }
 
 export async function createTestApp(): Promise<TestApp> {
-  const db = createTestDb();
-  await runMigrations(db);
-  await runSeeds(db);
+  const kyselyClient = createTestKyselyClient();
+  await runMigrations(kyselyClient);
+  await runSeeds(kyselyClient);
 
   const authz = new InMemoryContactAuthorizationService();
-  const contactRepository = new KyselyContactRepository(db);
-  const formTemplateRepository = new KyselyFormTemplateRepository(db);
+  const contactRepository = new KyselyContactRepository(kyselyClient);
+  const formTemplateRepository = new KyselyFormTemplateRepository(kyselyClient);
   const createContact = new CreateContactUseCase(contactRepository, formTemplateRepository, authz);
   const getContacts = new GetContactsUseCase(contactRepository, authz);
   const getContactById = new GetContactByIdUseCase(contactRepository, authz);
@@ -97,7 +97,7 @@ export async function createTestApp(): Promise<TestApp> {
 
   const app = Fastify({ loggerInstance: logger as FastifyBaseLogger });
   app.setErrorHandler(errorHandler);
-  registerHealthRoutes(app, db);
+  registerHealthRoutes(app, kyselyClient);
   registerContactRoutes(app, {
     createContact,
     getContacts,
@@ -113,5 +113,5 @@ export async function createTestApp(): Promise<TestApp> {
     deleteFormTemplate,
   });
 
-  return { app, db, authz };
+  return { app, kyselyClient, authz };
 }

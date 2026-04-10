@@ -4,9 +4,9 @@ import { sql } from 'kysely';
 import type { Database } from './database.js';
 import type { CreateFormTemplateInput } from '../domain/form-template.js';
 import { KyselyFormTemplateRepository } from './kysely-form-template-repository.js';
-import { createTestDb, runMigrations, runSeeds } from '../test-helpers/setup.js';
+import { createTestKyselyClient, runMigrations, runSeeds } from '../test-helpers/setup.js';
 
-let db: Kysely<Database>;
+let kyselyClient: Kysely<Database>;
 let repository: KyselyFormTemplateRepository;
 
 const sampleInput: CreateFormTemplateInput = {
@@ -46,19 +46,19 @@ const sampleInput: CreateFormTemplateInput = {
 };
 
 beforeAll(async () => {
-  db = createTestDb();
-  await runMigrations(db);
-  await runSeeds(db);
-  repository = new KyselyFormTemplateRepository(db);
+  kyselyClient = createTestKyselyClient();
+  await runMigrations(kyselyClient);
+  await runSeeds(kyselyClient);
+  repository = new KyselyFormTemplateRepository(kyselyClient);
 });
 
 afterEach(async () => {
   // Clean up only test-created templates (keep seeds: id 1, 2)
-  await sql`DELETE FROM form_templates WHERE id > 2`.execute(db);
+  await sql`DELETE FROM form_templates WHERE id > 2`.execute(kyselyClient);
 });
 
 afterAll(async () => {
-  await db.destroy();
+  await kyselyClient.destroy();
 });
 
 describe('KyselyFormTemplateRepository', () => {

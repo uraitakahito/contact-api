@@ -8,24 +8,24 @@ import type { FormTemplateResponse } from './format.js';
 import { createTestApp } from '../test-helpers/setup.js';
 
 let app: FastifyInstance;
-let db: Kysely<Database>;
+let kyselyClient: Kysely<Database>;
 
 const headers = { 'x-user-id': 'test-user' };
 
 beforeAll(async () => {
   const testApp = await createTestApp();
   app = testApp.app;
-  db = testApp.db;
+  kyselyClient = testApp.kyselyClient;
 });
 
 afterEach(async () => {
   // Clean up test-created templates (keep seeds: id 1, 2)
-  await sql`DELETE FROM form_templates WHERE id > 2`.execute(db);
+  await sql`DELETE FROM form_templates WHERE id > 2`.execute(kyselyClient);
 });
 
 afterAll(async () => {
   await app.close();
-  await db.destroy();
+  await kyselyClient.destroy();
 });
 
 /** レスポンスからエンベロープの data を取得するヘルパー */

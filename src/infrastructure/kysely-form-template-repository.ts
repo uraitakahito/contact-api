@@ -142,15 +142,15 @@ function groupFields(rows: FieldRow[]): FormField[] {
 }
 
 export class KyselyFormTemplateRepository implements FormTemplateRepository {
-  private readonly db: Kysely<Database>;
+  private readonly kyselyClient: Kysely<Database>;
 
-  constructor(db: Kysely<Database>) {
-    this.db = db;
+  constructor(kyselyClient: Kysely<Database>) {
+    this.kyselyClient = kyselyClient;
   }
 
   async findAll(): Promise<FormTemplate[]> {
     // Step 1: Fetch templates with translations
-    const templateRows = await this.db
+    const templateRows = await this.kyselyClient
       .selectFrom('formTemplates')
       .leftJoin('formTemplateTranslations', 'formTemplates.id', 'formTemplateTranslations.templateId')
       .select([
@@ -186,7 +186,7 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
 
     // Step 2: Fetch all fields with translations for these templates
     const templateIds = [...templateMap.keys()];
-    const fieldRows = await this.db
+    const fieldRows = await this.kyselyClient
       .selectFrom('formFields')
       .leftJoin('formFieldTranslations', 'formFields.id', 'formFieldTranslations.fieldId')
       .select([
@@ -232,7 +232,7 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
 
   async findById(id: number): Promise<FormTemplate | undefined> {
     // Step 1: Fetch template with translations
-    const templateRows = await this.db
+    const templateRows = await this.kyselyClient
       .selectFrom('formTemplates')
       .leftJoin('formTemplateTranslations', 'formTemplates.id', 'formTemplateTranslations.templateId')
       .select([
@@ -264,7 +264,7 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
     }
 
     // Step 2: Fetch fields with translations
-    const fieldRows = await this.db
+    const fieldRows = await this.kyselyClient
       .selectFrom('formFields')
       .leftJoin('formFieldTranslations', 'formFields.id', 'formFieldTranslations.fieldId')
       .select([
@@ -291,7 +291,7 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
   }
 
   async create(input: CreateFormTemplateInput): Promise<FormTemplate> {
-    return this.db.transaction().execute(async (trx) => {
+    return this.kyselyClient.transaction().execute(async (trx) => {
       const templateRow = await trx
         .insertInto('formTemplates')
         .values({ name: input.name })
@@ -324,7 +324,7 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
   }
 
   async update(id: number, input: UpdateFormTemplateInput): Promise<FormTemplate | undefined> {
-    const updateResult = await this.db.transaction().execute(async (trx) => {
+    const updateResult = await this.kyselyClient.transaction().execute(async (trx) => {
       // Check existence
       const existing = await trx
         .selectFrom('formTemplates')
@@ -380,7 +380,7 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
   }
 
   async delete(id: number): Promise<boolean> {
-    const { numDeletedRows } = await this.db
+    const { numDeletedRows } = await this.kyselyClient
       .deleteFrom('formTemplates')
       .where('id', '=', id)
       .executeTakeFirst();

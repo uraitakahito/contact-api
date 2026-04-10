@@ -5,17 +5,17 @@ import type { Database } from '../infrastructure/database.js';
 import { createTestApp } from '../test-helpers/setup.js';
 
 let app: FastifyInstance;
-let db: Kysely<Database>;
+let kyselyClient: Kysely<Database>;
 
 beforeAll(async () => {
   const testApp = await createTestApp();
   app = testApp.app;
-  db = testApp.db;
+  kyselyClient = testApp.kyselyClient;
 });
 
 afterAll(async () => {
   await app.close();
-  await db.destroy();
+  await kyselyClient.destroy();
 });
 
 describe('GET /health/live', () => {
@@ -36,7 +36,7 @@ describe('GET /health/ready', () => {
   });
 
   it('should return 503 when DB is unavailable', async () => {
-    await db.destroy();
+    await kyselyClient.destroy();
 
     const response = await app.inject({ method: 'GET', url: '/health/ready' });
 

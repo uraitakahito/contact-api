@@ -33,7 +33,7 @@ export interface SeedDefinition {
  * CSV を読み込み、SeedDefinition に従ってデータを投入する。
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Migration.up に Kysely<any> を渡すため
-export async function runSeed(db: Kysely<any>, definition: SeedDefinition): Promise<void> {
+export async function runSeed(kyselyClient: Kysely<any>, definition: SeedDefinition): Promise<void> {
   const absolutePath = path.resolve(process.cwd(), definition.csvPath);
   const rawRows = await readCsv(absolutePath);
 
@@ -53,13 +53,13 @@ export async function runSeed(db: Kysely<any>, definition: SeedDefinition): Prom
     return converted;
   });
 
-  await db.insertInto(definition.tableName).values(rows).execute();
+  await kyselyClient.insertInto(definition.tableName).values(rows).execute();
 }
 
 /**
  * SeedDefinition に対応するテーブルを TRUNCATE し、SERIAL シーケンスをリセットする。
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Migration.down に Kysely<any> を渡すため
-export async function revertSeed(db: Kysely<any>, definition: SeedDefinition): Promise<void> {
-  await sql`TRUNCATE TABLE ${sql.table(definition.tableName)} RESTART IDENTITY CASCADE`.execute(db);
+export async function revertSeed(kyselyClient: Kysely<any>, definition: SeedDefinition): Promise<void> {
+  await sql`TRUNCATE TABLE ${sql.table(definition.tableName)} RESTART IDENTITY CASCADE`.execute(kyselyClient);
 }

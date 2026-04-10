@@ -3,9 +3,9 @@ import type { Kysely } from 'kysely';
 import type { Database } from './database.js';
 import type { CreateContactInput } from '../domain/contact.js';
 import { KyselyContactRepository } from './kysely-contact-repository.js';
-import { cleanDatabase, createTestDb, runMigrations, runSeeds } from '../test-helpers/setup.js';
+import { cleanDatabase, createTestKyselyClient, runMigrations, runSeeds } from '../test-helpers/setup.js';
 
-let db: Kysely<Database>;
+let kyselyClient: Kysely<Database>;
 let repository: KyselyContactRepository;
 
 const sampleInput: CreateContactInput = {
@@ -14,18 +14,18 @@ const sampleInput: CreateContactInput = {
 };
 
 beforeAll(async () => {
-  db = createTestDb();
-  await runMigrations(db);
-  await runSeeds(db);
-  repository = new KyselyContactRepository(db);
+  kyselyClient = createTestKyselyClient();
+  await runMigrations(kyselyClient);
+  await runSeeds(kyselyClient);
+  repository = new KyselyContactRepository(kyselyClient);
 });
 
 afterEach(async () => {
-  await cleanDatabase(db);
+  await cleanDatabase(kyselyClient);
 });
 
 afterAll(async () => {
-  await db.destroy();
+  await kyselyClient.destroy();
 });
 
 describe('KyselyContactRepository', () => {
