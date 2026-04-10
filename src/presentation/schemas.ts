@@ -9,13 +9,11 @@ import { z } from 'zod/v4';
 
 const contactStatusSchema = z.enum(['new', 'in_progress', 'resolved', 'closed']);
 
+// --- Contact schemas ---
+
 export const createContactBodySchema = z.object({
-  lastName: z.string().min(1, { error: 'Last name cannot be empty' }),
-  firstName: z.string().min(1, { error: 'First name cannot be empty' }),
-  email: z.email({ error: 'Invalid email format' }),
-  phone: z.string().optional(),
-  categoryId: z.number().int().positive(),
-  message: z.string().min(1, { error: 'Message cannot be empty' }),
+  templateId: z.number().int().positive(),
+  data: z.record(z.string(), z.unknown()),
 });
 
 export const updateContactStatusBodySchema = z.object({
@@ -28,8 +26,48 @@ export const contactIdParamSchema = z.object({
 
 export const contactsQuerySchema = z.object({
   status: contactStatusSchema.optional(),
+  templateId: z.coerce.number().int().positive().optional(),
 });
 
-export const contactCategoriesQuerySchema = z.object({
+// --- Form template schemas ---
+
+const fieldTypeSchema = z.enum(['text', 'textarea', 'select']);
+const validationTypeSchema = z.enum(['none', 'email', 'phone', 'url']);
+
+const formFieldOptionSchema = z.object({
+  value: z.string().min(1),
+  labels: z.record(z.string(), z.string()),
+});
+
+const formFieldInputSchema = z.object({
+  name: z.string().min(1),
+  fieldType: fieldTypeSchema,
+  validationType: validationTypeSchema.default('none'),
+  isRequired: z.boolean().default(false),
+  displayOrder: z.number().int(),
+  options: z.array(formFieldOptionSchema).default([]),
+  translations: z.record(z.string(), z.object({
+    label: z.string(),
+    placeholder: z.string().default(''),
+  })).default({}),
+});
+
+export const createFormTemplateBodySchema = z.object({
+  name: z.string().min(1),
+  translations: z.record(z.string(), z.string()).default({}),
+  fields: z.array(formFieldInputSchema),
+});
+
+export const updateFormTemplateBodySchema = z.object({
+  name: z.string().min(1).optional(),
+  translations: z.record(z.string(), z.string()).optional(),
+  fields: z.array(formFieldInputSchema).optional(),
+});
+
+export const templateIdParamSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+export const formTemplatesQuerySchema = z.object({
   locale: z.string().min(1).default('en'),
 });

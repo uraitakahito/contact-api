@@ -27,12 +27,9 @@ function createMockAuthorizationService(): ContactAuthorizationService {
 
 const sampleContact: Contact = {
   id: 1,
-  lastName: 'Test',
-  firstName: 'User',
-  email: 'test@example.com',
-  phone: null,
-  categoryId: 1,
-  message: 'Test message body',
+  templateId: 1,
+  userId: 'alice',
+  data: { name: 'Test', email: 'test@example.com', message: 'Hello' },
   status: 'new',
   createdAt: new Date('2026-01-01'),
   updatedAt: new Date('2026-01-01'),
@@ -53,16 +50,16 @@ describe('GetContactsUseCase', () => {
     expect(repo.findAll).toHaveBeenCalledWith({ ids: [1, 3] });
   });
 
-  it('should pass status filter along with ids', async () => {
+  it('should pass status and templateId filter along with ids', async () => {
     const repo = createMockRepository();
     const authz = createMockAuthorizationService();
     vi.mocked(authz.listViewableContactIds).mockResolvedValue([1, 2]);
     vi.mocked(repo.findAll).mockResolvedValue([]);
     const useCase = new GetContactsUseCase(repo, authz);
 
-    await useCase.execute('alice', { status: 'new' });
+    await useCase.execute('alice', { status: 'new', templateId: 1 });
 
-    expect(repo.findAll).toHaveBeenCalledWith({ status: 'new', ids: [1, 2] });
+    expect(repo.findAll).toHaveBeenCalledWith({ status: 'new', templateId: 1, ids: [1, 2] });
   });
 
   it('should return empty array when user has no access', async () => {

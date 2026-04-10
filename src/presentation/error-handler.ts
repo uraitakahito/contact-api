@@ -5,7 +5,7 @@
 
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod/v4';
-import { AuthorizationError, ContactCategoryNotFoundError, ContactNotFoundError, ContactValidationError, InvalidStatusTransitionError } from '../domain/errors.js';
+import { AuthorizationError, ContactNotFoundError, ContactValidationError, FormFieldValidationError, FormTemplateNotFoundError, InvalidStatusTransitionError } from '../domain/errors.js';
 
 export function errorHandler(
   error: Error,
@@ -22,13 +22,18 @@ export function errorHandler(
     return;
   }
 
-  if (error instanceof ContactCategoryNotFoundError) {
+  if (error instanceof FormTemplateNotFoundError) {
     void reply.status(400).send({ error: error.message });
     return;
   }
 
   if (error instanceof ContactValidationError) {
     void reply.status(400).send({ error: error.message });
+    return;
+  }
+
+  if (error instanceof FormFieldValidationError) {
+    void reply.status(400).send({ error: error.message, details: error.errors });
     return;
   }
 

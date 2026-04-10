@@ -19,7 +19,7 @@ export class GetContactsUseCase {
     this.authorizationService = authorizationService;
   }
 
-  async execute(userId: string, filter?: { status?: ContactStatus }): Promise<Contact[]> {
+  async execute(userId: string, filter?: { status?: ContactStatus; templateId?: number }): Promise<Contact[]> {
     const ids = await this.authorizationService.listViewableContactIds(userId);
     return this.contactRepository.findAll({ ...filter, ids });
   }

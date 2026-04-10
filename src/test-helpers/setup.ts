@@ -5,20 +5,25 @@ import Fastify from 'fastify';
 import type { FastifyBaseLogger, FastifyInstance } from 'fastify';
 import { FileMigrationProvider, type Kysely, Migrator, sql } from 'kysely';
 import { CreateContactUseCase } from '../application/create-contact.js';
+import { CreateFormTemplateUseCase } from '../application/create-form-template.js';
 import { DeleteContactUseCase } from '../application/delete-contact.js';
+import { DeleteFormTemplateUseCase } from '../application/delete-form-template.js';
 import { GetContactByIdUseCase } from '../application/get-contact-by-id.js';
-import { GetContactCategoriesUseCase } from '../application/get-contact-categories.js';
 import { GetContactsUseCase } from '../application/get-contacts.js';
+import { GetFormTemplateByIdUseCase } from '../application/get-form-template-by-id.js';
+import { GetFormTemplatesUseCase } from '../application/get-form-templates.js';
 import { UpdateContactStatusUseCase } from '../application/update-contact-status.js';
+import { UpdateFormTemplateUseCase } from '../application/update-form-template.js';
 import { createKyselyClient } from '../infrastructure/connection.js';
 import type { Database } from '../infrastructure/database.js';
-import { KyselyContactCategoryRepository } from '../infrastructure/kysely-contact-category-repository.js';
 import { KyselyContactRepository } from '../infrastructure/kysely-contact-repository.js';
+import { KyselyFormTemplateRepository } from '../infrastructure/kysely-form-template-repository.js';
 import { logger } from '../infrastructure/logger.js';
-import * as contactCategoriesSeed from '../infrastructure/seeds/001-contact-categories.js';
+import * as formTemplatesSeed from '../infrastructure/seeds/001-form-templates.js';
 import { errorHandler } from '../presentation/error-handler.js';
 import { registerHealthRoutes } from '../presentation/health-routes.js';
 import { registerContactRoutes } from '../presentation/contact-routes.js';
+import { registerFormTemplateRoutes } from '../presentation/form-template-routes.js';
 import { InMemoryContactAuthorizationService } from './in-memory-contact-authorization-service.js';
 
 
@@ -50,16 +55,11 @@ export async function runMigrations(db: Kysely<Database>): Promise<void> {
 
 /**
  * テスト用シード投入。
- * 外部からの seed 操作（npm run seed / seed:down）で DB の ID シーケンスや
- * kysely_seed 追跡テーブルが不整合になっても、テストが安定して動作するよう
  * 毎回 TRUNCATE → 再投入する。
- *
- * FileMigrationProvider の動的 import() は @vite-ignore により vitest の
- * モジュール解決を経由しないため、静的インポートで seed モジュールを直接呼ぶ。
  */
 export async function runSeeds(db: Kysely<Database>): Promise<void> {
-  await sql`TRUNCATE TABLE contacts, contact_category_translations, contact_categories RESTART IDENTITY CASCADE`.execute(db);
-  await contactCategoriesSeed.up(db);
+  await sql`TRUNCATE TABLE contacts, form_field_translations, form_fields, form_template_translations, form_templates RESTART IDENTITY CASCADE`.execute(db);
+  await formTemplatesSeed.up(db);
 }
 
 export async function cleanDatabase(
@@ -83,13 +83,17 @@ export async function createTestApp(): Promise<TestApp> {
 
   const authz = new InMemoryContactAuthorizationService();
   const contactRepository = new KyselyContactRepository(db);
-  const contactCategoryRepository = new KyselyContactCategoryRepository(db);
-  const createContact = new CreateContactUseCase(contactRepository, contactCategoryRepository, authz);
+  const formTemplateRepository = new KyselyFormTemplateRepository(db);
+  const createContact = new CreateContactUseCase(contactRepository, formTemplateRepository, authz);
   const getContacts = new GetContactsUseCase(contactRepository, authz);
   const getContactById = new GetContactByIdUseCase(contactRepository, authz);
   const updateContactStatus = new UpdateContactStatusUseCase(contactRepository, authz);
   const deleteContact = new DeleteContactUseCase(contactRepository, authz);
-  const getContactCategories = new GetContactCategoriesUseCase(contactCategoryRepository);
+  const createFormTemplate = new CreateFormTemplateUseCase(formTemplateRepository);
+  const getFormTemplates = new GetFormTemplatesUseCase(formTemplateRepository);
+  const getFormTemplateById = new GetFormTemplateByIdUseCase(formTemplateRepository);
+  const updateFormTemplate = new UpdateFormTemplateUseCase(formTemplateRepository);
+  const deleteFormTemplate = new DeleteFormTemplateUseCase(formTemplateRepository);
 
   const app = Fastify({ loggerInstance: logger as FastifyBaseLogger });
   app.setErrorHandler(errorHandler);
@@ -100,7 +104,13 @@ export async function createTestApp(): Promise<TestApp> {
     getContactById,
     updateContactStatus,
     deleteContact,
-    getContactCategories,
+  });
+  registerFormTemplateRoutes(app, {
+    createFormTemplate,
+    getFormTemplates,
+    getFormTemplateById,
+    updateFormTemplate,
+    deleteFormTemplate,
   });
 
   return { app, db, authz };

@@ -9,24 +9,17 @@ export type ContactStatus = 'new' | 'in_progress' | 'resolved' | 'closed';
 
 export interface Contact {
   id: number;
-  lastName: string;
-  firstName: string;
-  email: string;
-  phone: string | null;
-  categoryId: number;
-  message: string;
+  templateId: number;
+  userId: string;
+  data: Record<string, unknown>;
   status: ContactStatus;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface CreateContactInput {
-  lastName: string;
-  firstName: string;
-  email: string;
-  phone?: string | undefined;
-  categoryId: number;
-  message: string;
+  templateId: number;
+  data: Record<string, unknown>;
 }
 
 const validNextStatus: Record<ContactStatus, ContactStatus | null> = {

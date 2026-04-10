@@ -19,22 +19,21 @@ export class KyselyContactRepository implements ContactRepository {
     this.db = db;
   }
 
-  async create(input: CreateContactInput): Promise<Contact> {
-    return this.db
+  async create(userId: string, input: CreateContactInput): Promise<Contact> {
+    const row = await this.db
       .insertInto('contacts')
       .values({
-        lastName: input.lastName,
-        firstName: input.firstName,
-        email: input.email,
-        phone: input.phone ?? null,
-        categoryId: input.categoryId,
-        message: input.message,
+        templateId: input.templateId,
+        userId,
+        data: JSON.stringify(input.data),
       })
       .returningAll()
-      .executeTakeFirstOrThrow() as Promise<Contact>;
+      .executeTakeFirstOrThrow();
+
+    return toContact(row);
   }
 
-  async findAll(filter?: { status?: ContactStatus; ids?: number[] }): Promise<Contact[]> {
+  async findAll(filter?: { status?: ContactStatus; ids?: number[]; templateId?: number }): Promise<Contact[]> {
     let query = this.db.selectFrom('contacts').selectAll();
 
     if (filter?.ids !== undefined) {
@@ -48,24 +47,33 @@ export class KyselyContactRepository implements ContactRepository {
       query = query.where('status', '=', filter.status);
     }
 
-    return query.orderBy('createdAt', 'desc').execute() as Promise<Contact[]>;
+    if (filter?.templateId !== undefined) {
+      query = query.where('templateId', '=', filter.templateId);
+    }
+
+    const rows = await query.orderBy('createdAt', 'desc').execute();
+    return rows.map(toContact);
   }
 
   async findById(id: number): Promise<Contact | undefined> {
-    return this.db
+    const row = await this.db
       .selectFrom('contacts')
       .selectAll()
       .where('id', '=', id)
-      .executeTakeFirst() as Promise<Contact | undefined>;
+      .executeTakeFirst();
+
+    return row ? toContact(row) : undefined;
   }
 
   async updateStatus(id: number, status: ContactStatus): Promise<Contact | undefined> {
-    return this.db
+    const row = await this.db
       .updateTable('contacts')
       .set({ status, updatedAt: sql`now()` })
       .where('id', '=', id)
       .returningAll()
-      .executeTakeFirst() as Promise<Contact | undefined>;
+      .executeTakeFirst();
+
+    return row ? toContact(row) : undefined;
   }
 
   async delete(id: number): Promise<boolean> {
@@ -76,4 +84,24 @@ export class KyselyContactRepository implements ContactRepository {
 
     return result.numDeletedRows > 0n;
   }
+}
+
+function toContact(row: {
+  id: number;
+  templateId: number;
+  userId: string;
+  data: unknown;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+}): Contact {
+  return {
+    id: row.id,
+    templateId: row.templateId,
+    userId: row.userId,
+    data: row.data as Record<string, unknown>,
+    status: row.status as Contact['status'],
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
 }
