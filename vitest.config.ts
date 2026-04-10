@@ -20,6 +20,7 @@ export default defineConfig({
             'src/presentation/error-handler.test.ts',
             'src/infrastructure/csv-reader.test.ts',
           ],
+          sequence: { groupOrder: 1 },
         },
       },
       {
@@ -30,11 +31,9 @@ export default defineConfig({
             'src/presentation/**/*.test.ts',
           ],
           pool: 'forks',
-          poolOptions: {
-            forks: {
-              singleFork: true,
-            },
-          },
+          maxWorkers: 1,
+          isolate: false,
+          sequence: { groupOrder: 2 },
         },
       },
     ],
