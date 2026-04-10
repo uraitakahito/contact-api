@@ -6,11 +6,14 @@
  * Kysely マイグレーションランナーでシードデータを投入/削除する。
  */
 
+import { fileURLToPath } from 'node:url';
 import { Argument, Command } from 'commander';
 import type { RawDbOptions } from '../infrastructure/cli-db-options.js';
 import { addDbOptions, extractDbConfig } from '../infrastructure/cli-db-options.js';
 import { addLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
+import type { RawMigrationFolderOption } from '../infrastructure/cli-migration-folder-option.js';
+import { addMigrationFolderOption } from '../infrastructure/cli-migration-folder-option.js';
 import { createKyselyClient } from '../infrastructure/connection.js';
 import { logger, createChildLogger } from '../infrastructure/logger.js';
 import { getMigrationInfos, runMigrator } from '../infrastructure/migrator-runner.js';
@@ -19,32 +22,33 @@ const label = 'Seed';
 
 // CLI
 const program = new Command();
+const defaultMigrationFolder = fileURLToPath(new URL('../infrastructure/seeds', import.meta.url));
+
 program
   .name('seed')
   .description('Run database seeds')
   .addArgument(new Argument('<direction>', 'Seed direction').choices(['up', 'down']));
 
 addDbOptions(program);
+addMigrationFolderOption(program, { defaultPath: defaultMigrationFolder, envVar: 'SEED_FOLDER' });
 addLogLevelOption(program);
 program.parse();
 
 const direction = program.args[0] as 'up' | 'down';
-logger.level = program.opts<RawLogLevelOption>().logLevel;
+const opts = program.opts<RawDbOptions & RawLogLevelOption & RawMigrationFolderOption>();
+logger.level = opts.logLevel;
 
 const cliLogger = createChildLogger({ command: 'seed', direction });
 
 // Infrastructure
-const kyselyClient = createKyselyClient(extractDbConfig(program.opts<RawDbOptions>()));
+const kyselyClient = createKyselyClient(extractDbConfig(opts));
+const migratorConfig = {
+  migrationFolder: opts.migrationFolder,
+  tableName: 'kysely_seed',
+  lockTableName: 'kysely_seed_lock',
+};
 
-const { error, results } = await runMigrator(
-  kyselyClient,
-  {
-    migrationFolder: new URL('../infrastructure/seeds', import.meta.url),
-    tableName: 'kysely_seed',
-    lockTableName: 'kysely_seed_lock',
-  },
-  direction,
-);
+const { error, results } = await runMigrator(kyselyClient, migratorConfig, direction);
 
 for (const result of results ?? []) {
   if (result.status === 'Success') {
@@ -64,11 +68,6 @@ if (results?.length === 0) {
   cliLogger.info(`No pending ${label.toLowerCase()} to execute`);
 
   if (logger.isLevelEnabled('debug')) {
-    const migratorConfig = {
-      migrationFolder: new URL('../infrastructure/seeds', import.meta.url),
-      tableName: 'kysely_seed',
-      lockTableName: 'kysely_seed_lock',
-    };
     const infos = await getMigrationInfos(kyselyClient, migratorConfig);
     if (infos.length > 0) {
       cliLogger.info(`${label} status:`);
