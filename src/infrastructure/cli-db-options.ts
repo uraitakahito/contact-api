@@ -21,11 +21,11 @@ export interface RawDbOptions {
 
 export function addDbOptions(cmd: Command): Command {
   return cmd
-    .addOption(new Option('--db-host <host>', 'Database host').env('DATABASE_HOST').default('localhost'))
-    .addOption(new Option('--db-port <port>', 'Database port').env('DATABASE_PORT').default(5432).argParser(parsePort))
-    .addOption(new Option('--db-user <user>', 'Database user').env('DATABASE_USER'))
-    .addOption(new Option('--db-password <password>', 'Database password').env('DATABASE_PASSWORD'))
-    .addOption(new Option('--db-database <name>', 'Database name').env('DATABASE_NAME'));
+    .addOption(new Option('--db-host <host>', 'Database host').env('CONTACT_API_DB_HOST').default('localhost'))
+    .addOption(new Option('--db-port <port>', 'Database port').env('CONTACT_API_DB_PORT').default(5432).argParser(parsePort))
+    .addOption(new Option('--db-user <user>', 'Database user').env('CONTACT_API_DB_USER'))
+    .addOption(new Option('--db-password <password>', 'Database password').env('CONTACT_API_DB_PASSWORD'))
+    .addOption(new Option('--db-database <name>', 'Database name').env('CONTACT_API_DB_NAME'));
 }
 
 export function extractDbConfig(opts: RawDbOptions): DbConfig {

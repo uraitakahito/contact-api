@@ -45,8 +45,42 @@ npm run build
 npm run migrate
 npm run seed
 npm run openfga:setup
+```
+
+`openfga:setup` が出力する `OPENFGA_STORE_ID` と `OPENFGA_AUTH_MODEL_ID` をホスト側の `.env` に追記し、dev コンテナを再起動してください。
+
+```bash
+# ホスト側で実行
+docker compose --profile dev up -d
+```
+
+再び dev コンテナ内で実行
+
+```bash
 npm start
 ```
+
+### 再セットアップ
+
+既存のデータベースを破棄して作り直す場合:
+
+```bash
+docker compose down -v
+./setup.sh
+docker compose --profile dev up -d
+```
+
+### データベース構成
+
+contact_api と OpenFGA は同一 PostgreSQL サーバー上の別データベース・別ユーザーで動作します。
+
+| サービス | データベース | ユーザー |
+|---------|------------|---------|
+| contact_api | `contact_api` | `contact_api` |
+| テスト | `contact_api_test` | `contact_api` |
+| OpenFGA | `openfga` | `openfga` |
+
+初回起動時に `docker/init-contact-api-db.sh` と `docker/init-openfga-db.sh` が各データベースとユーザーを自動作成します。
 
 `openfga:setup` が出力する `OPENFGA_STORE_ID` と `OPENFGA_AUTH_MODEL_ID` を `.env` に設定してください。
 
