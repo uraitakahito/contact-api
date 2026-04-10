@@ -11,7 +11,7 @@ import type { RawDbOptions } from '../infrastructure/cli-db-options.js';
 import { addDbOptions, extractDbConfig } from '../infrastructure/cli-db-options.js';
 import { addLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
-import { createDb } from '../infrastructure/connection.js';
+import { createKyselyClient } from '../infrastructure/connection.js';
 import { logger, createChildLogger } from '../infrastructure/logger.js';
 import { getMigrationInfos, runMigrator } from '../infrastructure/migrator-runner.js';
 
@@ -34,10 +34,10 @@ logger.level = program.opts<RawLogLevelOption>().logLevel;
 const cliLogger = createChildLogger({ command: 'migrate', direction });
 
 // Infrastructure
-const db = createDb(extractDbConfig(program.opts<RawDbOptions>()));
+const kyselyClient = createKyselyClient(extractDbConfig(program.opts<RawDbOptions>()));
 
 const { error, results } = await runMigrator(
-  db,
+  kyselyClient,
   {
     migrationFolder: new URL('../infrastructure/migrations', import.meta.url),
     tableName: 'kysely_migration',
@@ -69,7 +69,7 @@ if (results?.length === 0) {
       tableName: 'kysely_migration',
       lockTableName: 'kysely_migration_lock',
     };
-    const infos = await getMigrationInfos(db, migratorConfig);
+    const infos = await getMigrationInfos(kyselyClient, migratorConfig);
     if (infos.length > 0) {
       cliLogger.info(`${label} status:`);
       for (const info of infos) {
@@ -94,4 +94,4 @@ if (error) {
   process.exitCode = 1;
 }
 
-await db.destroy();
+await kyselyClient.destroy();
