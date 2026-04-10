@@ -161,7 +161,6 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
         'formTemplateTranslations.locale as templateTransLocale',
         'formTemplateTranslations.name as templateTransName',
       ])
-      .orderBy('formTemplates.id', 'asc')
       .execute() as TemplateRow[];
 
     const templateMap = new Map<number, FormTemplate>();
