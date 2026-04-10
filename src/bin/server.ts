@@ -68,8 +68,8 @@ const app = Fastify({ loggerInstance: logger as FastifyBaseLogger });
 
 app.setErrorHandler(errorHandler);
 
+// Routes
 registerHealthRoutes(app, kyselyClient);
-
 registerContactRoutes(app, {
   createContact,
   getContacts,
