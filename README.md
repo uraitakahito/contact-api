@@ -2,38 +2,13 @@
 
 ## 特徴
 
-- **ヘキサゴナルアーキテクチャ（Ports and Adapters）** — Domain 層が外部ライブラリに一切依存せず、Port（インターフェース）と Adapter（実装）で接続する設計
-- **OpenFGA による関係ベースアクセス制御（ReBAC）** — owner/editor/viewer のリレーション継承による柔軟な認可モデル。OpenFGA を Policy Decision Point（PDP）として認可判断を委譲
+- 問い合わせフォームを実装するための API サーバー
+- **OpenFGA による関係ベースアクセス制御（ReBAC）** — OpenFGA を Policy Decision Point（PDP）として認可判断を委譲
 - **多言語対応（i18n）** — 問い合わせ種別がロケール別翻訳に対応
-- **本番向け distroless コンテナ** — Multi-stage ビルドで軽量・安全なプロダクションイメージ
 
 ## アーキテクチャ
 
-```mermaid
-graph TD
-    subgraph Presentation["Presentation Layer"]
-        P["Fastify Routes, Zod Schemas<br/>HTTP リクエスト/レスポンスの処理"]
-    end
-
-    subgraph Application["Application Layer"]
-        A["Use Cases<br/>ビジネスロジックのオーケストレーション"]
-    end
-
-    subgraph Domain["Domain Layer"]
-        D["Entities, Repository Interface<br/>ビジネスルール、外部依存なし"]
-    end
-
-    subgraph Infrastructure["Infrastructure Layer"]
-        I["Kysely Repository, DB Connection,<br/>OpenFGA Authorization<br/>データベース・認可基盤の具体的な実装"]
-    end
-
-    Presentation --> Application --> Domain
-    Infrastructure --> Domain
-```
-
-**依存の方向**: Presentation → Application → Domain ← Infrastructure
-
-Domain 層は外部ライブラリに一切依存しません。Infrastructure 層が Domain 層の Repository インターフェースと Authorization インターフェースを実装します（依存性逆転の原則）。
+[docs/architecture.md](docs/architecture.md) を参照。
 
 ## セットアップ
 
