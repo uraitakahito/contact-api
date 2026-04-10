@@ -20,10 +20,10 @@
     "test": "vitest run",
     "test:unit": "vitest run --project unit",
     "test:db": "vitest run --project db",
-    "migrate": "node dist/src/bin/cli.js migrate up | pino-pretty",
-    "migrate:down": "node dist/src/bin/cli.js migrate down | pino-pretty",
-    "seed": "node dist/src/bin/cli.js seed up | pino-pretty",
-    "seed:down": "node dist/src/bin/cli.js seed down | pino-pretty"
+    "migrate": "node dist/src/bin/migrate.js up --log-level info | pino-pretty",
+    "migrate:down": "node dist/src/bin/migrate.js down --log-level info | pino-pretty",
+    "seed": "node dist/src/bin/seed.js up --log-level info | pino-pretty",
+    "seed:down": "node dist/src/bin/seed.js down --log-level info | pino-pretty"
   },
   "author": "",
   "license": "Unlicense",
