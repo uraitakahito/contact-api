@@ -29,11 +29,11 @@ jobs:
         ports:
           - 5432:5432
     env:
-      DATABASE_HOST: localhost
-      DATABASE_PORT: 5432
-      DATABASE_USER: postgres
-      DATABASE_PASSWORD: postgres
-      DATABASE_NAME: contact_api_test
+      CONTACT_API_DB_HOST: localhost
+      CONTACT_API_DB_PORT: 5432
+      CONTACT_API_DB_USER: postgres
+      CONTACT_API_DB_PASSWORD: postgres
+      CONTACT_API_DB_NAME: contact_api_test
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0

@@ -39,9 +39,14 @@ USER_ID=$(id -u)
 GROUP_ID=$(id -g)
 TZ=Asia/Tokyo
 GH_TOKEN=${GH_TOKEN}
-DATABASE_USER=postgres
-DATABASE_PASSWORD=postgres
-DATABASE_NAME=contact_api
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+CONTACT_API_DB_USER=contact_api
+CONTACT_API_DB_PASSWORD=contact_api
+CONTACT_API_DB_NAME=contact_api
+OPENFGA_DB_USER=openfga
+OPENFGA_DB_PASSWORD=openfga
+OPENFGA_DB_NAME=openfga
 EOF
 echo "Created .env file"
 

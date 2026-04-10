@@ -45,10 +45,25 @@ npm run build
 npm run migrate
 npm run seed
 npm run openfga:setup
-npm start
 ```
 
-`openfga:setup` が出力する `OPENFGA_STORE_ID` と `OPENFGA_AUTH_MODEL_ID` を `.env` に設定してください。
+`openfga:setup` が出力する `OPENFGA_STORE_ID` と `OPENFGA_AUTH_MODEL_ID` を指定してサーバーを起動します。
+
+```bash
+OPENFGA_STORE_ID=xxxxx OPENFGA_AUTH_MODEL_ID=yyyyy npm start
+```
+
+`.env` に設定してコンテナを再起動する方法でも問題ありません。
+
+### 再セットアップ
+
+既存のデータベースを破棄して作り直す場合:
+
+```bash
+docker compose down -v
+./setup.sh
+docker compose --profile dev up -d
+```
 
 ## 認可 (OpenFGA)
 

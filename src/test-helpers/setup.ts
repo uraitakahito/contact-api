@@ -24,11 +24,11 @@ import { InMemoryContactAuthorizationService } from './in-memory-contact-authori
 
 export function createTestDb(): Kysely<Database> {
   return createDb({
-    host: process.env['DATABASE_HOST'] ?? 'localhost',
-    port: Number(process.env['DATABASE_PORT'] ?? 5432),
-    user: process.env['DATABASE_USER'],
-    password: process.env['DATABASE_PASSWORD'],
-    database: process.env['DATABASE_NAME'] ?? 'contact_api_test',
+    host: process.env['CONTACT_API_DB_HOST'] ?? 'localhost',
+    port: Number(process.env['CONTACT_API_DB_PORT'] ?? 5432),
+    user: process.env['CONTACT_API_DB_USER'],
+    password: process.env['CONTACT_API_DB_PASSWORD'],
+    database: process.env['CONTACT_API_DB_NAME'] ?? 'contact_api_test',
   });
 }
 

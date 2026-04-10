@@ -2,15 +2,23 @@ services:
   postgres:
     image: postgres:17
     environment:
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      CONTACT_API_DB_USER: ${CONTACT_API_DB_USER}
+      CONTACT_API_DB_PASSWORD: ${CONTACT_API_DB_PASSWORD}
+      CONTACT_API_DB_NAME: ${CONTACT_API_DB_NAME}
+      OPENFGA_DB_USER: ${OPENFGA_DB_USER}
+      OPENFGA_DB_PASSWORD: ${OPENFGA_DB_PASSWORD}
+      OPENFGA_DB_NAME: ${OPENFGA_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # 初回起動時に各データベースとユーザーを自動作成する初期化スクリプト
+      - ./docker/init-contact-api-db.sh:/docker-entrypoint-initdb.d/01-init-contact-api-db.sh:ro
+      - ./docker/init-openfga-db.sh:/docker-entrypoint-initdb.d/02-init-openfga-db.sh:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -20,7 +28,7 @@ services:
     command: migrate
     environment:
       OPENFGA_DATASTORE_ENGINE: postgres
-      OPENFGA_DATASTORE_URI: "postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:5432/${DATABASE_NAME}?sslmode=disable"
+      OPENFGA_DATASTORE_URI: "postgres://${OPENFGA_DB_USER}:${OPENFGA_DB_PASSWORD}@postgres:5432/${OPENFGA_DB_NAME}?sslmode=disable"
     depends_on:
       postgres:
         condition: service_healthy
@@ -30,7 +38,7 @@ services:
     command: run
     environment:
       OPENFGA_DATASTORE_ENGINE: postgres
-      OPENFGA_DATASTORE_URI: "postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:5432/${DATABASE_NAME}?sslmode=disable"
+      OPENFGA_DATASTORE_URI: "postgres://${OPENFGA_DB_USER}:${OPENFGA_DB_PASSWORD}@postgres:5432/${OPENFGA_DB_NAME}?sslmode=disable"
       OPENFGA_PLAYGROUND_ENABLED: "true"
     ports:
       - "8080:8080"
@@ -60,11 +68,11 @@ services:
     environment:
       - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock
       - GH_TOKEN=${GH_TOKEN}
-      - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
-      - DATABASE_USER=${DATABASE_USER}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_NAME=${DATABASE_NAME}
+      - CONTACT_API_DB_HOST=postgres
+      - CONTACT_API_DB_PORT=5432
+      - CONTACT_API_DB_USER=${CONTACT_API_DB_USER}
+      - CONTACT_API_DB_PASSWORD=${CONTACT_API_DB_PASSWORD}
+      - CONTACT_API_DB_NAME=${CONTACT_API_DB_NAME}
       - OPENFGA_API_URL=http://openfga:8080
       - OPENFGA_STORE_ID=${OPENFGA_STORE_ID:-}
       - OPENFGA_AUTH_MODEL_ID=${OPENFGA_AUTH_MODEL_ID:-}
@@ -83,11 +91,11 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     environment:
-      - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
-      - DATABASE_USER=${DATABASE_USER}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_NAME=${DATABASE_NAME}
+      - CONTACT_API_DB_HOST=postgres
+      - CONTACT_API_DB_PORT=5432
+      - CONTACT_API_DB_USER=${CONTACT_API_DB_USER}
+      - CONTACT_API_DB_PASSWORD=${CONTACT_API_DB_PASSWORD}
+      - CONTACT_API_DB_NAME=${CONTACT_API_DB_NAME}
       - OPENFGA_API_URL=http://openfga:8080
       - OPENFGA_STORE_ID=${OPENFGA_STORE_ID:-}
       - OPENFGA_AUTH_MODEL_ID=${OPENFGA_AUTH_MODEL_ID:-}
