@@ -2,25 +2,26 @@
 
 ## アーキテクチャ
 
-```
-┌─────────────────────────────────────────┐
-│           Presentation Layer            │
-│   (Fastify Routes, Zod Schemas)         │
-│   HTTP リクエスト/レスポンスの処理          │
-├─────────────────────────────────────────┤
-│           Application Layer             │
-│   (Use Cases)                           │
-│   ビジネスロジックのオーケストレーション      │
-├─────────────────────────────────────────┤
-│            Domain Layer                 │
-│   (Entities, Repository Interface)      │
-│   ビジネスルール、外部依存なし              │
-├─────────────────────────────────────────┤
-│         Infrastructure Layer            │
-│   (Kysely Repository, DB Connection,    │
-│    OpenFGA Authorization)               │
-│   データベース・認可基盤の具体的な実装       │
-└─────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Presentation["Presentation Layer"]
+        P["Fastify Routes, Zod Schemas<br/>HTTP リクエスト/レスポンスの処理"]
+    end
+
+    subgraph Application["Application Layer"]
+        A["Use Cases<br/>ビジネスロジックのオーケストレーション"]
+    end
+
+    subgraph Domain["Domain Layer"]
+        D["Entities, Repository Interface<br/>ビジネスルール、外部依存なし"]
+    end
+
+    subgraph Infrastructure["Infrastructure Layer"]
+        I["Kysely Repository, DB Connection,<br/>OpenFGA Authorization<br/>データベース・認可基盤の具体的な実装"]
+    end
+
+    Presentation --> Application --> Domain
+    Infrastructure --> Domain
 ```
 
 **依存の方向**: Presentation → Application → Domain ← Infrastructure
@@ -143,23 +144,20 @@ curl -s -X DELETE http://localhost:3000/contacts/1 \
 
 本プロジェクトは DDD のレイヤードアーキテクチャに、ヘキサゴナルアーキテクチャの考え方を取り入れています。アプリケーションのコアロジックを外部の技術的詳細（HTTP、データベース、認可基盤）から分離し、Port（インターフェース）と Adapter（実装）で接続します。
 
-```
-[HTTP Client]
-     │
-     ▼  Driving Adapter
-contact-routes.ts (Fastify)
-     │
-     ▼  Driving Port
-CreateContactUseCase.execute()
-     │
-     ├─▶ Driven Port                     ├─▶ Driven Port
-     │   ContactRepository.create()       │   ContactAuthorizationService.grantOwnership()
-     │        │                           │        │
-     │        ▼  Driven Adapter           │        ▼  Driven Adapter
-     │   KyselyContactRepository          │   OpenFgaContactAuthorizationService
-     │        │                           │        │
-     │        ▼                           │        ▼
-     │   PostgreSQL                       │   OpenFGA
+```mermaid
+graph TD
+    Client["HTTP Client"]
+    Client -- "Driving Adapter" --> Routes["contact-routes.ts<br/>(Fastify)"]
+    Routes -- "Driving Port" --> UC["CreateContactUseCase.execute()"]
+
+    UC -- "Driven Port" --> Repo["ContactRepository.create()"]
+    UC -- "Driven Port" --> Authz["ContactAuthorizationService<br/>.grantOwnership()"]
+
+    Repo -- "Driven Adapter" --> KyselyRepo["KyselyContactRepository"]
+    Authz -- "Driven Adapter" --> FgaAdapter["OpenFgaContactAuthorizationService"]
+
+    KyselyRepo --> PG[("PostgreSQL")]
+    FgaAdapter --> FGA[("OpenFGA")]
 ```
 
 ### Port と Adapter の対応表
