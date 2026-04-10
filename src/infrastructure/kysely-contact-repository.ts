@@ -77,12 +77,12 @@ export class KyselyContactRepository implements ContactRepository {
   }
 
   async delete(id: number): Promise<boolean> {
-    const result = await this.db
+    const { numDeletedRows } = await this.db
       .deleteFrom('contacts')
       .where('id', '=', id)
       .executeTakeFirst();
 
-    return result.numDeletedRows > 0n;
+    return numDeletedRows > 0n;
   }
 }
 

@@ -130,16 +130,12 @@ describe('KyselyContactRepository', () => {
     it('should delete a contact and return true', async () => {
       const created = await repository.create('test-user', sampleInput);
 
-      const result = await repository.delete(created.id);
-
-      expect(result).toBe(true);
+      expect(await repository.delete(created.id)).toBe(true);
       expect(await repository.findById(created.id)).toBeUndefined();
     });
 
     it('should return false for non-existent id', async () => {
-      const result = await repository.delete(99999);
-
-      expect(result).toBe(false);
+      expect(await repository.delete(99999)).toBe(false);
     });
   });
 });

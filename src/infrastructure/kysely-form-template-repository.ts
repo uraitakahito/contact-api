@@ -278,7 +278,7 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
   }
 
   async update(id: number, input: UpdateFormTemplateInput): Promise<FormTemplate | undefined> {
-    const didUpdate = await this.db.transaction().execute(async (trx) => {
+    const updateResult = await this.db.transaction().execute(async (trx) => {
       // Check existence
       const existing = await trx
         .selectFrom('formTemplates')
@@ -286,7 +286,7 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
         .where('id', '=', id)
         .executeTakeFirst();
 
-      if (!existing) return false;
+      if (!existing) return 'not_found' as const;
 
       // Update template name if provided
       if (input.name !== undefined) {
@@ -324,22 +324,22 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
         await this.insertFields(trx, id, input.fields);
       }
 
-      return true;
+      return 'updated' as const;
     });
 
-    if (!didUpdate) return undefined;
+    if (updateResult === 'not_found') return undefined;
 
     // Re-fetch full template after transaction commits
     return this.findById(id);
   }
 
   async delete(id: number): Promise<boolean> {
-    const result = await this.db
+    const { numDeletedRows } = await this.db
       .deleteFrom('formTemplates')
       .where('id', '=', id)
       .executeTakeFirst();
 
-    return result.numDeletedRows > 0n;
+    return numDeletedRows > 0n;
   }
 
   private async insertFields(
