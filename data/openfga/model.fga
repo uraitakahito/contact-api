@@ -1,19 +1,18 @@
 model
   schema 1.1
 
-# A user represents an authenticated identity (e.g. user:alice).
-# This type has no relations of its own; it exists solely to be
-# referenced in other types' relation definitions (e.g. [user]).
+# 認証済みユーザーを表す型（例: user:alice）。
+# 自身にリレーションは持たず、他の型のリレーション定義から参照される。
 type user
 
-# System-level object; admins get elevated access across all resources.
+# システムレベルのオブジェクト。admin はすべてのリソースに対して昇格されたアクセス権を持つ。
 type system
   relations
     define admin: [user]
 
-# A contact record with hierarchical permission model:
+# 問い合わせレコード。階層的な権限モデルを持つ:
 #   owner > editor > viewer
-# System admins inherit editor (and therefore viewer) access.
+# system の admin は editor（および viewer）アクセスを継承する。
 type contact
   relations
     define system: [system]
