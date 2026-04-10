@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import type { Kysely } from 'kysely';
 import type { Database } from '../infrastructure/database.js';
 import type { InMemoryContactAuthorizationService } from '../test-helpers/in-memory-contact-authorization-service.js';
+import type { SuccessEnvelope } from './envelope.js';
 import type { ContactResponse } from './format.js';
 import { cleanDatabase, createTestApp } from '../test-helpers/setup.js';
 
@@ -39,10 +40,16 @@ const samplePayload = {
   },
 };
 
+/** レスポンスからエンベロープの data を取得するヘルパー */
+function successData(response: { json: () => unknown }): unknown {
+  return (response.json() as SuccessEnvelope<unknown>).data;
+}
+
 describe('Authentication (X-User-Id)', () => {
   it('should return 401 when X-User-Id header is missing', async () => {
     const response = await app.inject({ method: 'GET', url: '/contacts' });
     expect(response.statusCode).toBe(401);
+    expect((response.json() as { success: number }).success).toBe(0);
   });
 
   it('should return 401 when X-User-Id header is empty', async () => {
@@ -52,6 +59,7 @@ describe('Authentication (X-User-Id)', () => {
       headers: { 'x-user-id': '' },
     });
     expect(response.statusCode).toBe(401);
+    expect((response.json() as { success: number }).success).toBe(0);
   });
 });
 
@@ -65,7 +73,9 @@ describe('POST /contacts', () => {
     });
 
     expect(response.statusCode).toBe(201);
-    const body = response.json() as ContactResponse;
+    const envelope = response.json() as SuccessEnvelope<ContactResponse>;
+    expect(envelope.success).toBe(1);
+    const body = envelope.data;
     expect(body.templateId).toBe(1);
     expect(body.userId).toBe('test-user');
     expect(body.data).toEqual(samplePayload.data);
@@ -84,6 +94,7 @@ describe('POST /contacts', () => {
     });
 
     expect(response.statusCode).toBe(400);
+    expect((response.json() as { success: number }).success).toBe(0);
   });
 
   it('should return 400 for invalid email in data', async () => {
@@ -134,7 +145,7 @@ describe('GET /contacts', () => {
     const response = await app.inject({ method: 'GET', url: '/contacts', headers });
 
     expect(response.statusCode).toBe(200);
-    const body = response.json() as ContactResponse[];
+    const body = successData(response) as ContactResponse[];
     expect(body).toHaveLength(2);
   });
 
@@ -148,7 +159,7 @@ describe('GET /contacts', () => {
     });
 
     expect(response.statusCode).toBe(200);
-    const body = response.json() as ContactResponse[];
+    const body = successData(response) as ContactResponse[];
     expect(body).toHaveLength(0);
   });
 
@@ -159,7 +170,7 @@ describe('GET /contacts', () => {
       headers,
       payload: samplePayload,
     });
-    const { id: contactId } = createRes.json() as ContactResponse;
+    const { id: contactId } = successData(createRes) as ContactResponse;
 
     await app.inject({
       method: 'PATCH',
@@ -175,7 +186,7 @@ describe('GET /contacts', () => {
       url: '/contacts?status=in_progress',
       headers,
     });
-    expect((inProgressRes.json() as ContactResponse[])).toHaveLength(1);
+    expect(successData(inProgressRes) as ContactResponse[]).toHaveLength(1);
   });
 
   it('should filter by templateId', async () => {
@@ -193,7 +204,7 @@ describe('GET /contacts', () => {
       headers,
     });
 
-    const body = response.json() as ContactResponse[];
+    const body = successData(response) as ContactResponse[];
     expect(body).toHaveLength(1);
     expect(body[0]!.templateId).toBe(1);
   });
@@ -207,12 +218,12 @@ describe('GET /contacts/:id', () => {
       headers,
       payload: samplePayload,
     });
-    const { id: contactId } = createRes.json() as ContactResponse;
+    const { id: contactId } = successData(createRes) as ContactResponse;
 
     const response = await app.inject({ method: 'GET', url: `/contacts/${contactId}`, headers });
 
     expect(response.statusCode).toBe(200);
-    expect((response.json() as ContactResponse).templateId).toBe(1);
+    expect((successData(response) as ContactResponse).templateId).toBe(1);
   });
 
   it('should return 403 for unauthorized access', async () => {
@@ -222,7 +233,7 @@ describe('GET /contacts/:id', () => {
       headers,
       payload: samplePayload,
     });
-    const { id: contactId } = createRes.json() as ContactResponse;
+    const { id: contactId } = successData(createRes) as ContactResponse;
 
     const response = await app.inject({
       method: 'GET',
@@ -246,7 +257,7 @@ describe('PATCH /contacts/:id/status', () => {
       headers,
       payload: samplePayload,
     });
-    const { id: contactId } = createRes.json() as ContactResponse;
+    const { id: contactId } = successData(createRes) as ContactResponse;
 
     const response = await app.inject({
       method: 'PATCH',
@@ -256,7 +267,7 @@ describe('PATCH /contacts/:id/status', () => {
     });
 
     expect(response.statusCode).toBe(200);
-    const body = response.json() as ContactResponse;
+    const body = successData(response) as ContactResponse;
     expect(body.status).toBe('in_progress');
   });
 
@@ -267,7 +278,7 @@ describe('PATCH /contacts/:id/status', () => {
       headers,
       payload: samplePayload,
     });
-    const { id: contactId } = createRes.json() as ContactResponse;
+    const { id: contactId } = successData(createRes) as ContactResponse;
 
     const response = await app.inject({
       method: 'PATCH',
@@ -285,7 +296,7 @@ describe('PATCH /contacts/:id/status', () => {
       headers,
       payload: samplePayload,
     });
-    const { id: contactId } = createRes.json() as ContactResponse;
+    const { id: contactId } = successData(createRes) as ContactResponse;
 
     const response = await app.inject({
       method: 'PATCH',
@@ -305,10 +316,12 @@ describe('DELETE /contacts/:id', () => {
       headers,
       payload: samplePayload,
     });
-    const { id: contactId } = createRes.json() as ContactResponse;
+    const { id: contactId } = successData(createRes) as ContactResponse;
 
     const response = await app.inject({ method: 'DELETE', url: `/contacts/${contactId}`, headers });
-    expect(response.statusCode).toBe(204);
+    expect(response.statusCode).toBe(200);
+    expect((response.json() as SuccessEnvelope<null>).success).toBe(1);
+    expect((response.json() as SuccessEnvelope<null>).data).toBeNull();
 
     const getRes = await app.inject({ method: 'GET', url: `/contacts/${contactId}`, headers });
     expect(getRes.statusCode).toBe(403);
@@ -321,7 +334,7 @@ describe('DELETE /contacts/:id', () => {
       headers,
       payload: samplePayload,
     });
-    const { id: contactId } = createRes.json() as ContactResponse;
+    const { id: contactId } = successData(createRes) as ContactResponse;
 
     const response = await app.inject({
       method: 'DELETE',
