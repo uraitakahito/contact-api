@@ -17,7 +17,7 @@ graph TD
 
     Presentation -- "userId" --> Application
 
-    subgraph Application["Application 層 — 各 UseCase"]
+    subgraph Application["Application 層 — 各 UseCase（PEP）"]
         AuthzCheck["認可チェック<br/>(authz.can*)"]
         DbOp["DB 操作<br/>(repo.*)"]
         TupleOp["タプル書込/削除<br/>(authz.grant / revoke)"]
@@ -43,7 +43,7 @@ graph TD
     end
 
     AdapterRepo --> PostgreSQL1[("PostgreSQL")]
-    AdapterAuthz --> OpenFGA[("OpenFGA")]
+    AdapterAuthz --> OpenFGA[("OpenFGA（PDP）")]
     AdapterCat --> PostgreSQL2[("PostgreSQL")]
 ```
 
