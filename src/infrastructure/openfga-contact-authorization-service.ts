@@ -65,7 +65,7 @@ export class OpenFgaContactAuthorizationService implements ContactAuthorizationS
     await this.client.write({
       writes: [
         { user: `user:${userId}`, relation: 'owner', object: `contact:${objectId}` },
-        { user: 'system:global', relation: 'system', object: `contact:${objectId}` },
+        { user: 'system:global', relation: 'parent', object: `contact:${objectId}` },
       ],
     });
   }
@@ -75,7 +75,7 @@ export class OpenFgaContactAuthorizationService implements ContactAuthorizationS
     await this.client.write({
       deletes: [
         { user: `user:${userId}`, relation: 'owner', object: `contact:${objectId}` },
-        { user: 'system:global', relation: 'system', object: `contact:${objectId}` },
+        { user: 'system:global', relation: 'parent', object: `contact:${objectId}` },
       ],
     });
   }
