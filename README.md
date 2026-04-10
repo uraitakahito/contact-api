@@ -51,57 +51,7 @@ npm start
 
 ## 認可 (OpenFGA)
 
-本 API は [OpenFGA](https://openfga.dev/) による Relationship-Based Access Control (ReBAC) で認可を行います。
-
-### 認証
-
-すべての `/contacts` エンドポイントは `X-User-Id` リクエストヘッダーが必須です。ヘッダーが未設定の場合は `401 Unauthorized` を返します。
-
-`/contact-categories` と `/health/*` は認証不要です。
-
-### 認可モデル
-
-```
-type user
-
-type system
-  relations
-    define admin: [user]
-
-type contact
-  relations
-    define system: [system]
-    define owner: [user]
-    define editor: [user] or owner or admin from system
-    define viewer: [user] or editor or admin from system
-    define can_view: viewer
-    define can_edit: editor
-    define can_delete: owner
-```
-
-### リレーションと権限
-
-| リレーション | 説明 |
-|-------------|------|
-| `contact#owner` | 問い合わせの作成者。閲覧・編集・削除すべて可能 |
-| `contact#editor` | 編集者。owner および system admin から継承 |
-| `contact#viewer` | 閲覧者。editor から継承、system admin からも継承 |
-| `system#admin` | 管理者。全 contact に対して閲覧・編集権限を持つ |
-
-### 認可の動作
-
-- **POST /contacts** — 作成後、作成者に `owner` リレーションを付与
-- **GET /contacts** — ユーザーが `can_view` を持つ contact のみ返却（`listObjects` API）
-- **GET /contacts/:id** — `can_view` チェック。権限なしで `403`
-- **PATCH /contacts/:id/status** — `can_edit` チェック。権限なしで `403`
-- **DELETE /contacts/:id** — `can_delete` チェック。権限なしで `403`。削除後にタプルも削除
-
-### admin ユーザーの設定
-
-```bash
-# openfga:setup 実行時に --admin-user オプションで初期 admin を設定可能
-npm run openfga:setup -- --admin-user admin-user-id
-```
+[docs/authorization.md](docs/authorization.md) を参照。
 
 ## API エンドポイント
 
