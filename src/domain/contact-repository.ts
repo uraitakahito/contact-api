@@ -17,7 +17,7 @@ import type { ContactStatus, CreateContactInput, Contact } from './contact.js';
 
 export interface ContactRepository {
   create(input: CreateContactInput): Promise<Contact>;
-  findAll(filter?: { status?: ContactStatus }): Promise<Contact[]>;
+  findAll(filter?: { status?: ContactStatus; ids?: number[] }): Promise<Contact[]>;
   findById(id: number): Promise<Contact | undefined>;
   updateStatus(id: number, status: ContactStatus): Promise<Contact | undefined>;
   delete(id: number): Promise<boolean>;

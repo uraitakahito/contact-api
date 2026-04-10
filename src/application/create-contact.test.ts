@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import type { ContactAuthorizationService } from '../domain/contact-authorization-service.js';
 import type { ContactCategoryRepository } from '../domain/contact-category-repository.js';
 import type { ContactCategory } from '../domain/contact-category.js';
 import { ContactCategoryNotFoundError, ContactValidationError } from '../domain/errors.js';
@@ -20,6 +21,17 @@ function createMockCategoryRepository(): ContactCategoryRepository {
   return {
     findAll: vi.fn(),
     findById: vi.fn(),
+  };
+}
+
+function createMockAuthorizationService(): ContactAuthorizationService {
+  return {
+    canView: vi.fn(),
+    canEdit: vi.fn(),
+    canDelete: vi.fn(),
+    listViewableContactIds: vi.fn(),
+    grantOwnership: vi.fn(),
+    revokeOwnership: vi.fn(),
   };
 }
 
@@ -45,12 +57,13 @@ const sampleContact: Contact = {
 };
 
 describe('CreateContactUseCase', () => {
-  it('should create a contact with valid input', async () => {
+  it('should create a contact and grant ownership', async () => {
     const repo = createMockRepository();
     const categoryRepo = createMockCategoryRepository();
+    const authz = createMockAuthorizationService();
     vi.mocked(repo.create).mockResolvedValue(sampleContact);
     vi.mocked(categoryRepo.findById).mockResolvedValue(sampleCategory);
-    const useCase = new CreateContactUseCase(repo, categoryRepo);
+    const useCase = new CreateContactUseCase(repo, categoryRepo, authz);
 
     const input = {
       lastName: 'Test',
@@ -59,30 +72,34 @@ describe('CreateContactUseCase', () => {
       categoryId: 1,
       message: 'Test message body',
     };
-    const result = await useCase.execute(input);
+    const result = await useCase.execute('alice', input);
 
     expect(result).toEqual(sampleContact);
     expect(repo.create).toHaveBeenCalledWith(input);
+    expect(authz.grantOwnership).toHaveBeenCalledWith('alice', 1);
   });
 
   it('should throw ContactValidationError for empty lastName', async () => {
     const repo = createMockRepository();
     const categoryRepo = createMockCategoryRepository();
-    const useCase = new CreateContactUseCase(repo, categoryRepo);
+    const authz = createMockAuthorizationService();
+    const useCase = new CreateContactUseCase(repo, categoryRepo, authz);
 
     await expect(
-      useCase.execute({ lastName: '', firstName: 'User', email: 'test@example.com', categoryId: 1, message: 'Msg' }),
+      useCase.execute('alice', { lastName: '', firstName: 'User', email: 'test@example.com', categoryId: 1, message: 'Msg' }),
     ).rejects.toThrow(ContactValidationError);
     expect(repo.create).not.toHaveBeenCalled();
+    expect(authz.grantOwnership).not.toHaveBeenCalled();
   });
 
   it('should throw ContactValidationError for whitespace-only lastName', async () => {
     const repo = createMockRepository();
     const categoryRepo = createMockCategoryRepository();
-    const useCase = new CreateContactUseCase(repo, categoryRepo);
+    const authz = createMockAuthorizationService();
+    const useCase = new CreateContactUseCase(repo, categoryRepo, authz);
 
     await expect(
-      useCase.execute({ lastName: '   ', firstName: 'User', email: 'test@example.com', categoryId: 1, message: 'Msg' }),
+      useCase.execute('alice', { lastName: '   ', firstName: 'User', email: 'test@example.com', categoryId: 1, message: 'Msg' }),
     ).rejects.toThrow(ContactValidationError);
     expect(repo.create).not.toHaveBeenCalled();
   });
@@ -90,10 +107,11 @@ describe('CreateContactUseCase', () => {
   it('should throw ContactValidationError for empty firstName', async () => {
     const repo = createMockRepository();
     const categoryRepo = createMockCategoryRepository();
-    const useCase = new CreateContactUseCase(repo, categoryRepo);
+    const authz = createMockAuthorizationService();
+    const useCase = new CreateContactUseCase(repo, categoryRepo, authz);
 
     await expect(
-      useCase.execute({ lastName: 'Test', firstName: '', email: 'test@example.com', categoryId: 1, message: 'Msg' }),
+      useCase.execute('alice', { lastName: 'Test', firstName: '', email: 'test@example.com', categoryId: 1, message: 'Msg' }),
     ).rejects.toThrow(ContactValidationError);
     expect(repo.create).not.toHaveBeenCalled();
   });
@@ -101,10 +119,11 @@ describe('CreateContactUseCase', () => {
   it('should throw ContactValidationError for whitespace-only firstName', async () => {
     const repo = createMockRepository();
     const categoryRepo = createMockCategoryRepository();
-    const useCase = new CreateContactUseCase(repo, categoryRepo);
+    const authz = createMockAuthorizationService();
+    const useCase = new CreateContactUseCase(repo, categoryRepo, authz);
 
     await expect(
-      useCase.execute({ lastName: 'Test', firstName: '   ', email: 'test@example.com', categoryId: 1, message: 'Msg' }),
+      useCase.execute('alice', { lastName: 'Test', firstName: '   ', email: 'test@example.com', categoryId: 1, message: 'Msg' }),
     ).rejects.toThrow(ContactValidationError);
     expect(repo.create).not.toHaveBeenCalled();
   });
@@ -112,10 +131,11 @@ describe('CreateContactUseCase', () => {
   it('should throw ContactValidationError for empty message', async () => {
     const repo = createMockRepository();
     const categoryRepo = createMockCategoryRepository();
-    const useCase = new CreateContactUseCase(repo, categoryRepo);
+    const authz = createMockAuthorizationService();
+    const useCase = new CreateContactUseCase(repo, categoryRepo, authz);
 
     await expect(
-      useCase.execute({ lastName: 'Test', firstName: 'User', email: 'test@example.com', categoryId: 1, message: '' }),
+      useCase.execute('alice', { lastName: 'Test', firstName: 'User', email: 'test@example.com', categoryId: 1, message: '' }),
     ).rejects.toThrow(ContactValidationError);
     expect(repo.create).not.toHaveBeenCalled();
   });
@@ -123,12 +143,14 @@ describe('CreateContactUseCase', () => {
   it('should throw ContactCategoryNotFoundError for non-existent categoryId', async () => {
     const repo = createMockRepository();
     const categoryRepo = createMockCategoryRepository();
+    const authz = createMockAuthorizationService();
     vi.mocked(categoryRepo.findById).mockResolvedValue(undefined);
-    const useCase = new CreateContactUseCase(repo, categoryRepo);
+    const useCase = new CreateContactUseCase(repo, categoryRepo, authz);
 
     await expect(
-      useCase.execute({ lastName: 'Test', firstName: 'User', email: 'test@example.com', categoryId: 999, message: 'Msg' }),
+      useCase.execute('alice', { lastName: 'Test', firstName: 'User', email: 'test@example.com', categoryId: 999, message: 'Msg' }),
     ).rejects.toThrow(ContactCategoryNotFoundError);
     expect(repo.create).not.toHaveBeenCalled();
+    expect(authz.grantOwnership).not.toHaveBeenCalled();
   });
 });

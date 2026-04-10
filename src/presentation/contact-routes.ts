@@ -6,7 +6,7 @@
  * 外部の技術（Fastify/HTTP）とアプリケーションコアを橋渡しする。
  */
 
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
 import type { CreateContactUseCase } from '../application/create-contact.js';
 import type { DeleteContactUseCase } from '../application/delete-contact.js';
 import type { GetContactByIdUseCase } from '../application/get-contact-by-id.js';
@@ -31,6 +31,14 @@ export interface ContactUseCases {
   getContactCategories: GetContactCategoriesUseCase;
 }
 
+function extractUserId(request: FastifyRequest): string | undefined {
+  const header = request.headers['x-user-id'];
+  if (typeof header === 'string' && header.length > 0) {
+    return header;
+  }
+  return undefined;
+}
+
 export function registerContactRoutes(
   app: FastifyInstance,
   useCases: ContactUseCases,
@@ -42,35 +50,56 @@ export function registerContactRoutes(
   });
 
   app.post('/contacts', async (request, reply) => {
+    const userId = extractUserId(request);
+    if (!userId) {
+      return reply.status(401).send({ error: 'Missing X-User-Id header' });
+    }
     const body = createContactBodySchema.parse(request.body);
-    const contact = await useCases.createContact.execute(body);
+    const contact = await useCases.createContact.execute(userId, body);
     return reply.status(201).send(formatContact(contact));
   });
 
-  app.get('/contacts', async (request) => {
+  app.get('/contacts', async (request, reply) => {
+    const userId = extractUserId(request);
+    if (!userId) {
+      return reply.status(401).send({ error: 'Missing X-User-Id header' });
+    }
     const query = contactsQuerySchema.parse(request.query);
     const contacts = await useCases.getContacts.execute(
+      userId,
       query.status !== undefined ? { status: query.status } : undefined,
     );
     return formatContacts(contacts);
   });
 
-  app.get('/contacts/:id', async (request) => {
+  app.get('/contacts/:id', async (request, reply) => {
+    const userId = extractUserId(request);
+    if (!userId) {
+      return reply.status(401).send({ error: 'Missing X-User-Id header' });
+    }
     const params = contactIdParamSchema.parse(request.params);
-    const contact = await useCases.getContactById.execute(params.id);
+    const contact = await useCases.getContactById.execute(userId, params.id);
     return formatContact(contact);
   });
 
-  app.patch('/contacts/:id/status', async (request) => {
+  app.patch('/contacts/:id/status', async (request, reply) => {
+    const userId = extractUserId(request);
+    if (!userId) {
+      return reply.status(401).send({ error: 'Missing X-User-Id header' });
+    }
     const params = contactIdParamSchema.parse(request.params);
     const body = updateContactStatusBodySchema.parse(request.body);
-    const contact = await useCases.updateContactStatus.execute(params.id, body.status);
+    const contact = await useCases.updateContactStatus.execute(userId, params.id, body.status);
     return formatContact(contact);
   });
 
   app.delete('/contacts/:id', async (request, reply) => {
+    const userId = extractUserId(request);
+    if (!userId) {
+      return reply.status(401).send({ error: 'Missing X-User-Id header' });
+    }
     const params = contactIdParamSchema.parse(request.params);
-    await useCases.deleteContact.execute(params.id);
+    await useCases.deleteContact.execute(userId, params.id);
     return reply.status(204).send();
   });
 }
