@@ -3,8 +3,8 @@
 ## 特徴
 
 - 問い合わせフォームを実装するための API サーバー
-- **OpenFGA による関係ベースアクセス制御（ReBAC）** — OpenFGA を Policy Decision Point（PDP）として認可判断を委譲
-- **多言語対応（i18n）** — 問い合わせ種別がロケール別翻訳に対応
+- OpenFGA による関係ベースアクセス制御（ReBAC）。OpenFGA を Policy Decision Point（PDP）として認可判断を委譲
+- 多言語対応（i18n）
 
 ## アーキテクチャ
 
@@ -49,7 +49,7 @@ docker compose --profile dev up -d
 
 ## 認可 (OpenFGA)
 
-[docs/authorization.md](docs/authorization.md) を参照。
+[docs/authorization.md](docs/authorization.md) を参照。認可モデルの定義は [data/openfga/model.fga](data/openfga/model.fga) にあります。
 
 ## API エンドポイント
 
