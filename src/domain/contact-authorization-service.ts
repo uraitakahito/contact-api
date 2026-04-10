@@ -1,6 +1,6 @@
 /**
  * @module contact-authorization-service
- * @description Driven Port（駆動されるポート） — 問い合わせ認可サービスインターフェース。
+ * @description Driven Port — 問い合わせ認可サービスインターフェース。
  *
  * Domain 層が「認可判定に何を求めるか」を定義するインターフェース。
  * 具体的な認可基盤（OpenFGA 等）には一切依存しない。

@@ -1,6 +1,6 @@
 /**
  * @module form-template-repository
- * @description Driven Port（駆動されるポート） — FormTemplateRepository インターフェース。
+ * @description Driven Port — FormTemplateRepository インターフェース。
  *
  * Domain 層が「フォームテンプレートの永続化に何を求めるか」を定義するインターフェース。
  *

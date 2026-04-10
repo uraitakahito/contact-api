@@ -21,9 +21,9 @@ export interface RunMigratorConfig {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Kysely<any> を要求するため
-function createMigrator(db: Kysely<any>, config: RunMigratorConfig): Migrator {
+function createMigrator(kyselyClient: Kysely<any>, config: RunMigratorConfig): Migrator {
   return new Migrator({
-    db,
+    db: kyselyClient,
     provider: new FileMigrationProvider({
       fs,
       path,
@@ -36,11 +36,11 @@ function createMigrator(db: Kysely<any>, config: RunMigratorConfig): Migrator {
 
 export async function runMigrator(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Kysely<any> を要求するため
-  db: Kysely<any>,
+  kyselyClient: Kysely<any>,
   config: RunMigratorConfig,
   direction: 'up' | 'down',
 ): Promise<MigrationResultSet> {
-  const migrator = createMigrator(db, config);
+  const migrator = createMigrator(kyselyClient, config);
   return direction === 'down'
     ? migrator.migrateDown()
     : migrator.migrateToLatest();
@@ -48,9 +48,9 @@ export async function runMigrator(
 
 export async function getMigrationInfos(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Kysely<any> を要求するため
-  db: Kysely<any>,
+  kyselyClient: Kysely<any>,
   config: RunMigratorConfig,
 ): Promise<readonly MigrationInfo[]> {
-  const migrator = createMigrator(db, config);
+  const migrator = createMigrator(kyselyClient, config);
   return migrator.getMigrations();
 }

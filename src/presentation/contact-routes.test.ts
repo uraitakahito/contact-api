@@ -8,7 +8,7 @@ import type { ContactResponse } from './format.js';
 import { cleanDatabase, createTestApp } from '../test-helpers/setup.js';
 
 let app: FastifyInstance;
-let db: Kysely<Database>;
+let kyselyClient: Kysely<Database>;
 let authz: InMemoryContactAuthorizationService;
 
 const headers = { 'x-user-id': 'test-user' };
@@ -16,17 +16,17 @@ const headers = { 'x-user-id': 'test-user' };
 beforeAll(async () => {
   const testApp = await createTestApp();
   app = testApp.app;
-  db = testApp.db;
+  kyselyClient = testApp.kyselyClient;
   authz = testApp.authz;
 });
 
 afterEach(async () => {
-  await cleanDatabase(db, authz);
+  await cleanDatabase(kyselyClient, authz);
 });
 
 afterAll(async () => {
   await app.close();
-  await db.destroy();
+  await kyselyClient.destroy();
 });
 
 const samplePayload = {

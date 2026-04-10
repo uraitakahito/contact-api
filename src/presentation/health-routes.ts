@@ -10,13 +10,13 @@ import type { Database } from '../infrastructure/database.js';
 
 export function registerHealthRoutes(
   app: FastifyInstance,
-  db: Kysely<Database>,
+  kyselyClient: Kysely<Database>,
 ): void {
   app.get('/health/live', () => ({ status: 'ok' }));
 
   app.get('/health/ready', async (request, reply) => {
     try {
-      await sql`SELECT 1`.execute(db);
+      await sql`SELECT 1`.execute(kyselyClient);
       return { status: 'ok' };
     } catch (error) {
       request.log.error({ err: error }, 'Database unavailable');
