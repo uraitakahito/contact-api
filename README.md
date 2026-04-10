@@ -65,20 +65,6 @@ docker compose down -v
 docker compose --profile dev up -d
 ```
 
-### データベース構成
-
-contact_api と OpenFGA は同一 PostgreSQL サーバー上の別データベース・別ユーザーで動作します。
-
-| サービス | データベース | ユーザー |
-|---------|------------|---------|
-| contact_api | `contact_api` | `contact_api` |
-| テスト | `contact_api_test` | `contact_api` |
-| OpenFGA | `openfga` | `openfga` |
-
-初回起動時に `docker/init-contact-api-db.sh` と `docker/init-openfga-db.sh` が各データベースとユーザーを自動作成します。
-
-`openfga:setup` が出力する `OPENFGA_STORE_ID` と `OPENFGA_AUTH_MODEL_ID` を `.env` に設定してください。
-
 ## 認可 (OpenFGA)
 
 [docs/authorization.md](docs/authorization.md) を参照。
