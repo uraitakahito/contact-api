@@ -13,6 +13,7 @@ import type { GetFormTemplateByIdUseCase } from '../application/get-form-templat
 import type { GetFormTemplatesUseCase } from '../application/get-form-templates.js';
 import type { UpdateFormTemplateUseCase } from '../application/update-form-template.js';
 import type { CreateFormFieldInput, FormFieldOption } from '../domain/form-template.js';
+import { ERROR_CODE, wrapError, wrapSuccess } from './envelope.js';
 import { formatFormTemplate, formatFormTemplates } from './format.js';
 import {
   createFormTemplateBodySchema,
@@ -77,21 +78,21 @@ export function registerFormTemplateRoutes(
   app.get('/form-templates', async (request) => {
     const query = formTemplatesQuerySchema.parse(request.query);
     const templates = await useCases.getFormTemplates.execute();
-    return formatFormTemplates(templates, query.locale);
+    return wrapSuccess(formatFormTemplates(templates, query.locale));
   });
 
   app.get('/form-templates/:id', async (request) => {
     const query = formTemplatesQuerySchema.parse(request.query);
     const params = templateIdParamSchema.parse(request.params);
     const template = await useCases.getFormTemplateById.execute(params.id);
-    return formatFormTemplate(template, query.locale);
+    return wrapSuccess(formatFormTemplate(template, query.locale));
   });
 
   // Authenticated endpoints (X-User-Id required, no authorization check)
   app.post('/form-templates', async (request, reply) => {
     const userId = extractUserId(request);
     if (!userId) {
-      return reply.status(401).send({ error: 'Missing X-User-Id header' });
+      return reply.status(401).send(wrapError(ERROR_CODE.AUTHENTICATION_REQUIRED, 'Missing X-User-Id header'));
     }
     const body = createFormTemplateBodySchema.parse(request.body);
     const template = await useCases.createFormTemplate.execute({
@@ -100,13 +101,13 @@ export function registerFormTemplateRoutes(
       fields: toCreateFormFieldInputs(body.fields),
     });
     const query = formTemplatesQuerySchema.parse(request.query);
-    return reply.status(201).send(formatFormTemplate(template, query.locale));
+    return reply.status(201).send(wrapSuccess(formatFormTemplate(template, query.locale)));
   });
 
   app.put('/form-templates/:id', async (request, reply) => {
     const userId = extractUserId(request);
     if (!userId) {
-      return reply.status(401).send({ error: 'Missing X-User-Id header' });
+      return reply.status(401).send(wrapError(ERROR_CODE.AUTHENTICATION_REQUIRED, 'Missing X-User-Id header'));
     }
     const params = templateIdParamSchema.parse(request.params);
     const body = updateFormTemplateBodySchema.parse(request.body);
@@ -116,16 +117,16 @@ export function registerFormTemplateRoutes(
       ...(body.fields !== undefined ? { fields: toCreateFormFieldInputs(body.fields) } : {}),
     });
     const query = formTemplatesQuerySchema.parse(request.query);
-    return formatFormTemplate(template, query.locale);
+    return wrapSuccess(formatFormTemplate(template, query.locale));
   });
 
   app.delete('/form-templates/:id', async (request, reply) => {
     const userId = extractUserId(request);
     if (!userId) {
-      return reply.status(401).send({ error: 'Missing X-User-Id header' });
+      return reply.status(401).send(wrapError(ERROR_CODE.AUTHENTICATION_REQUIRED, 'Missing X-User-Id header'));
     }
     const params = templateIdParamSchema.parse(request.params);
     await useCases.deleteFormTemplate.execute(params.id);
-    return reply.status(204).send();
+    return wrapSuccess(null);
   });
 }

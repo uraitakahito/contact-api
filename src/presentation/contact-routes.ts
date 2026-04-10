@@ -12,6 +12,7 @@ import type { DeleteContactUseCase } from '../application/delete-contact.js';
 import type { GetContactByIdUseCase } from '../application/get-contact-by-id.js';
 import type { GetContactsUseCase } from '../application/get-contacts.js';
 import type { UpdateContactStatusUseCase } from '../application/update-contact-status.js';
+import { ERROR_CODE, wrapError, wrapSuccess } from './envelope.js';
 import { formatContact, formatContacts } from './format.js';
 import {
   contactIdParamSchema,
@@ -43,17 +44,17 @@ export function registerContactRoutes(
   app.post('/contacts', async (request, reply) => {
     const userId = extractUserId(request);
     if (!userId) {
-      return reply.status(401).send({ error: 'Missing X-User-Id header' });
+      return reply.status(401).send(wrapError(ERROR_CODE.AUTHENTICATION_REQUIRED, 'Missing X-User-Id header'));
     }
     const body = createContactBodySchema.parse(request.body);
     const contact = await useCases.createContact.execute(userId, body);
-    return reply.status(201).send(formatContact(contact));
+    return reply.status(201).send(wrapSuccess(formatContact(contact)));
   });
 
   app.get('/contacts', async (request, reply) => {
     const userId = extractUserId(request);
     if (!userId) {
-      return reply.status(401).send({ error: 'Missing X-User-Id header' });
+      return reply.status(401).send(wrapError(ERROR_CODE.AUTHENTICATION_REQUIRED, 'Missing X-User-Id header'));
     }
     const query = contactsQuerySchema.parse(request.query);
     const contacts = await useCases.getContacts.execute(
@@ -65,37 +66,37 @@ export function registerContactRoutes(
           }
         : undefined,
     );
-    return formatContacts(contacts);
+    return wrapSuccess(formatContacts(contacts));
   });
 
   app.get('/contacts/:id', async (request, reply) => {
     const userId = extractUserId(request);
     if (!userId) {
-      return reply.status(401).send({ error: 'Missing X-User-Id header' });
+      return reply.status(401).send(wrapError(ERROR_CODE.AUTHENTICATION_REQUIRED, 'Missing X-User-Id header'));
     }
     const params = contactIdParamSchema.parse(request.params);
     const contact = await useCases.getContactById.execute(userId, params.id);
-    return formatContact(contact);
+    return wrapSuccess(formatContact(contact));
   });
 
   app.patch('/contacts/:id/status', async (request, reply) => {
     const userId = extractUserId(request);
     if (!userId) {
-      return reply.status(401).send({ error: 'Missing X-User-Id header' });
+      return reply.status(401).send(wrapError(ERROR_CODE.AUTHENTICATION_REQUIRED, 'Missing X-User-Id header'));
     }
     const params = contactIdParamSchema.parse(request.params);
     const body = updateContactStatusBodySchema.parse(request.body);
     const contact = await useCases.updateContactStatus.execute(userId, params.id, body.status);
-    return formatContact(contact);
+    return wrapSuccess(formatContact(contact));
   });
 
   app.delete('/contacts/:id', async (request, reply) => {
     const userId = extractUserId(request);
     if (!userId) {
-      return reply.status(401).send({ error: 'Missing X-User-Id header' });
+      return reply.status(401).send(wrapError(ERROR_CODE.AUTHENTICATION_REQUIRED, 'Missing X-User-Id header'));
     }
     const params = contactIdParamSchema.parse(request.params);
     await useCases.deleteContact.execute(userId, params.id);
-    return reply.status(204).send();
+    return wrapSuccess(null);
   });
 }
