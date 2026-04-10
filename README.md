@@ -47,17 +47,10 @@ npm run seed
 npm run openfga:setup
 ```
 
-`openfga:setup` が出力する `OPENFGA_STORE_ID` と `OPENFGA_AUTH_MODEL_ID` をホスト側の `.env` に追記し、dev コンテナを再起動してください。
+`openfga:setup` が出力する `OPENFGA_STORE_ID` と `OPENFGA_AUTH_MODEL_ID` を指定してサーバーを起動します。
 
 ```bash
-# ホスト側で実行
-docker compose --profile dev up -d
-```
-
-再び dev コンテナ内で実行
-
-```bash
-npm start
+OPENFGA_STORE_ID=xxxxx OPENFGA_AUTH_MODEL_ID=yyyyy npm start
 ```
 
 ### 再セットアップ
