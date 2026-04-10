@@ -1,6 +1,6 @@
 /**
  * @module kysely-contact-repository
- * @description Driven Adapter（駆動されるアダプター）
+ * @description Driven Adapter
  *
  * ContactRepository（Driven Port）の Kysely/PostgreSQL 実装。
  * Domain層のインターフェースを具体的なDB操作に変換する。

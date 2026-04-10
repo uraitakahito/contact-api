@@ -1,6 +1,6 @@
 /**
  * @module openfga-contact-authorization-service
- * @description Driven Adapter（駆動されるアダプター）
+ * @description Driven Adapter
  *
  * ContactAuthorizationService（Driven Port）の OpenFGA 実装。
  * Domain 層のインターフェースを OpenFGA SDK の API 呼び出しに変換する。

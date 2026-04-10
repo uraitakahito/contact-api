@@ -1,6 +1,6 @@
 /**
  * @module contact-repository
- * @description Driven Port（駆動されるポート） — Repository インターフェース。
+ * @description Driven Port — Repository インターフェース。
  *
  * Domain 層が「永続化に何を求めるか」を定義するインターフェース。
  * 具体的な保存方法（RDB, NoSQL, ファイル等）には一切依存しない。
