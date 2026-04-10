@@ -30,10 +30,10 @@ type system
 # system の admin は editor（および viewer）アクセスを継承する。
 type contact
   relations
-    define system: [system]
+    define parent: [system]
     define owner: [user]
-    define editor: [user] or owner or admin from system
-    define viewer: [user] or editor or admin from system
+    define editor: [user] or owner or admin from parent
+    define viewer: [user] or editor or admin from parent
     define can_view: viewer
     define can_edit: editor
     define can_delete: owner

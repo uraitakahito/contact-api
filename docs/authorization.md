@@ -76,7 +76,7 @@ sequenceDiagram
     UC->>Authz: grantOwnership("alice", 42)
     Authz->>FGA: write 2 タプル
     Note over FGA: user:alice #owner contact:42<br/>(alice は contact:42 の owner)
-    Note over FGA: system:global #system contact:42<br/>(admin 継承用の parent リンク)
+    Note over FGA: system:global #parent contact:42<br/>(admin 継承用の parent リンク)
     FGA-->>Authz: OK
     Authz-->>UC: OK
     UC-->>Routes: Contact
@@ -100,10 +100,10 @@ type system
 
 type contact
   relations
-    define system: [system]
+    define parent: [system]
     define owner: [user]
-    define editor: [user] or owner or admin from system
-    define viewer: [user] or editor or admin from system
+    define editor: [user] or owner or admin from parent
+    define viewer: [user] or editor or admin from parent
     define can_view: viewer
     define can_edit: editor
     define can_delete: owner
