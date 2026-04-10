@@ -6,61 +6,45 @@
 
 認可はヘキサゴナルアーキテクチャの Driven Port / Adapter パターンに従い、ドメイン層が技術に依存しない形で実装されています。
 
-```
-                    ┌──────────────┐
-                    │  HTTP Client │
-                    └──────┬───────┘
-                           │ X-User-Id ヘッダー
-                           ▼
-                ┌─────────────────────┐
-                │   Presentation 層    │
-                │  contact-routes.ts  │
-                │  userId を抽出       │
-                └──────────┬──────────┘
-                           │ userId
-                           ▼
-                ┌─────────────────────┐
-                │   Application 層     │
-                │   各 UseCase         │
-                │                     │
-                │  ┌───────────────┐  │
-                │  │ 認可チェック    │  │
-                │  │ (authz.can*)  │  │
-                │  └───────┬───────┘  │
-                │          │          │
-                │  ┌───────────────┐  │
-                │  │ DB 操作        │  │
-                │  │ (repo.*)      │  │
-                │  └───────┬───────┘  │
-                │          │          │
-                │  ┌───────────────┐  │
-                │  │ タプル書込/削除 │  │
-                │  │ (authz.grant/ │  │
-                │  │  revoke)      │  │
-                │  └───────────────┘  │
-                └──────────┬──────────┘
-            ┌──────────────┼──────────────┐
-            ▼              ▼              ▼
-  ┌──────────────┐ ┌─────────────┐ ┌───────────┐
-  │ Domain 層     │ │ Driven Port │ │ Driven    │
-  │ (Interface)  │ │ (Interface) │ │ Port      │
-  │ Contact      │ │ Contact     │ │ Contact   │
-  │ Repository   │ │ Authz       │ │ Category  │
-  │              │ │ Service     │ │ Repository│
-  └──────┬───────┘ └──────┬──────┘ └─────┬─────┘
-         │                │              │
-         ▼                ▼              ▼
-  ┌──────────────┐ ┌─────────────┐ ┌───────────┐
-  │ Infra 層      │ │ Infra 層     │ │ Infra 層   │
-  │ (Adapter)    │ │ (Adapter)   │ │ (Adapter) │
-  │ Kysely       │ │ OpenFGA     │ │ Kysely    │
-  │ Contact      │ │ Contact     │ │ Category  │
-  │ Repository   │ │ Authz       │ │ Repository│
-  │              │ │ Service     │ │           │
-  └──────┬───────┘ └──────┬──────┘ └─────┬─────┘
-         │                │              │
-         ▼                ▼              ▼
-    PostgreSQL         OpenFGA      PostgreSQL
+```mermaid
+graph TD
+    Client["HTTP Client"]
+    Client -- "X-User-Id ヘッダー" --> Presentation
+
+    subgraph Presentation["Presentation 層"]
+        Routes["contact-routes.ts<br/>userId を抽出"]
+    end
+
+    Presentation -- "userId" --> Application
+
+    subgraph Application["Application 層 — 各 UseCase"]
+        AuthzCheck["認可チェック<br/>(authz.can*)"]
+        DbOp["DB 操作<br/>(repo.*)"]
+        TupleOp["タプル書込/削除<br/>(authz.grant / revoke)"]
+        AuthzCheck --> DbOp --> TupleOp
+    end
+
+    Application --> PortRepo & PortAuthz & PortCat
+
+    subgraph Domain["Domain 層 (Interface)"]
+        PortRepo["ContactRepository"]
+        PortAuthz["ContactAuthorizationService"]
+        PortCat["ContactCategoryRepository"]
+    end
+
+    PortRepo --> AdapterRepo
+    PortAuthz --> AdapterAuthz
+    PortCat --> AdapterCat
+
+    subgraph Infra["Infrastructure 層 (Adapter)"]
+        AdapterRepo["Kysely<br/>ContactRepository"]
+        AdapterAuthz["OpenFGA<br/>ContactAuthorizationService"]
+        AdapterCat["Kysely<br/>ContactCategoryRepository"]
+    end
+
+    AdapterRepo --> PostgreSQL1[("PostgreSQL")]
+    AdapterAuthz --> OpenFGA[("OpenFGA")]
+    AdapterCat --> PostgreSQL2[("PostgreSQL")]
 ```
 
 **設計のポイント:**
