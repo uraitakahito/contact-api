@@ -2,7 +2,7 @@
  * @module setup-openfga
  * @description OpenFGA プロビジョニング CLI エントリーポイント。
  *
- * OpenFGA Store とAuthorizationModel を作成し、
+ * OpenFGA Store ({@link https://openfga.dev/docs/concepts#what-is-a-store}) とAuthorizationModel を作成し、
  * Store ID / Model ID を標準出力に出力する。
  * オプションで初期 admin ユーザーのタプルも書き込む。
  */
