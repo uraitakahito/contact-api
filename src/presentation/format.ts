@@ -4,7 +4,7 @@
  */
 
 import type { Contact } from '../domain/contact.js';
-import type { FormTemplate, FormField, FormFieldOption, FieldTranslation } from '../domain/form-template.js';
+import type { FormTemplate, FormField, FormFieldOption, FieldTranslation, FieldValidation, FieldPresentation } from '../domain/form-template.js';
 
 // --- Contact ---
 
@@ -45,12 +45,14 @@ export interface FormFieldResponse {
   id: number;
   name: string;
   fieldType: string;
-  validationType: string;
+  validation: FieldValidation;
   isRequired: boolean;
   displayOrder: number;
   label: string;
   placeholder: string;
+  helpText: string;
   options: FormFieldOptionResponse[];
+  presentation: FieldPresentation;
 }
 
 export interface FormTemplateResponse {
@@ -76,7 +78,7 @@ function resolveFieldTranslation(
   const exact = translations.get(locale);
   if (exact) return exact;
   const fallback = translations.values().next().value;
-  return fallback ?? { label: '', placeholder: '' };
+  return fallback ?? { label: '', placeholder: '', helpText: '' };
 }
 
 function formatField(field: FormField, locale: string): FormFieldResponse {
@@ -85,12 +87,14 @@ function formatField(field: FormField, locale: string): FormFieldResponse {
     id: field.id,
     name: field.name,
     fieldType: field.fieldType,
-    validationType: field.validationType,
+    validation: field.validation,
     isRequired: field.isRequired,
     displayOrder: field.displayOrder,
     label: trans.label,
     placeholder: trans.placeholder,
+    helpText: trans.helpText,
     options: field.options.map((opt) => formatFieldOption(opt)),
+    presentation: field.presentation,
   };
 }
 

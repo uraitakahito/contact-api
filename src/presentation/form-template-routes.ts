@@ -44,23 +44,25 @@ function toCreateFormFieldInputs(
   fields: {
     name: string;
     fieldType: 'text' | 'textarea' | 'select';
-    validationType: 'none' | 'email' | 'phone' | 'url';
+    validation: { type: 'none' | 'email' | 'phone' | 'url'; minLength?: number | undefined; maxLength?: number | undefined };
     isRequired: boolean;
     displayOrder: number;
     options: { value: string; labels: Record<string, string> }[];
-    translations: Record<string, { label: string; placeholder: string }>;
+    presentation: { cssClass?: string | undefined; htmlId?: string | undefined };
+    translations: Record<string, { label: string; placeholder: string; helpText: string }>;
   }[],
 ): CreateFormFieldInput[] {
   return fields.map((f) => ({
     name: f.name,
     fieldType: f.fieldType,
-    validationType: f.validationType,
+    validation: f.validation,
     isRequired: f.isRequired,
     displayOrder: f.displayOrder,
     options: f.options.map((opt): FormFieldOption => ({
       value: opt.value,
       labels: new Map(Object.entries(opt.labels)),
     })),
+    presentation: f.presentation,
     translations: new Map(
       Object.entries(f.translations).map(([locale, trans]) => [locale, trans]),
     ),

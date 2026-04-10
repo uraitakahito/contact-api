@@ -25,10 +25,11 @@ export interface FormFieldTable {
   templateId: number;
   name: string;
   fieldType: string;
-  validationType: string;
+  validation: unknown;
   isRequired: boolean;
   displayOrder: number;
   options: unknown;
+  presentation: unknown;
   createdAt: ColumnType<Date, string | undefined, never>;
   updatedAt: ColumnType<Date, string | undefined, string>;
 }
@@ -38,6 +39,7 @@ export interface FormFieldTranslationTable {
   locale: string;
   label: string;
   placeholder: string;
+  helpText: string;
 }
 
 export interface ContactTable {

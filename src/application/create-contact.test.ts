@@ -44,16 +44,16 @@ const sampleTemplate: FormTemplate = {
   translations: new Map([['ja', '問い合わせフォーム']]),
   fields: [
     {
-      id: 1, name: 'name', fieldType: 'text', validationType: 'none',
-      isRequired: true, displayOrder: 1, options: [], translations: new Map(),
+      id: 1, name: 'name', fieldType: 'text', validation: { type: 'none' },
+      isRequired: true, displayOrder: 1, options: [], presentation: {}, translations: new Map(),
     },
     {
-      id: 2, name: 'email', fieldType: 'text', validationType: 'email',
-      isRequired: true, displayOrder: 2, options: [], translations: new Map(),
+      id: 2, name: 'email', fieldType: 'text', validation: { type: 'email' },
+      isRequired: true, displayOrder: 2, options: [], presentation: {}, translations: new Map(),
     },
     {
-      id: 3, name: 'message', fieldType: 'textarea', validationType: 'none',
-      isRequired: true, displayOrder: 3, options: [], translations: new Map(),
+      id: 3, name: 'message', fieldType: 'textarea', validation: { type: 'none' },
+      isRequired: true, displayOrder: 3, options: [], presentation: {}, translations: new Map(),
     },
   ],
   createdAt: new Date('2026-01-01'),

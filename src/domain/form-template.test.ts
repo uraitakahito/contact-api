@@ -6,10 +6,11 @@ function createField(overrides: Partial<FormField> & { name: string }): FormFiel
   return {
     id: 1,
     fieldType: 'text',
-    validationType: 'none',
+    validation: { type: 'none' },
     isRequired: false,
     displayOrder: 1,
     options: [],
+    presentation: {},
     translations: new Map(),
     ...overrides,
   };
@@ -19,7 +20,7 @@ describe('validateContactData', () => {
   it('should return empty array when all data is valid', () => {
     const fields = [
       createField({ name: 'name', isRequired: true }),
-      createField({ name: 'email', validationType: 'email', isRequired: true }),
+      createField({ name: 'email', validation: { type: 'email' }, isRequired: true }),
     ];
     const data = { name: 'Taro', email: 'taro@example.com' };
 
@@ -51,21 +52,21 @@ describe('validateContactData', () => {
   });
 
   it('should skip validation for optional field when absent', () => {
-    const fields = [createField({ name: 'phone', validationType: 'phone' })];
+    const fields = [createField({ name: 'phone', validation: { type: 'phone' } })];
     const data = {};
 
     expect(validateContactData(fields, data)).toEqual([]);
   });
 
   it('should skip validation for optional field when empty string', () => {
-    const fields = [createField({ name: 'phone', validationType: 'phone' })];
+    const fields = [createField({ name: 'phone', validation: { type: 'phone' } })];
     const data = { phone: '' };
 
     expect(validateContactData(fields, data)).toEqual([]);
   });
 
   it('should validate email format', () => {
-    const fields = [createField({ name: 'email', validationType: 'email', isRequired: true })];
+    const fields = [createField({ name: 'email', validation: { type: 'email' }, isRequired: true })];
 
     expect(validateContactData(fields, { email: 'valid@example.com' })).toEqual([]);
     expect(validateContactData(fields, { email: 'invalid' })).toHaveLength(1);
@@ -73,7 +74,7 @@ describe('validateContactData', () => {
   });
 
   it('should validate phone format', () => {
-    const fields = [createField({ name: 'phone', validationType: 'phone', isRequired: true })];
+    const fields = [createField({ name: 'phone', validation: { type: 'phone' }, isRequired: true })];
 
     expect(validateContactData(fields, { phone: '090-1234-5678' })).toEqual([]);
     expect(validateContactData(fields, { phone: '+81 90 1234 5678' })).toEqual([]);
@@ -81,7 +82,7 @@ describe('validateContactData', () => {
   });
 
   it('should validate url format', () => {
-    const fields = [createField({ name: 'website', validationType: 'url', isRequired: true })];
+    const fields = [createField({ name: 'website', validation: { type: 'url' }, isRequired: true })];
 
     expect(validateContactData(fields, { website: 'https://example.com' })).toEqual([]);
     expect(validateContactData(fields, { website: 'not-a-url' })).toHaveLength(1);
@@ -114,12 +115,36 @@ describe('validateContactData', () => {
   it('should collect multiple errors', () => {
     const fields = [
       createField({ name: 'name', isRequired: true }),
-      createField({ name: 'email', validationType: 'email', isRequired: true }),
+      createField({ name: 'email', validation: { type: 'email' }, isRequired: true }),
       createField({ name: 'message', isRequired: true }),
     ];
     const data = { email: 'bad' };
 
     const errors = validateContactData(fields, data);
     expect(errors.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('should return error when value is shorter than minLength', () => {
+    const fields = [createField({ name: 'code', validation: { type: 'none', minLength: 3 }, isRequired: true })];
+    expect(validateContactData(fields, { code: 'ab' })).toHaveLength(1);
+    expect(validateContactData(fields, { code: 'abc' })).toEqual([]);
+  });
+
+  it('should return error when value exceeds maxLength', () => {
+    const fields = [createField({ name: 'code', validation: { type: 'none', maxLength: 5 }, isRequired: true })];
+    expect(validateContactData(fields, { code: 'abcdef' })).toHaveLength(1);
+    expect(validateContactData(fields, { code: 'abcde' })).toEqual([]);
+  });
+
+  it('should validate both minLength and maxLength together', () => {
+    const fields = [createField({ name: 'pin', validation: { type: 'none', minLength: 4, maxLength: 6 }, isRequired: true })];
+    expect(validateContactData(fields, { pin: 'abc' })).toHaveLength(1);
+    expect(validateContactData(fields, { pin: 'abcdefg' })).toHaveLength(1);
+    expect(validateContactData(fields, { pin: 'abcde' })).toEqual([]);
+  });
+
+  it('should skip minLength/maxLength for absent optional field', () => {
+    const fields = [createField({ name: 'note', validation: { type: 'none', minLength: 3 } })];
+    expect(validateContactData(fields, {})).toEqual([]);
   });
 });

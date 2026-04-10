@@ -9,9 +9,21 @@ export type FieldType = 'text' | 'textarea' | 'select';
 
 export type ValidationType = 'none' | 'email' | 'phone' | 'url';
 
+export interface FieldValidation {
+  type: ValidationType;
+  minLength?: number | undefined;
+  maxLength?: number | undefined;
+}
+
+export interface FieldPresentation {
+  cssClass?: string | undefined;
+  htmlId?: string | undefined;
+}
+
 export interface FieldTranslation {
   label: string;
   placeholder: string;
+  helpText: string;
 }
 
 export interface FormFieldOption {
@@ -23,10 +35,11 @@ export interface FormField {
   id: number;
   name: string;
   fieldType: FieldType;
-  validationType: ValidationType;
+  validation: FieldValidation;
   isRequired: boolean;
   displayOrder: number;
   options: FormFieldOption[];
+  presentation: FieldPresentation;
   translations: Map<string, FieldTranslation>;
 }
 
@@ -42,10 +55,11 @@ export interface FormTemplate {
 export interface CreateFormFieldInput {
   name: string;
   fieldType: FieldType;
-  validationType: ValidationType;
+  validation: FieldValidation;
   isRequired: boolean;
   displayOrder: number;
   options: FormFieldOption[];
+  presentation: FieldPresentation;
   translations: Map<string, FieldTranslation>;
 }
 
@@ -109,11 +123,19 @@ export function validateContactData(
       continue;
     }
 
-    if (field.validationType !== 'none') {
-      const validator = formatValidators[field.validationType];
+    if (field.validation.type !== 'none') {
+      const validator = formatValidators[field.validation.type];
       if (!validator(value)) {
-        errors.push(`Field '${field.name}' has invalid ${field.validationType} format`);
+        errors.push(`Field '${field.name}' has invalid ${field.validation.type} format`);
       }
+    }
+
+    if (field.validation.minLength !== undefined && value.length < field.validation.minLength) {
+      errors.push(`Field '${field.name}' must be at least ${field.validation.minLength.toString()} characters`);
+    }
+
+    if (field.validation.maxLength !== undefined && value.length > field.validation.maxLength) {
+      errors.push(`Field '${field.name}' must be at most ${field.validation.maxLength.toString()} characters`);
     }
 
     if (field.fieldType === 'select' && field.options.length > 0) {

@@ -13,11 +13,14 @@ import type { FormTemplateRepository } from '../domain/form-template-repository.
 import type {
   CreateFormFieldInput,
   CreateFormTemplateInput,
+  FieldPresentation,
   FieldTranslation,
+  FieldValidation,
   FormField,
   FormFieldOption,
   FormTemplate,
   UpdateFormTemplateInput,
+  ValidationType,
 } from '../domain/form-template.js';
 import type { Database } from './database.js';
 
@@ -36,13 +39,15 @@ interface FieldRow {
   fieldId: number;
   fieldName: string;
   fieldType: string;
-  validationType: string;
+  validation: unknown;
   isRequired: boolean;
   displayOrder: number;
   options: unknown;
+  presentation: unknown;
   fieldTransLocale: string | null;
   fieldTransLabel: string | null;
   fieldTransPlaceholder: string | null;
+  fieldTransHelpText: string | null;
 }
 
 // --- JSON shape for form_fields.options column ---
@@ -67,6 +72,42 @@ function serializeOptions(options: FormFieldOption[]): OptionJson[] {
   }));
 }
 
+// --- Validation / Presentation JSON helpers ---
+
+interface ValidationJson {
+  type: string;
+  minLength?: number;
+  maxLength?: number;
+}
+
+interface PresentationJson {
+  cssClass?: string;
+  htmlId?: string;
+}
+
+function parseValidation(raw: unknown): FieldValidation {
+  if (raw !== null && typeof raw === 'object' && 'type' in raw) {
+    const obj = raw as ValidationJson;
+    return {
+      type: obj.type as ValidationType,
+      ...(obj.minLength !== undefined ? { minLength: obj.minLength } : {}),
+      ...(obj.maxLength !== undefined ? { maxLength: obj.maxLength } : {}),
+    };
+  }
+  return { type: 'none' };
+}
+
+function parsePresentation(raw: unknown): FieldPresentation {
+  if (raw !== null && typeof raw === 'object') {
+    const obj = raw as PresentationJson;
+    return {
+      ...(obj.cssClass !== undefined ? { cssClass: obj.cssClass } : {}),
+      ...(obj.htmlId !== undefined ? { htmlId: obj.htmlId } : {}),
+    };
+  }
+  return {};
+}
+
 // --- Grouping helpers ---
 
 function groupFields(rows: FieldRow[]): FormField[] {
@@ -79,10 +120,11 @@ function groupFields(rows: FieldRow[]): FormField[] {
         id: row.fieldId,
         name: row.fieldName,
         fieldType: row.fieldType as FormField['fieldType'],
-        validationType: row.validationType as FormField['validationType'],
+        validation: parseValidation(row.validation),
         isRequired: row.isRequired,
         displayOrder: row.displayOrder,
         options: parseOptions(row.options),
+        presentation: parsePresentation(row.presentation),
         translations: new Map<string, FieldTranslation>(),
       };
       map.set(row.fieldId, field);
@@ -91,6 +133,7 @@ function groupFields(rows: FieldRow[]): FormField[] {
       field.translations.set(row.fieldTransLocale, {
         label: row.fieldTransLabel,
         placeholder: row.fieldTransPlaceholder ?? '',
+        helpText: row.fieldTransHelpText ?? '',
       });
     }
   }
@@ -152,13 +195,15 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
         'formFields.templateId',
         'formFields.name as fieldName',
         'formFields.fieldType',
-        'formFields.validationType',
+        'formFields.validation',
         'formFields.isRequired',
         'formFields.displayOrder',
         'formFields.options',
+        'formFields.presentation',
         'formFieldTranslations.locale as fieldTransLocale',
         'formFieldTranslations.label as fieldTransLabel',
         'formFieldTranslations.placeholder as fieldTransPlaceholder',
+        'formFieldTranslations.helpText as fieldTransHelpText',
       ])
       .where('formFields.templateId', 'in', templateIds)
       .orderBy('formFields.displayOrder', 'asc')
@@ -227,13 +272,15 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
         'formFields.id as fieldId',
         'formFields.name as fieldName',
         'formFields.fieldType',
-        'formFields.validationType',
+        'formFields.validation',
         'formFields.isRequired',
         'formFields.displayOrder',
         'formFields.options',
+        'formFields.presentation',
         'formFieldTranslations.locale as fieldTransLocale',
         'formFieldTranslations.label as fieldTransLabel',
         'formFieldTranslations.placeholder as fieldTransPlaceholder',
+        'formFieldTranslations.helpText as fieldTransHelpText',
       ])
       .where('formFields.templateId', '=', id)
       .orderBy('formFields.displayOrder', 'asc')
@@ -356,10 +403,11 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
           templateId,
           name: fieldInput.name,
           fieldType: fieldInput.fieldType,
-          validationType: fieldInput.validationType,
+          validation: JSON.stringify(fieldInput.validation),
           isRequired: fieldInput.isRequired,
           displayOrder: fieldInput.displayOrder,
           options: JSON.stringify(serializeOptions(fieldInput.options)),
+          presentation: JSON.stringify(fieldInput.presentation),
         })
         .returningAll()
         .executeTakeFirstOrThrow();
@@ -376,6 +424,7 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
             locale,
             label: trans.label,
             placeholder: trans.placeholder,
+            helpText: trans.helpText,
           })))
           .execute();
       }
@@ -384,10 +433,11 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
         id: fieldId,
         name: fieldInput.name,
         fieldType: fieldInput.fieldType,
-        validationType: fieldInput.validationType,
+        validation: fieldInput.validation,
         isRequired: fieldInput.isRequired,
         displayOrder: fieldInput.displayOrder,
         options: fieldInput.options,
+        presentation: fieldInput.presentation,
         translations: fieldInput.translations,
       });
     }
