@@ -14,7 +14,7 @@ import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.j
 import type { RawSeedFolderOption } from '../infrastructure/cli-seed-folder-option.js';
 import { addSeedFolderOption } from '../infrastructure/cli-seed-folder-option.js';
 import { createKyselyClient } from '../infrastructure/connection.js';
-import { logger, createChildLogger } from '../infrastructure/logger.js';
+import { logger, initializeCliLogger } from '../infrastructure/logger.js';
 import { getMigrationInfos, runMigrator } from '../infrastructure/migrator-runner.js';
 
 const label = 'Seed';
@@ -34,9 +34,7 @@ program.parse();
 
 const direction = program.args[0] as 'up' | 'down';
 const opts = program.opts<RawContactApiDbOptions & RawLogLevelOption & RawSeedFolderOption>();
-logger.level = opts.logLevel;
-
-const cliLogger = createChildLogger({ command: 'seed', direction });
+const cliLogger = initializeCliLogger(opts.logLevel, { command: 'seed', direction });
 
 // Infrastructure
 const kyselyClient = createKyselyClient(extractContactApiDbConfig(opts));

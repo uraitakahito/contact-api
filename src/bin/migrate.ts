@@ -14,7 +14,7 @@ import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.j
 import type { RawMigrationFolderOption } from '../infrastructure/cli-migration-folder-option.js';
 import { addMigrationFolderOption } from '../infrastructure/cli-migration-folder-option.js';
 import { createKyselyClient } from '../infrastructure/connection.js';
-import { logger, createChildLogger } from '../infrastructure/logger.js';
+import { logger, initializeCliLogger } from '../infrastructure/logger.js';
 import { getMigrationInfos, runMigrator } from '../infrastructure/migrator-runner.js';
 
 const label = 'Migration';
@@ -34,9 +34,7 @@ program.parse();
 
 const direction = program.args[0] as 'up' | 'down';
 const opts = program.opts<RawContactApiDbOptions & RawLogLevelOption & RawMigrationFolderOption>();
-logger.level = opts.logLevel;
-
-const cliLogger = createChildLogger({ command: 'migrate', direction });
+const cliLogger = initializeCliLogger(opts.logLevel, { command: 'migrate', direction });
 
 // Infrastructure
 const kyselyClient = createKyselyClient(extractContactApiDbConfig(opts));
