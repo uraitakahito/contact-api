@@ -43,159 +43,17 @@ OPENFGA_STORE_ID=xxxxx OPENFGA_AUTH_MODEL_ID=yyyyy npm start
 
 `.env` に設定してコンテナを再起動する方法でも問題ありません。
 
-### 再セットアップ
-
-既存のデータベースを破棄して作り直す場合:
-
-```bash
-docker compose down -v
-./setup.sh
-docker compose --profile dev up -d
-```
-
 ## 認可 (OpenFGA)
 
 [docs/authorization.md](docs/authorization.md) を参照。認可モデルの定義は [data/openfga/model.fga](data/openfga/model.fga) にあります。
 
 ## API エンドポイント
 
-### フォームテンプレート一覧取得
-
-```bash
-curl -s "http://localhost:3000/form-templates?locale=ja" | jq
-```
-
-### フォームテンプレート詳細取得
-
-```bash
-curl -s "http://localhost:3000/form-templates/1?locale=ja" | jq
-```
-
-### フォームテンプレート作成
-
-```bash
-curl -s -X POST http://localhost:3000/form-templates \
-  -H "Content-Type: application/json" \
-  -H "X-User-Id: admin" \
-  -d '{"name": "feedback-form", "translations": {"ja": "フィードバック", "en": "Feedback"}, "fields": [{"name": "email", "fieldType": "text", "validationType": "email", "isRequired": true, "displayOrder": 1}, {"name": "message", "fieldType": "textarea", "isRequired": true, "displayOrder": 2}]}' | jq
-```
-
-### 問い合わせ作成
-
-```bash
-curl -s -X POST http://localhost:3000/contacts \
-  -H "Content-Type: application/json" \
-  -H "X-User-Id: yamada" \
-  -d '{"templateId": 1, "data": {"lastName": "山田", "firstName": "太郎", "email": "yamada@example.com", "phone": "090-1234-5678", "category": "general", "message": "詳細を教えてください"}}' | jq
-```
-
-レスポンス:
-```json
-{
-  "success": 1,
-  "data": {
-    "id": 1,
-    "templateId": 1,
-    "userId": "yamada",
-    "data": {
-      "lastName": "山田",
-      "firstName": "太郎",
-      "email": "yamada@example.com",
-      "phone": "090-1234-5678",
-      "category": "general",
-      "message": "詳細を教えてください"
-    },
-    "status": "new",
-    "createdAt": "2026-04-08T12:00:00.000Z",
-    "updatedAt": "2026-04-08T12:00:00.000Z"
-  }
-}
-```
-
-バリデーションエラー時は `?locale=ja` で日本語メッセージを取得できます:
-
-```bash
-curl -s -X POST "http://localhost:3000/contacts?locale=ja" \
-  -H "Content-Type: application/json" \
-  -H "X-User-Id: yamada" \
-  -d '{"templateId": 1, "data": {}}' | jq
-```
-
-レスポンス:
-```json
-{
-  "success": 0,
-  "data": {
-    "code": 10003,
-    "message": "Form validation failed: lastName:required; firstName:required; email:required; category:required; message:required",
-    "details": [
-      { "field": "lastName", "code": "required", "message": "姓は必須です" },
-      { "field": "firstName", "code": "required", "message": "名は必須です" },
-      { "field": "email", "code": "required", "message": "メールアドレスは必須です" },
-      { "field": "category", "code": "required", "message": "お問い合わせ種別は必須です" },
-      { "field": "message", "code": "required", "message": "メッセージは必須です" }
-    ]
-  }
-}
-```
-
-### 問い合わせ一覧取得
-
-```bash
-# 全件取得（認可済みのもののみ）
-curl -s -H "X-User-Id: yamada" http://localhost:3000/contacts | jq
-
-# ステータスでフィルタ
-curl -s -H "X-User-Id: yamada" "http://localhost:3000/contacts?status=new" | jq
-
-# テンプレートでフィルタ
-curl -s -H "X-User-Id: yamada" "http://localhost:3000/contacts?templateId=1" | jq
-```
-
-### 問い合わせ個別取得
-
-```bash
-curl -s -H "X-User-Id: yamada" http://localhost:3000/contacts/1 | jq
-```
-
-### 問い合わせステータス更新
-
-```bash
-curl -s -X PATCH http://localhost:3000/contacts/1/status \
-  -H "Content-Type: application/json" \
-  -H "X-User-Id: yamada" \
-  -d '{"status": "in_progress"}' | jq
-```
-
-### 問い合わせ削除
-
-```bash
-curl -s -X DELETE http://localhost:3000/contacts/1 \
-  -H "X-User-Id: yamada" \
-  -w "\nHTTP Status: %{http_code}\n"
-```
+[docs/api-endpoints.md](docs/api-endpoints.md) を参照。
 
 ## エラーレスポンス
 
 [docs/error-responses.md](docs/error-responses.md) を参照。
-
-| HTTP Status | 説明 |
-|-------------|------|
-| 400 | バリデーションエラー（詳細は `details` 配列に構造化エラーとして返却） |
-| 401 | `X-User-Id` ヘッダー未設定 |
-| 403 | 認可エラー（該当リソースへのアクセス権なし） |
-
-### バリデーションエラーの多言語化
-
-フォームフィールドのバリデーションエラーは `?locale=` クエリパラメータで言語を指定できます（デフォルト: `en`）。メッセージテンプレートは `validation_messages` テーブルに格納されており、デプロイなしで追加・変更が可能です。
-
-`details` 配列の各要素は以下の構造を持ちます:
-
-| フィールド | 説明 |
-|-----------|------|
-| `field` | フィールド名（機械可読） |
-| `code` | エラーコード（`required`, `invalid_type`, `invalid_format`, `too_short`, `too_long`, `invalid_option`） |
-| `message` | ロケールに応じた人間可読メッセージ |
 
 ## ヘキサゴナルアーキテクチャ（Ports and Adapters）
 
