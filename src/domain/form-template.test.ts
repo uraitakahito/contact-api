@@ -33,8 +33,8 @@ describe('validateContactData', () => {
 
     const errors = validateContactData(fields, data);
     expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain("'name'");
-    expect(errors[0]).toContain('required');
+    expect(errors[0]?.field).toBe('name');
+    expect(errors[0]?.code).toBe('required');
   });
 
   it('should return error for empty string on required field', () => {
@@ -69,7 +69,12 @@ describe('validateContactData', () => {
     const fields = [createField({ name: 'email', validation: { type: 'email' }, isRequired: true })];
 
     expect(validateContactData(fields, { email: 'valid@example.com' })).toEqual([]);
-    expect(validateContactData(fields, { email: 'invalid' })).toHaveLength(1);
+
+    const errors = validateContactData(fields, { email: 'invalid' });
+    expect(errors).toHaveLength(1);
+    expect(errors[0]?.code).toBe('invalid_format');
+    expect(errors[0]?.params).toEqual({ format: 'email' });
+
     expect(validateContactData(fields, { email: '@missing.com' })).toHaveLength(1);
   });
 
@@ -100,7 +105,11 @@ describe('validateContactData', () => {
     })];
 
     expect(validateContactData(fields, { category: 'general' })).toEqual([]);
-    expect(validateContactData(fields, { category: 'invalid' })).toHaveLength(1);
+
+    const errors = validateContactData(fields, { category: 'invalid' });
+    expect(errors).toHaveLength(1);
+    expect(errors[0]?.code).toBe('invalid_option');
+    expect(errors[0]?.params).toEqual({ options: 'general, support' });
   });
 
   it('should return error for non-string value', () => {
@@ -109,7 +118,7 @@ describe('validateContactData', () => {
 
     const errors = validateContactData(fields, data);
     expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain('must be a string');
+    expect(errors[0]?.code).toBe('invalid_type');
   });
 
   it('should collect multiple errors', () => {
@@ -126,13 +135,23 @@ describe('validateContactData', () => {
 
   it('should return error when value is shorter than minLength', () => {
     const fields = [createField({ name: 'code', validation: { type: 'none', minLength: 3 }, isRequired: true })];
-    expect(validateContactData(fields, { code: 'ab' })).toHaveLength(1);
+
+    const errors = validateContactData(fields, { code: 'ab' });
+    expect(errors).toHaveLength(1);
+    expect(errors[0]?.code).toBe('too_short');
+    expect(errors[0]?.params).toEqual({ min: 3 });
+
     expect(validateContactData(fields, { code: 'abc' })).toEqual([]);
   });
 
   it('should return error when value exceeds maxLength', () => {
     const fields = [createField({ name: 'code', validation: { type: 'none', maxLength: 5 }, isRequired: true })];
-    expect(validateContactData(fields, { code: 'abcdef' })).toHaveLength(1);
+
+    const errors = validateContactData(fields, { code: 'abcdef' });
+    expect(errors).toHaveLength(1);
+    expect(errors[0]?.code).toBe('too_long');
+    expect(errors[0]?.params).toEqual({ max: 5 });
+
     expect(validateContactData(fields, { code: 'abcde' })).toEqual([]);
   });
 
@@ -146,5 +165,21 @@ describe('validateContactData', () => {
   it('should skip minLength/maxLength for absent optional field', () => {
     const fields = [createField({ name: 'note', validation: { type: 'none', minLength: 3 } })];
     expect(validateContactData(fields, {})).toEqual([]);
+  });
+
+  it('should include field labels from translations', () => {
+    const fields = [createField({
+      name: 'email',
+      isRequired: true,
+      translations: new Map([
+        ['ja', { label: 'メールアドレス', placeholder: '', helpText: '' }],
+        ['en', { label: 'Email', placeholder: '', helpText: '' }],
+      ]),
+    })];
+
+    const errors = validateContactData(fields, {});
+    expect(errors).toHaveLength(1);
+    expect(errors[0]?.labels.get('ja')).toBe('メールアドレス');
+    expect(errors[0]?.labels.get('en')).toBe('Email');
   });
 });

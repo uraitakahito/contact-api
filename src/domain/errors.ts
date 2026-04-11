@@ -5,6 +5,8 @@
  * ビジネスルール違反を表現し、外部技術に一切依存しない。
  */
 
+import type { FieldValidationError } from './form-template.js';
+
 export class ContactNotFoundError extends Error {
   public readonly id: number;
 
@@ -33,10 +35,10 @@ export class ContactValidationError extends Error {
 }
 
 export class FormFieldValidationError extends Error {
-  public readonly errors: string[];
+  public readonly errors: FieldValidationError[];
 
-  constructor(errors: string[]) {
-    super(`Form validation failed: ${errors.join('; ')}`);
+  constructor(errors: FieldValidationError[]) {
+    super(`Form validation failed: ${errors.map((e) => `${e.field}:${e.code}`).join('; ')}`);
     this.name = 'FormFieldValidationError';
     this.errors = errors;
   }

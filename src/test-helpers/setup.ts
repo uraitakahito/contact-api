@@ -18,9 +18,11 @@ import { createKyselyClient } from '../infrastructure/connection.js';
 import type { Database } from '../infrastructure/database.js';
 import { KyselyContactRepository } from '../infrastructure/kysely-contact-repository.js';
 import { KyselyFormTemplateRepository } from '../infrastructure/kysely-form-template-repository.js';
+import { KyselyValidationMessageRepository } from '../infrastructure/kysely-validation-message-repository.js';
 import { logger } from '../infrastructure/logger.js';
 import * as formTemplatesSeed from '../infrastructure/seeds/001-form-templates.js';
-import { errorHandler } from '../presentation/error-handler.js';
+import { createErrorHandler } from '../presentation/error-handler.js';
+import { ValidationMessageFormatter } from '../presentation/validation-message-formatter.js';
 import { registerHealthRoutes } from '../presentation/health-routes.js';
 import { registerContactRoutes } from '../presentation/contact-routes.js';
 import { registerFormTemplateRoutes } from '../presentation/form-template-routes.js';
@@ -58,7 +60,7 @@ export async function runMigrations(kyselyClient: Kysely<Database>): Promise<voi
  * 毎回 TRUNCATE → 再投入する。
  */
 export async function runSeeds(kyselyClient: Kysely<Database>): Promise<void> {
-  await sql`TRUNCATE TABLE contacts, form_field_translations, form_fields, form_template_translations, form_templates RESTART IDENTITY CASCADE`.execute(kyselyClient);
+  await sql`TRUNCATE TABLE contacts, validation_messages, form_field_translations, form_fields, form_template_translations, form_templates RESTART IDENTITY CASCADE`.execute(kyselyClient);
   await formTemplatesSeed.up(kyselyClient);
 }
 
@@ -82,6 +84,9 @@ export async function createTestApp(): Promise<TestApp> {
   await runSeeds(kyselyClient);
 
   const authz = new InMemoryContactAuthorizationService();
+  const validationMessageRepo = new KyselyValidationMessageRepository(kyselyClient);
+  const validationTemplates = await validationMessageRepo.findAll();
+  const validationFormatter = new ValidationMessageFormatter(validationTemplates);
   const contactRepository = new KyselyContactRepository(kyselyClient);
   const formTemplateRepository = new KyselyFormTemplateRepository(kyselyClient);
   const createContact = new CreateContactUseCase(contactRepository, formTemplateRepository, authz);
@@ -96,7 +101,7 @@ export async function createTestApp(): Promise<TestApp> {
   const deleteFormTemplate = new DeleteFormTemplateUseCase(formTemplateRepository);
 
   const app = Fastify({ loggerInstance: logger as FastifyBaseLogger });
-  app.setErrorHandler(errorHandler);
+  app.setErrorHandler(createErrorHandler(validationFormatter));
   registerHealthRoutes(app, kyselyClient);
   registerContactRoutes(app, {
     createContact,

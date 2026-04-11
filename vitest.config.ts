@@ -18,6 +18,7 @@ export default defineConfig({
             'src/domain/**/*.test.ts',
             'src/application/**/*.test.ts',
             'src/presentation/error-handler.test.ts',
+            'src/presentation/validation-message-formatter.test.ts',
             'src/infrastructure/csv-reader.test.ts',
           ],
           sequence: { groupOrder: 1 },

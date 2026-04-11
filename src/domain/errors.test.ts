@@ -43,9 +43,12 @@ describe('ContactValidationError', () => {
 
 describe('FormFieldValidationError', () => {
   it('should have the correct message and errors array', () => {
-    const fieldErrors = ["Field 'name' is required", "Field 'email' has invalid email format"];
+    const fieldErrors = [
+      { field: 'name', code: 'required' as const, params: {}, labels: new Map<string, string>() },
+      { field: 'email', code: 'invalid_format' as const, params: { format: 'email' }, labels: new Map<string, string>() },
+    ];
     const error = new FormFieldValidationError(fieldErrors);
-    expect(error.message).toBe("Form validation failed: Field 'name' is required; Field 'email' has invalid email format");
+    expect(error.message).toBe('Form validation failed: name:required; email:invalid_format');
     expect(error.errors).toEqual(fieldErrors);
     expect(error.name).toBe('FormFieldValidationError');
     expect(error).toBeInstanceOf(Error);

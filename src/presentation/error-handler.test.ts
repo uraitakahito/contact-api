@@ -2,11 +2,20 @@ import { describe, expect, it, vi } from 'vitest';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod/v4';
 import { AuthorizationError, ContactNotFoundError, ContactValidationError, FormFieldValidationError, FormTemplateNotFoundError, InvalidStatusTransitionError } from '../domain/errors.js';
+import type { FieldValidationError } from '../domain/form-template.js';
 import { ERROR_CODE } from './envelope.js';
-import { errorHandler } from './error-handler.js';
+import { createErrorHandler } from './error-handler.js';
+import { ValidationMessageFormatter } from './validation-message-formatter.js';
 
-function createMockRequest() {
-  return { log: { error: vi.fn() } } as unknown as FastifyRequest;
+function createTestTemplates(): Map<string, Map<string, string>> {
+  return new Map([
+    ['required', new Map([['ja', '{label}は必須です'], ['en', '{label} is required']])],
+    ['invalid_format', new Map([['ja', '{label}の{format}形式が正しくありません'], ['en', '{label} has invalid {format} format']])],
+  ]);
+}
+
+function createMockRequest(query: Record<string, unknown> = {}): FastifyRequest {
+  return { log: { error: vi.fn() }, query } as unknown as FastifyRequest;
 }
 
 function createMockReply() {
@@ -14,6 +23,9 @@ function createMockReply() {
   vi.mocked(reply.status).mockReturnValue(reply);
   return reply;
 }
+
+const formatter = new ValidationMessageFormatter(createTestTemplates());
+const errorHandler = createErrorHandler(formatter);
 
 describe('errorHandler', () => {
   it('should return 403 for AuthorizationError without logging', () => {
@@ -72,19 +84,44 @@ describe('errorHandler', () => {
     expect(request.log.error).not.toHaveBeenCalled();
   });
 
-  it('should return 400 for FormFieldValidationError with errors array', () => {
-    const request = createMockRequest();
+  it('should return 400 for FormFieldValidationError with localized details', () => {
+    const request = createMockRequest({ locale: 'ja' });
     const reply = createMockReply();
-    const fieldErrors = ["Field 'name' is required"];
+    const fieldErrors: FieldValidationError[] = [
+      { field: 'name', code: 'required', params: {}, labels: new Map([['ja', '名前'], ['en', 'Name']]) },
+    ];
 
     errorHandler(new FormFieldValidationError(fieldErrors), request, reply);
 
     expect(reply.status).toHaveBeenCalledWith(400);
     expect(reply.send).toHaveBeenCalledWith({
       success: 0,
-      data: { code: ERROR_CODE.FORM_FIELD_VALIDATION_ERROR, message: expect.any(String) as string, details: fieldErrors },
+      data: {
+        code: ERROR_CODE.FORM_FIELD_VALIDATION_ERROR,
+        message: expect.any(String) as string,
+        details: [{ field: 'name', code: 'required', message: '名前は必須です' }],
+      },
     });
     expect(request.log.error).not.toHaveBeenCalled();
+  });
+
+  it('should default to English locale when locale query is absent', () => {
+    const request = createMockRequest();
+    const reply = createMockReply();
+    const fieldErrors: FieldValidationError[] = [
+      { field: 'name', code: 'required', params: {}, labels: new Map([['ja', '名前'], ['en', 'Name']]) },
+    ];
+
+    errorHandler(new FormFieldValidationError(fieldErrors), request, reply);
+
+    expect(reply.send).toHaveBeenCalledWith({
+      success: 0,
+      data: {
+        code: ERROR_CODE.FORM_FIELD_VALIDATION_ERROR,
+        message: expect.any(String) as string,
+        details: [{ field: 'name', code: 'required', message: 'Name is required' }],
+      },
+    });
   });
 
   it('should return 400 for InvalidStatusTransitionError without logging', () => {

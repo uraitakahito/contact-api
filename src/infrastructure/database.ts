@@ -52,10 +52,17 @@ export interface ContactTable {
   updatedAt: ColumnType<Date, string | undefined, string>;
 }
 
+export interface ValidationMessageTable {
+  code: string;
+  locale: string;
+  template: string;
+}
+
 export interface Database {
   formTemplates: FormTemplateTable;
   formTemplateTranslations: FormTemplateTranslationTable;
   formFields: FormFieldTable;
   formFieldTranslations: FormFieldTranslationTable;
   contacts: ContactTable;
+  validationMessages: ValidationMessageTable;
 }
