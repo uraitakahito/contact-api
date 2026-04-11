@@ -12,7 +12,7 @@ import type { DeleteFormTemplateUseCase } from '../application/delete-form-templ
 import type { GetFormTemplateByIdUseCase } from '../application/get-form-template-by-id.js';
 import type { GetFormTemplatesUseCase } from '../application/get-form-templates.js';
 import type { UpdateFormTemplateUseCase } from '../application/update-form-template.js';
-import type { CreateFormFieldInput, FormFieldOption } from '../domain/form-template.js';
+import type { FormFieldInput, FormFieldOption } from '../domain/form-template.js';
 import { ERROR_CODE, wrapError, wrapSuccess } from './envelope.js';
 import { formatFormTemplate, formatFormTemplates } from './format.js';
 import {
@@ -41,7 +41,7 @@ function extractUserId(request: FastifyRequest): string | undefined {
 /**
  * Zod パース結果の Record を Domain 層の Map ベース型に変換する。
  */
-function toCreateFormFieldInputs(
+function toFormFieldInputs(
   fields: {
     name: string;
     fieldType: 'text' | 'textarea' | 'select';
@@ -50,10 +50,10 @@ function toCreateFormFieldInputs(
     displayOrder: number;
     options: { value: string; labels: Record<string, string> }[];
     cssClass: string;
-    htmlId: string;
+    htmlId?: string | undefined;
     translations: Record<string, { label: string; placeholder: string; helpText: string }>;
   }[],
-): CreateFormFieldInput[] {
+): FormFieldInput[] {
   return fields.map((f) => ({
     name: f.name,
     fieldType: f.fieldType,
@@ -100,7 +100,7 @@ export function registerFormTemplateRoutes(
     const template = await useCases.createFormTemplate.execute({
       name: body.name,
       translations: new Map(Object.entries(body.translations)),
-      fields: toCreateFormFieldInputs(body.fields),
+      fields: toFormFieldInputs(body.fields),
     });
     const query = formTemplatesQuerySchema.parse(request.query);
     return reply.status(201).send(wrapSuccess(formatFormTemplate(template, query.locale)));
@@ -116,7 +116,7 @@ export function registerFormTemplateRoutes(
     const template = await useCases.updateFormTemplate.execute(params.id, {
       ...(body.name !== undefined ? { name: body.name } : {}),
       ...(body.translations !== undefined ? { translations: new Map(Object.entries(body.translations)) } : {}),
-      ...(body.fields !== undefined ? { fields: toCreateFormFieldInputs(body.fields) } : {}),
+      ...(body.fields !== undefined ? { fields: toFormFieldInputs(body.fields) } : {}),
     });
     const query = formTemplatesQuerySchema.parse(request.query);
     return wrapSuccess(formatFormTemplate(template, query.locale));

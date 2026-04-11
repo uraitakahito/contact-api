@@ -24,7 +24,7 @@ const sampleInput: CreateFormTemplateInput = {
       displayOrder: 1,
       options: [],
       cssClass: 'form-control',
-      htmlId: '',
+      htmlId: 'field-name',
       translations: new Map([
         ['ja', { label: '名前', placeholder: '', helpText: '' }],
         ['en', { label: 'Name', placeholder: '', helpText: '' }],
@@ -38,7 +38,7 @@ const sampleInput: CreateFormTemplateInput = {
       displayOrder: 2,
       options: [],
       cssClass: 'form-control',
-      htmlId: '',
+      htmlId: 'field-email',
       translations: new Map([
         ['ja', { label: 'メール', placeholder: '', helpText: '' }],
         ['en', { label: 'Email', placeholder: '', helpText: '' }],
@@ -123,7 +123,7 @@ describe('KyselyFormTemplateRepository', () => {
             { value: 'blue', labels: new Map([['en', 'Blue'], ['ja', '青']]) },
           ],
           cssClass: 'form-control',
-          htmlId: '',
+          htmlId: 'field-color',
           translations: new Map([['en', { label: 'Color', placeholder: '', helpText: '' }]]),
         }],
       };
@@ -190,7 +190,7 @@ describe('KyselyFormTemplateRepository', () => {
           displayOrder: 1,
           options: [],
           cssClass: 'form-control',
-          htmlId: '',
+          htmlId: 'field-message',
           translations: new Map(),
         }],
       });

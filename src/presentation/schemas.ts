@@ -53,7 +53,7 @@ const formFieldInputSchema = z.object({
   displayOrder: z.number().int(),
   options: z.array(formFieldOptionSchema).default([]),
   cssClass: z.string().default('form-control'),
-  htmlId: z.string().default(''),
+  htmlId: z.string().optional(),
   translations: z.record(z.string(), z.object({
     label: z.string(),
     placeholder: z.string().default(''),

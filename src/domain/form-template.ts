@@ -48,6 +48,22 @@ export interface FormTemplate {
   updatedAt: Date;
 }
 
+export function generateHtmlId(fieldName: string): string {
+  return `field-${fieldName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}`;
+}
+
+export interface FormFieldInput {
+  name: string;
+  fieldType: FieldType;
+  validation: FieldValidation;
+  isRequired: boolean;
+  displayOrder: number;
+  options: FormFieldOption[];
+  cssClass: string;
+  htmlId?: string | undefined;
+  translations: Map<string, FieldTranslation>;
+}
+
 export interface CreateFormFieldInput {
   name: string;
   fieldType: FieldType;
@@ -58,6 +74,18 @@ export interface CreateFormFieldInput {
   cssClass: string;
   htmlId: string;
   translations: Map<string, FieldTranslation>;
+}
+
+export interface FormTemplateInput {
+  name: string;
+  translations: Map<string, string>;
+  fields: FormFieldInput[];
+}
+
+export interface FormTemplateUpdateInput {
+  name?: string;
+  translations?: Map<string, string>;
+  fields?: FormFieldInput[];
 }
 
 export interface CreateFormTemplateInput {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { validateContactData } from './form-template.js';
+import { generateHtmlId, validateContactData } from './form-template.js';
 import type { FormField } from './form-template.js';
 
 function createField(overrides: Partial<FormField> & { name: string }): FormField {
@@ -11,7 +11,7 @@ function createField(overrides: Partial<FormField> & { name: string }): FormFiel
     displayOrder: 1,
     options: [],
     cssClass: 'form-control',
-    htmlId: '',
+    htmlId: 'field-test',
     translations: new Map(),
     ...overrides,
   };
@@ -182,5 +182,19 @@ describe('validateContactData', () => {
     expect(errors).toHaveLength(1);
     expect(errors[0]?.labels.get('ja')).toBe('メールアドレス');
     expect(errors[0]?.labels.get('en')).toBe('Email');
+  });
+});
+
+describe('generateHtmlId', () => {
+  it('should convert camelCase to kebab-case with field- prefix', () => {
+    expect(generateHtmlId('lastName')).toBe('field-last-name');
+  });
+
+  it('should handle single word', () => {
+    expect(generateHtmlId('email')).toBe('field-email');
+  });
+
+  it('should handle multiple uppercase letters', () => {
+    expect(generateHtmlId('myFieldName')).toBe('field-my-field-name');
   });
 });

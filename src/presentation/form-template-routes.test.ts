@@ -113,7 +113,8 @@ describe('POST /form-templates', () => {
     expect(body.fields).toHaveLength(2);
     expect(body.fields[0]!.validation).toEqual({ type: 'none' });
     expect(body.fields[0]!.cssClass).toBe('form-control');
-    expect(body.fields[0]!.htmlId).toBe('');
+    expect(body.fields[0]!.htmlId).toBe('field-subject');
+    expect(body.fields[1]!.htmlId).toBe('field-body');
     expect(body.fields[0]!.helpText).toBe('');
   });
 
