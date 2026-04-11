@@ -3,16 +3,15 @@
  * @description Infrastructure — Commander migration-folder オプション定義の共有ヘルパー。
  */
 
-import { fileURLToPath } from 'node:url';
 import type { Command } from 'commander';
 import { Option } from 'commander';
 import { parsePath } from './cli-parsers.js';
 
 export interface RawMigrationFolderOption {
-  readonly migrationFolder: string;
+  readonly migrationFolder: URL;
 }
 
-const defaultPath = fileURLToPath(new URL('./migrations', import.meta.url));
+const defaultPath = new URL('./migrations/', import.meta.url);
 
 export function addMigrationFolderOption(cmd: Command): Command {
   return cmd.addOption(

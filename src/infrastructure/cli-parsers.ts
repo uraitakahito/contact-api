@@ -6,6 +6,7 @@
  */
 
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { InvalidArgumentError } from 'commander';
 
 export function parseUrl(value: string): URL {
@@ -24,9 +25,9 @@ export function parsePort(value: string): number {
   return parsed;
 }
 
-export function parsePath(value: string): string {
+export function parsePath(value: string): URL {
   if (value.trim() === '') {
     throw new InvalidArgumentError('Path must not be empty.');
   }
-  return path.resolve(value);
+  return pathToFileURL(path.resolve(value));
 }
