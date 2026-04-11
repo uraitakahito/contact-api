@@ -44,7 +44,7 @@ const program = new Command();
 program
   .name('contact-api')
   .description('Contact API server')
-  .addOption(new Option('--port <port>', 'Server listen port').default(3000).argParser(parsePort));
+  .addOption(new Option('--server-port <port>', 'Server listen port').default(80).argParser(parsePort));
 
 addContactApiDbOptions(program);
 addOpenFgaOptions(program);
@@ -53,7 +53,7 @@ program.parse();
 
 logger.level = program.opts<RawLogLevelOption>().logLevel;
 
-const opts = program.opts<{ port: number } & RawContactApiDbOptions & RawOpenFgaOptions>();
+const opts = program.opts<{ serverPort: number } & RawContactApiDbOptions & RawOpenFgaOptions>();
 
 // Infrastructure
 const kyselyClient = createKyselyClient(extractContactApiDbConfig(opts));
@@ -108,4 +108,4 @@ const gracefulShutdown = async (): Promise<void> => {
 process.on('SIGTERM', () => void gracefulShutdown());
 process.on('SIGINT', () => void gracefulShutdown());
 
-await app.listen({ port: opts.port, host: '0.0.0.0' });
+await app.listen({ port: opts.serverPort, host: '0.0.0.0' });
