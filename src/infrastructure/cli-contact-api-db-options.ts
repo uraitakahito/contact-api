@@ -8,14 +8,14 @@
 import type { Command } from 'commander';
 import { Option } from 'commander';
 import { parsePort } from './cli-parsers.js';
-import type { DbConfig } from './connection.js';
+import type { ContactApiDbConfig } from './connection.js';
 
 /**
  * Commander の CLI オプション型。
  *
- * DbConfig（インフラ層の正規型）から Mapped Type で自動導出する。
+ * ContactApiDbConfig（インフラ層の正規型）から Mapped Type で自動導出する。
  * こうすることで型定義の重複を排除しつつ、依存方向を
- *   cli-contact-api-db-options → connection（DbConfig）
+ *   cli-contact-api-db-options → connection（ContactApiDbConfig）
  * に保つ。逆方向（connection が CLI 型に依存）にすると、
  * CLI 固有の `db` プレフィックス命名がインフラ層やテスト層に漏洩するため避ける。
  *
@@ -24,7 +24,7 @@ import type { DbConfig } from './connection.js';
  * 衝突を防ぐために付与している。
  */
 export type RawContactApiDbOptions = Readonly<{
-  [K in keyof DbConfig as `db${Capitalize<K>}`]: DbConfig[K];
+  [K in keyof ContactApiDbConfig as `db${Capitalize<K>}`]: ContactApiDbConfig[K];
 }>;
 
 export function addContactApiDbOptions(cmd: Command): Command {
@@ -37,7 +37,7 @@ export function addContactApiDbOptions(cmd: Command): Command {
     .addOption(new Option('--db-pool-size <size>', 'Database connection pool size').env('CONTACT_API_DB_POOL_SIZE').default(10).argParser(parsePort));
 }
 
-export function extractContactApiDbConfig(opts: RawContactApiDbOptions): DbConfig {
+export function toContactApiDbConfig(opts: RawContactApiDbOptions): ContactApiDbConfig {
   return {
     host: opts.dbHost,
     port: opts.dbPort,

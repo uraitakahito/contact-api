@@ -20,7 +20,7 @@ import { GetFormTemplatesUseCase } from '../application/get-form-templates.js';
 import { UpdateContactStatusUseCase } from '../application/update-contact-status.js';
 import { UpdateFormTemplateUseCase } from '../application/update-form-template.js';
 import type { RawContactApiDbOptions } from '../infrastructure/cli-contact-api-db-options.js';
-import { addContactApiDbOptions, extractContactApiDbConfig } from '../infrastructure/cli-contact-api-db-options.js';
+import { addContactApiDbOptions, toContactApiDbConfig } from '../infrastructure/cli-contact-api-db-options.js';
 import type { RawOpenFgaOptions } from '../infrastructure/cli-openfga-options.js';
 import { addOpenFgaOptions, extractOpenFgaConfig } from '../infrastructure/cli-openfga-options.js';
 import { parsePort } from '../infrastructure/cli-parsers.js';
@@ -56,7 +56,7 @@ logger.level = program.opts<RawLogLevelOption>().logLevel;
 const opts = program.opts<{ serverPort: number } & RawContactApiDbOptions & RawOpenFgaOptions>();
 
 // Infrastructure
-const kyselyClient = createKyselyClient(extractContactApiDbConfig(opts));
+const kyselyClient = createKyselyClient(toContactApiDbConfig(opts));
 const fgaClient = createOpenFgaClient(extractOpenFgaConfig(opts));
 const contactRepository = new KyselyContactRepository(kyselyClient);
 const formTemplateRepository = new KyselyFormTemplateRepository(kyselyClient);

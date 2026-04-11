@@ -29,7 +29,7 @@ function createKyselyLog(): (event: LogEvent) => void {
   };
 }
 
-export interface DbConfig {
+export interface ContactApiDbConfig {
   host: string;
   port: number;
   user?: string | undefined;
@@ -38,7 +38,7 @@ export interface DbConfig {
   poolSize: number;
 }
 
-export function createKyselyClient(config: DbConfig): Kysely<Database> {
+export function createKyselyClient(config: ContactApiDbConfig): Kysely<Database> {
   const dialect = new PostgresDialect({
     pool: new pg.Pool({
       host: config.host,
