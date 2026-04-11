@@ -3,7 +3,7 @@
 ## フォームテンプレート一覧取得
 
 ```bash
-curl -s "http://localhost:3000/form-templates?locale=ja" | jq
+curl -s "http://localhost/form-templates?locale=ja" | jq
 ```
 
 レスポンス:
@@ -51,7 +51,7 @@ curl -s "http://localhost:3000/form-templates?locale=ja" | jq
 ## フォームテンプレート詳細取得
 
 ```bash
-curl -s "http://localhost:3000/form-templates/1?locale=ja" | jq
+curl -s "http://localhost/form-templates/1?locale=ja" | jq
 ```
 
 レスポンス:
@@ -162,7 +162,7 @@ curl -s "http://localhost:3000/form-templates/1?locale=ja" | jq
 ## フォームテンプレート作成
 
 ```bash
-curl -s -X POST http://localhost:3000/form-templates \
+curl -s -X POST http://localhost/form-templates \
   -H "Content-Type: application/json" \
   -H "X-User-Id: admin" \
   -d '{"name": "feedback-form", "translations": {"ja": "フィードバック", "en": "Feedback"}, "fields": [{"name": "email", "fieldType": "text", "validationType": "email", "isRequired": true, "displayOrder": 1}, {"name": "message", "fieldType": "textarea", "isRequired": true, "displayOrder": 2}]}' | jq
@@ -215,7 +215,7 @@ curl -s -X POST http://localhost:3000/form-templates \
 ## 問い合わせ作成
 
 ```bash
-curl -s -X POST http://localhost:3000/contacts \
+curl -s -X POST http://localhost/contacts \
   -H "Content-Type: application/json" \
   -H "X-User-Id: yamada" \
   -d '{"templateId": 1, "data": {"lastName": "山田", "firstName": "太郎", "email": "yamada@example.com", "phone": "090-1234-5678", "category": "general", "message": "詳細を教えてください"}}' | jq
@@ -247,7 +247,7 @@ curl -s -X POST http://localhost:3000/contacts \
 バリデーションエラー時は `?locale=ja` で日本語メッセージを取得できます:
 
 ```bash
-curl -s -X POST "http://localhost:3000/contacts?locale=ja" \
+curl -s -X POST "http://localhost/contacts?locale=ja" \
   -H "Content-Type: application/json" \
   -H "X-User-Id: yamada" \
   -d '{"templateId": 1, "data": {}}' | jq
@@ -275,13 +275,13 @@ curl -s -X POST "http://localhost:3000/contacts?locale=ja" \
 
 ```bash
 # 全件取得（認可済みのもののみ）
-curl -s -H "X-User-Id: yamada" http://localhost:3000/contacts | jq
+curl -s -H "X-User-Id: yamada" http://localhost/contacts | jq
 
 # ステータスでフィルタ
-curl -s -H "X-User-Id: yamada" "http://localhost:3000/contacts?status=new" | jq
+curl -s -H "X-User-Id: yamada" "http://localhost/contacts?status=new" | jq
 
 # テンプレートでフィルタ
-curl -s -H "X-User-Id: yamada" "http://localhost:3000/contacts?templateId=1" | jq
+curl -s -H "X-User-Id: yamada" "http://localhost/contacts?templateId=1" | jq
 ```
 
 レスポンス:
@@ -312,7 +312,7 @@ curl -s -H "X-User-Id: yamada" "http://localhost:3000/contacts?templateId=1" | j
 ## 問い合わせ個別取得
 
 ```bash
-curl -s -H "X-User-Id: yamada" http://localhost:3000/contacts/1 | jq
+curl -s -H "X-User-Id: yamada" http://localhost/contacts/1 | jq
 ```
 
 レスポンス:
@@ -341,7 +341,7 @@ curl -s -H "X-User-Id: yamada" http://localhost:3000/contacts/1 | jq
 ## 問い合わせステータス更新
 
 ```bash
-curl -s -X PATCH http://localhost:3000/contacts/1/status \
+curl -s -X PATCH http://localhost/contacts/1/status \
   -H "Content-Type: application/json" \
   -H "X-User-Id: yamada" \
   -d '{"status": "in_progress"}' | jq
@@ -373,7 +373,7 @@ curl -s -X PATCH http://localhost:3000/contacts/1/status \
 ## 問い合わせ削除
 
 ```bash
-curl -s -X DELETE http://localhost:3000/contacts/1 \
+curl -s -X DELETE http://localhost/contacts/1 \
   -H "X-User-Id: yamada" \
   -w "\nHTTP Status: %{http_code}\n"
 ```

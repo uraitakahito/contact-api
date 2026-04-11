@@ -44,7 +44,7 @@ const program = new Command();
 program
   .name('contact-api')
   .description('Contact API server')
-  .addOption(new Option('--server-port <port>', 'Server listen port').default(3000).argParser(parsePort));
+  .addOption(new Option('--server-port <port>', 'Server listen port').default(80).argParser(parsePort));
 
 addContactApiDbOptions(program);
 addOpenFgaOptions(program);

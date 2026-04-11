@@ -10,17 +10,17 @@
 
 ```bash
 # 400 の例: 不正なメールアドレス
-curl -s -X POST http://localhost:3000/contacts \
+curl -s -X POST http://localhost/contacts \
   -H "Content-Type: application/json" \
   -d '{"lastName": "Test", "firstName": "User", "email": "bad", "categoryId": 1, "message": "Msg"}' | jq
 
 # 400 の例: 存在しない問い合わせ種別
-curl -s -X POST http://localhost:3000/contacts \
+curl -s -X POST http://localhost/contacts \
   -H "Content-Type: application/json" \
   -d '{"lastName": "Test", "firstName": "User", "email": "test@example.com", "categoryId": 999, "message": "Msg"}' | jq
 
 # 404 の例: 存在しない ID
-curl -s http://localhost:3000/contacts/999 | jq
+curl -s http://localhost/contacts/999 | jq
 ```
 
 ### バリデーションエラーの多言語化
