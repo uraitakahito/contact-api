@@ -10,14 +10,22 @@ import { Option } from 'commander';
 import { parsePort } from './cli-parsers.js';
 import type { DbConfig } from './connection.js';
 
-export interface RawContactApiDbOptions {
-  readonly dbHost: string;
-  readonly dbPort: number;
-  readonly dbUser?: string;
-  readonly dbPassword?: string;
-  readonly dbDatabase?: string;
-  readonly dbPoolSize: number;
-}
+/**
+ * Commander の CLI オプション型。
+ *
+ * DbConfig（インフラ層の正規型）から Mapped Type で自動導出する。
+ * こうすることで型定義の重複を排除しつつ、依存方向を
+ *   cli-contact-api-db-options → connection（DbConfig）
+ * に保つ。逆方向（connection が CLI 型に依存）にすると、
+ * CLI 固有の `db` プレフィックス命名がインフラ層やテスト層に漏洩するため避ける。
+ *
+ * `db` プレフィックスは Commander が全オプションをフラットな名前空間に
+ * 格納する都合上、他オプション（--server-port, --openfga-* 等）との
+ * 衝突を防ぐために付与している。
+ */
+export type RawContactApiDbOptions = Readonly<{
+  [K in keyof DbConfig as `db${Capitalize<K>}`]: DbConfig[K];
+}>;
 
 export function addContactApiDbOptions(cmd: Command): Command {
   return cmd
