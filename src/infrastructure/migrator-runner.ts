@@ -13,11 +13,8 @@ import { FileMigrationProvider, Migrator } from 'kysely';
 import type { Kysely, MigrationInfo, MigrationResultSet } from 'kysely';
 
 export interface RunMigratorConfig {
-  /** マイグレーションファイルのディレクトリ (file: URL) */
   readonly migrationFolder: URL;
-  /** Kysely Migrator の履歴テーブル名 */
   readonly migrationTableName: string;
-  /** Kysely Migrator のロックテーブル名 */
   readonly migrationLockTableName: string;
 }
 
