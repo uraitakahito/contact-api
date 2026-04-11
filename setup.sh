@@ -2,7 +2,7 @@
 set -e
 
 # Configuration
-BASE_URL="https://raw.githubusercontent.com/uraitakahito/hello-javascript/refs/tags/1.2.2"
+BASE_URL="https://raw.githubusercontent.com/uraitakahito/hello-javascript/refs/tags/1.2.3"
 
 echo "Starting contact-api setup..."
 
