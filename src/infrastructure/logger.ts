@@ -18,3 +18,12 @@ export const logger = pino({
 export const createChildLogger = (bindings: LoggerBindings): Logger => {
   return logger.child(bindings);
 };
+
+/**
+ * CLIエントリーポイント用の初期化関数。
+ * ルートロガーのレベル設定と子ロガー生成を不可分操作として行う。
+ */
+export function initializeCliLogger(level: string, bindings: LoggerBindings): Logger {
+  logger.level = level;
+  return logger.child(bindings);
+}
