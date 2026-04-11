@@ -2,18 +2,17 @@
  * @module seed
  * @description シード CLI エントリーポイント。
  *
- * Commander.js で DB 接続オプションとシード方向を受け取り、
+ * DB 接続オプションとシード方向を受け取り、
  * Kysely マイグレーションランナーでシードデータを投入/削除する。
  */
 
-import { fileURLToPath } from 'node:url';
 import { Argument, Command } from 'commander';
-import type { RawDbOptions } from '../infrastructure/cli-db-options.js';
-import { addDbOptions, extractDbConfig } from '../infrastructure/cli-db-options.js';
+import type { RawContactApiDbOptions } from '../infrastructure/cli-contact-api-db-options.js';
+import { addContactApiDbOptions, extractContactApiDbConfig } from '../infrastructure/cli-contact-api-db-options.js';
 import { addLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
-import type { RawMigrationFolderOption } from '../infrastructure/cli-migration-folder-option.js';
-import { addMigrationFolderOption } from '../infrastructure/cli-migration-folder-option.js';
+import type { RawSeedFolderOption } from '../infrastructure/cli-seed-folder-option.js';
+import { addSeedFolderOption } from '../infrastructure/cli-seed-folder-option.js';
 import { createKyselyClient } from '../infrastructure/connection.js';
 import { logger, createChildLogger } from '../infrastructure/logger.js';
 import { getMigrationInfos, runMigrator } from '../infrastructure/migrator-runner.js';
@@ -22,28 +21,27 @@ const label = 'Seed';
 
 // CLI
 const program = new Command();
-const defaultMigrationFolder = fileURLToPath(new URL('../infrastructure/seeds', import.meta.url));
 
 program
   .name('seed')
   .description('Run database seeds')
   .addArgument(new Argument('<direction>', 'Seed direction').choices(['up', 'down']));
 
-addDbOptions(program);
-addMigrationFolderOption(program, { defaultPath: defaultMigrationFolder, envVar: 'SEED_FOLDER' });
+addContactApiDbOptions(program);
+addSeedFolderOption(program);
 addLogLevelOption(program);
 program.parse();
 
 const direction = program.args[0] as 'up' | 'down';
-const opts = program.opts<RawDbOptions & RawLogLevelOption & RawMigrationFolderOption>();
+const opts = program.opts<RawContactApiDbOptions & RawLogLevelOption & RawSeedFolderOption>();
 logger.level = opts.logLevel;
 
 const cliLogger = createChildLogger({ command: 'seed', direction });
 
 // Infrastructure
-const kyselyClient = createKyselyClient(extractDbConfig(opts));
+const kyselyClient = createKyselyClient(extractContactApiDbConfig(opts));
 const migratorConfig = {
-  migrationFolder: opts.migrationFolder,
+  migrationFolder: opts.seedFolder,
   tableName: 'kysely_seed',
   lockTableName: 'kysely_seed_lock',
 };
