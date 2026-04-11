@@ -40,11 +40,6 @@ const validationSchema = z.object({
   maxLength: z.number().int().positive().optional(),
 }).default({ type: 'none' });
 
-const presentationSchema = z.object({
-  cssClass: z.string().optional(),
-  htmlId: z.string().optional(),
-}).default({});
-
 const formFieldOptionSchema = z.object({
   value: z.string().min(1),
   labels: z.record(z.string(), z.string()),
@@ -57,7 +52,8 @@ const formFieldInputSchema = z.object({
   isRequired: z.boolean().default(false),
   displayOrder: z.number().int(),
   options: z.array(formFieldOptionSchema).default([]),
-  presentation: presentationSchema,
+  cssClass: z.string().default('form-control'),
+  htmlId: z.string().optional(),
   translations: z.record(z.string(), z.object({
     label: z.string(),
     placeholder: z.string().default(''),

@@ -35,7 +35,8 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn('is_required', 'boolean', (col) => col.notNull().defaultTo(false))
     .addColumn('display_order', 'integer', (col) => col.notNull())
     .addColumn('options', 'jsonb')
-    .addColumn('presentation', 'jsonb', (col) => col.notNull().defaultTo(sql`'{}'::jsonb`))
+    .addColumn('css_class', 'varchar(255)', (col) => col.notNull())
+    .addColumn('html_id', 'varchar(255)', (col) => col.notNull())
     .addColumn('created_at', 'timestamptz', (col) => col.notNull().defaultTo(sql`now()`))
     .addColumn('updated_at', 'timestamptz', (col) => col.notNull().defaultTo(sql`now()`))
     .execute();

@@ -23,7 +23,8 @@ const sampleInput: CreateFormTemplateInput = {
       isRequired: true,
       displayOrder: 1,
       options: [],
-      presentation: {},
+      cssClass: 'form-control',
+      htmlId: 'field-name',
       translations: new Map([
         ['ja', { label: '名前', placeholder: '', helpText: '' }],
         ['en', { label: 'Name', placeholder: '', helpText: '' }],
@@ -36,7 +37,8 @@ const sampleInput: CreateFormTemplateInput = {
       isRequired: true,
       displayOrder: 2,
       options: [],
-      presentation: {},
+      cssClass: 'form-control',
+      htmlId: 'field-email',
       translations: new Map([
         ['ja', { label: 'メール', placeholder: '', helpText: '' }],
         ['en', { label: 'Email', placeholder: '', helpText: '' }],
@@ -120,7 +122,8 @@ describe('KyselyFormTemplateRepository', () => {
             { value: 'red', labels: new Map([['en', 'Red'], ['ja', '赤']]) },
             { value: 'blue', labels: new Map([['en', 'Blue'], ['ja', '青']]) },
           ],
-          presentation: {},
+          cssClass: 'form-control',
+          htmlId: 'field-color',
           translations: new Map([['en', { label: 'Color', placeholder: '', helpText: '' }]]),
         }],
       };
@@ -144,7 +147,8 @@ describe('KyselyFormTemplateRepository', () => {
           isRequired: true,
           displayOrder: 1,
           options: [],
-          presentation: { cssClass: 'input-lg', htmlId: 'bio-field' },
+          cssClass: 'input-lg',
+          htmlId: 'bio-field',
           translations: new Map([['en', { label: 'Bio', placeholder: 'Tell us about yourself', helpText: 'At least 10 characters' }]]),
         }],
       };
@@ -153,7 +157,8 @@ describe('KyselyFormTemplateRepository', () => {
       const found = await repository.findById(created.id);
 
       expect(found!.fields[0]!.validation).toEqual({ type: 'none', minLength: 10, maxLength: 500 });
-      expect(found!.fields[0]!.presentation).toEqual({ cssClass: 'input-lg', htmlId: 'bio-field' });
+      expect(found!.fields[0]!.cssClass).toBe('input-lg');
+      expect(found!.fields[0]!.htmlId).toBe('bio-field');
       expect(found!.fields[0]!.translations.get('en')?.helpText).toBe('At least 10 characters');
     });
   });
@@ -184,7 +189,8 @@ describe('KyselyFormTemplateRepository', () => {
           isRequired: true,
           displayOrder: 1,
           options: [],
-          presentation: {},
+          cssClass: 'form-control',
+          htmlId: 'field-message',
           translations: new Map(),
         }],
       });

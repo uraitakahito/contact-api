@@ -15,11 +15,6 @@ export interface FieldValidation {
   maxLength?: number | undefined;
 }
 
-export interface FieldPresentation {
-  cssClass?: string | undefined;
-  htmlId?: string | undefined;
-}
-
 export interface FieldTranslation {
   label: string;
   placeholder: string;
@@ -39,7 +34,8 @@ export interface FormField {
   isRequired: boolean;
   displayOrder: number;
   options: FormFieldOption[];
-  presentation: FieldPresentation;
+  cssClass: string;
+  htmlId: string;
   translations: Map<string, FieldTranslation>;
 }
 
@@ -52,6 +48,22 @@ export interface FormTemplate {
   updatedAt: Date;
 }
 
+export function generateHtmlId(fieldName: string): string {
+  return `field-${fieldName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}`;
+}
+
+export interface FormFieldInput {
+  name: string;
+  fieldType: FieldType;
+  validation: FieldValidation;
+  isRequired: boolean;
+  displayOrder: number;
+  options: FormFieldOption[];
+  cssClass: string;
+  htmlId?: string | undefined;
+  translations: Map<string, FieldTranslation>;
+}
+
 export interface CreateFormFieldInput {
   name: string;
   fieldType: FieldType;
@@ -59,8 +71,21 @@ export interface CreateFormFieldInput {
   isRequired: boolean;
   displayOrder: number;
   options: FormFieldOption[];
-  presentation: FieldPresentation;
+  cssClass: string;
+  htmlId: string;
   translations: Map<string, FieldTranslation>;
+}
+
+export interface FormTemplateInput {
+  name: string;
+  translations: Map<string, string>;
+  fields: FormFieldInput[];
+}
+
+export interface FormTemplateUpdateInput {
+  name?: string;
+  translations?: Map<string, string>;
+  fields?: FormFieldInput[];
 }
 
 export interface CreateFormTemplateInput {
