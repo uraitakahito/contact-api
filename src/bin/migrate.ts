@@ -2,8 +2,7 @@
  * @module migrate
  * @description マイグレーション CLI エントリーポイント。
  *
- * Commander.js で DB 接続オプションとマイグレーション方向を受け取り、
- * Kysely マイグレーションを実行する。
+ * DB 接続オプションとマイグレーション方向を受け取り、Kysely マイグレーションを実行する。
  */
 
 import { Argument, Command } from 'commander';
