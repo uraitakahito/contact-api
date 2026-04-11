@@ -55,12 +55,6 @@ OPENFGA_STORE_ID=xxxxx OPENFGA_AUTH_MODEL_ID=yyyyy npm start
 
 [docs/error-responses.md](docs/error-responses.md) を参照。
 
-| HTTP Status | 説明 |
-|-------------|------|
-| 400 | バリデーションエラー（詳細は `details` 配列に構造化エラーとして返却） |
-| 401 | `X-User-Id` ヘッダー未設定 |
-| 403 | 認可エラー（該当リソースへのアクセス権なし） |
-
 ### バリデーションエラーの多言語化
 
 フォームフィールドのバリデーションエラーは `?locale=` クエリパラメータで言語を指定できます（デフォルト: `en`）。メッセージテンプレートは `validation_messages` テーブルに格納されており、デプロイなしで追加・変更が可能です。
