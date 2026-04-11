@@ -29,7 +29,8 @@ export interface FormFieldTable {
   isRequired: boolean;
   displayOrder: number;
   options: unknown;
-  presentation: unknown;
+  cssClass: string;
+  htmlId: string;
   createdAt: ColumnType<Date, string | undefined, never>;
   updatedAt: ColumnType<Date, string | undefined, string>;
 }

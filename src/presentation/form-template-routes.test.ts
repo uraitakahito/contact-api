@@ -112,7 +112,8 @@ describe('POST /form-templates', () => {
     expect(body.name).toBe('new-form');
     expect(body.fields).toHaveLength(2);
     expect(body.fields[0]!.validation).toEqual({ type: 'none' });
-    expect(body.fields[0]!.presentation).toEqual({});
+    expect(body.fields[0]!.cssClass).toBe('form-control');
+    expect(body.fields[0]!.htmlId).toBe('');
     expect(body.fields[0]!.helpText).toBe('');
   });
 
@@ -127,7 +128,8 @@ describe('POST /form-templates', () => {
           name: 'email',
           fieldType: 'text',
           validation: { type: 'email', minLength: 5, maxLength: 100 },
-          presentation: { cssClass: 'input-lg', htmlId: 'email-field' },
+          cssClass: 'input-lg',
+          htmlId: 'email-field',
           displayOrder: 1,
           isRequired: true,
           translations: { en: { label: 'Email', placeholder: 'you@example.com', helpText: 'Enter your email address' } },
@@ -137,7 +139,8 @@ describe('POST /form-templates', () => {
     expect(response.statusCode).toBe(201);
     const body = successData(response) as FormTemplateResponse;
     expect(body.fields[0]!.validation).toEqual({ type: 'email', minLength: 5, maxLength: 100 });
-    expect(body.fields[0]!.presentation).toEqual({ cssClass: 'input-lg', htmlId: 'email-field' });
+    expect(body.fields[0]!.cssClass).toBe('input-lg');
+    expect(body.fields[0]!.htmlId).toBe('email-field');
     expect(body.fields[0]!.helpText).toBe('Enter your email address');
   });
 

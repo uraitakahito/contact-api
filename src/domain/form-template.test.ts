@@ -10,7 +10,8 @@ function createField(overrides: Partial<FormField> & { name: string }): FormFiel
     isRequired: false,
     displayOrder: 1,
     options: [],
-    presentation: {},
+    cssClass: 'form-control',
+    htmlId: '',
     translations: new Map(),
     ...overrides,
   };

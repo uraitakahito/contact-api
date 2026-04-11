@@ -45,15 +45,15 @@ const sampleTemplate: FormTemplate = {
   fields: [
     {
       id: 1, name: 'name', fieldType: 'text', validation: { type: 'none' },
-      isRequired: true, displayOrder: 1, options: [], presentation: {}, translations: new Map(),
+      isRequired: true, displayOrder: 1, options: [], cssClass: 'form-control', htmlId: '', translations: new Map(),
     },
     {
       id: 2, name: 'email', fieldType: 'text', validation: { type: 'email' },
-      isRequired: true, displayOrder: 2, options: [], presentation: {}, translations: new Map(),
+      isRequired: true, displayOrder: 2, options: [], cssClass: 'form-control', htmlId: '', translations: new Map(),
     },
     {
       id: 3, name: 'message', fieldType: 'textarea', validation: { type: 'none' },
-      isRequired: true, displayOrder: 3, options: [], presentation: {}, translations: new Map(),
+      isRequired: true, displayOrder: 3, options: [], cssClass: 'form-control', htmlId: '', translations: new Map(),
     },
   ],
   createdAt: new Date('2026-01-01'),

@@ -4,7 +4,7 @@
  */
 
 import type { Contact } from '../domain/contact.js';
-import type { FormTemplate, FormField, FormFieldOption, FieldTranslation, FieldValidation, FieldPresentation } from '../domain/form-template.js';
+import type { FormTemplate, FormField, FormFieldOption, FieldTranslation, FieldValidation } from '../domain/form-template.js';
 
 // --- Contact ---
 
@@ -52,7 +52,8 @@ export interface FormFieldResponse {
   placeholder: string;
   helpText: string;
   options: FormFieldOptionResponse[];
-  presentation: FieldPresentation;
+  cssClass: string;
+  htmlId: string;
 }
 
 export interface FormTemplateResponse {
@@ -94,7 +95,8 @@ function formatField(field: FormField, locale: string): FormFieldResponse {
     placeholder: trans.placeholder,
     helpText: trans.helpText,
     options: field.options.map((opt) => formatFieldOption(opt)),
-    presentation: field.presentation,
+    cssClass: field.cssClass,
+    htmlId: field.htmlId,
   };
 }
 

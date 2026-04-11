@@ -13,7 +13,7 @@ import type { FormTemplateRepository } from '../domain/form-template-repository.
 import type {
   CreateFormFieldInput,
   CreateFormTemplateInput,
-  FieldPresentation,
+
   FieldTranslation,
   FieldValidation,
   FormField,
@@ -43,7 +43,8 @@ interface FieldRow {
   isRequired: boolean;
   displayOrder: number;
   options: unknown;
-  presentation: unknown;
+  cssClass: string;
+  htmlId: string;
   fieldTransLocale: string | null;
   fieldTransLabel: string | null;
   fieldTransPlaceholder: string | null;
@@ -72,17 +73,12 @@ function serializeOptions(options: FormFieldOption[]): OptionJson[] {
   }));
 }
 
-// --- Validation / Presentation JSON helpers ---
+// --- Validation JSON helpers ---
 
 interface ValidationJson {
   type: string;
   minLength?: number;
   maxLength?: number;
-}
-
-interface PresentationJson {
-  cssClass?: string;
-  htmlId?: string;
 }
 
 function parseValidation(raw: unknown): FieldValidation {
@@ -95,17 +91,6 @@ function parseValidation(raw: unknown): FieldValidation {
     };
   }
   return { type: 'none' };
-}
-
-function parsePresentation(raw: unknown): FieldPresentation {
-  if (raw !== null && typeof raw === 'object') {
-    const obj = raw as PresentationJson;
-    return {
-      ...(obj.cssClass !== undefined ? { cssClass: obj.cssClass } : {}),
-      ...(obj.htmlId !== undefined ? { htmlId: obj.htmlId } : {}),
-    };
-  }
-  return {};
 }
 
 // --- Grouping helpers ---
@@ -124,7 +109,8 @@ function groupFields(rows: FieldRow[]): FormField[] {
         isRequired: row.isRequired,
         displayOrder: row.displayOrder,
         options: parseOptions(row.options),
-        presentation: parsePresentation(row.presentation),
+        cssClass: row.cssClass,
+        htmlId: row.htmlId,
         translations: new Map<string, FieldTranslation>(),
       };
       map.set(row.fieldId, field);
@@ -198,7 +184,8 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
         'formFields.isRequired',
         'formFields.displayOrder',
         'formFields.options',
-        'formFields.presentation',
+        'formFields.cssClass',
+        'formFields.htmlId',
         'formFieldTranslations.locale as fieldTransLocale',
         'formFieldTranslations.label as fieldTransLabel',
         'formFieldTranslations.placeholder as fieldTransPlaceholder',
@@ -275,7 +262,8 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
         'formFields.isRequired',
         'formFields.displayOrder',
         'formFields.options',
-        'formFields.presentation',
+        'formFields.cssClass',
+        'formFields.htmlId',
         'formFieldTranslations.locale as fieldTransLocale',
         'formFieldTranslations.label as fieldTransLabel',
         'formFieldTranslations.placeholder as fieldTransPlaceholder',
@@ -406,7 +394,8 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
           isRequired: fieldInput.isRequired,
           displayOrder: fieldInput.displayOrder,
           options: JSON.stringify(serializeOptions(fieldInput.options)),
-          presentation: JSON.stringify(fieldInput.presentation),
+          cssClass: fieldInput.cssClass,
+          htmlId: fieldInput.htmlId,
         })
         .returningAll()
         .executeTakeFirstOrThrow();
@@ -436,7 +425,8 @@ export class KyselyFormTemplateRepository implements FormTemplateRepository {
         isRequired: fieldInput.isRequired,
         displayOrder: fieldInput.displayOrder,
         options: fieldInput.options,
-        presentation: fieldInput.presentation,
+        cssClass: fieldInput.cssClass,
+        htmlId: fieldInput.htmlId,
         translations: fieldInput.translations,
       });
     }

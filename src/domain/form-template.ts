@@ -15,11 +15,6 @@ export interface FieldValidation {
   maxLength?: number | undefined;
 }
 
-export interface FieldPresentation {
-  cssClass?: string | undefined;
-  htmlId?: string | undefined;
-}
-
 export interface FieldTranslation {
   label: string;
   placeholder: string;
@@ -39,7 +34,8 @@ export interface FormField {
   isRequired: boolean;
   displayOrder: number;
   options: FormFieldOption[];
-  presentation: FieldPresentation;
+  cssClass: string;
+  htmlId: string;
   translations: Map<string, FieldTranslation>;
 }
 
@@ -59,7 +55,8 @@ export interface CreateFormFieldInput {
   isRequired: boolean;
   displayOrder: number;
   options: FormFieldOption[];
-  presentation: FieldPresentation;
+  cssClass: string;
+  htmlId: string;
   translations: Map<string, FieldTranslation>;
 }
 

@@ -49,7 +49,8 @@ function toCreateFormFieldInputs(
     isRequired: boolean;
     displayOrder: number;
     options: { value: string; labels: Record<string, string> }[];
-    presentation: { cssClass?: string | undefined; htmlId?: string | undefined };
+    cssClass: string;
+    htmlId: string;
     translations: Record<string, { label: string; placeholder: string; helpText: string }>;
   }[],
 ): CreateFormFieldInput[] {
@@ -63,7 +64,8 @@ function toCreateFormFieldInputs(
       value: opt.value,
       labels: new Map(Object.entries(opt.labels)),
     })),
-    presentation: f.presentation,
+    cssClass: f.cssClass,
+    htmlId: f.htmlId,
     translations: new Map(
       Object.entries(f.translations).map(([locale, trans]) => [locale, trans]),
     ),

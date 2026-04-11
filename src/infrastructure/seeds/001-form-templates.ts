@@ -37,10 +37,10 @@ export async function up(db: Kysely<any>): Promise<void> {
   const t1Fields = await db
     .insertInto('formFields')
     .values([
-      { templateId: t1Id, name: 'lastName', fieldType: 'text', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 1, options: null, presentation: JSON.stringify({ cssClass: 'form-control', htmlId: 'field-last-name' }) },
-      { templateId: t1Id, name: 'firstName', fieldType: 'text', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 2, options: null, presentation: JSON.stringify({ cssClass: 'form-control', htmlId: 'field-first-name' }) },
-      { templateId: t1Id, name: 'email', fieldType: 'text', validation: JSON.stringify({ type: 'email' }), isRequired: true, displayOrder: 3, options: null, presentation: JSON.stringify({ cssClass: 'form-control', htmlId: 'field-email' }) },
-      { templateId: t1Id, name: 'phone', fieldType: 'text', validation: JSON.stringify({ type: 'phone' }), isRequired: false, displayOrder: 4, options: null, presentation: JSON.stringify({ cssClass: 'form-control', htmlId: 'field-phone' }) },
+      { templateId: t1Id, name: 'lastName', fieldType: 'text', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 1, options: null, cssClass: 'form-control', htmlId: 'field-last-name' },
+      { templateId: t1Id, name: 'firstName', fieldType: 'text', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 2, options: null, cssClass: 'form-control', htmlId: 'field-first-name' },
+      { templateId: t1Id, name: 'email', fieldType: 'text', validation: JSON.stringify({ type: 'email' }), isRequired: true, displayOrder: 3, options: null, cssClass: 'form-control', htmlId: 'field-email' },
+      { templateId: t1Id, name: 'phone', fieldType: 'text', validation: JSON.stringify({ type: 'phone' }), isRequired: false, displayOrder: 4, options: null, cssClass: 'form-control', htmlId: 'field-phone' },
       {
         templateId: t1Id, name: 'category', fieldType: 'select', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 5,
         options: JSON.stringify([
@@ -49,9 +49,9 @@ export async function up(db: Kysely<any>): Promise<void> {
           { value: 'recruitment', labels: { ja: '採用について', en: 'Recruitment' } },
           { value: 'other', labels: { ja: 'その他', en: 'Other' } },
         ]),
-        presentation: JSON.stringify({ cssClass: 'form-select', htmlId: 'field-category' }),
+        cssClass: 'form-select', htmlId: 'field-category',
       },
-      { templateId: t1Id, name: 'message', fieldType: 'textarea', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 6, options: null, presentation: JSON.stringify({ cssClass: 'form-control form-textarea', htmlId: 'field-message' }) },
+      { templateId: t1Id, name: 'message', fieldType: 'textarea', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 6, options: null, cssClass: 'form-control form-textarea', htmlId: 'field-message' },
     ])
     .returning('id')
     .execute();
@@ -96,9 +96,9 @@ export async function up(db: Kysely<any>): Promise<void> {
   const t2Fields = await db
     .insertInto('formFields')
     .values([
-      { templateId: t2Id, name: 'name', fieldType: 'text', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 1, options: null, presentation: JSON.stringify({ cssClass: 'form-control', htmlId: 'field-name' }) },
-      { templateId: t2Id, name: 'email', fieldType: 'text', validation: JSON.stringify({ type: 'email' }), isRequired: true, displayOrder: 2, options: null, presentation: JSON.stringify({ cssClass: 'form-control', htmlId: 'field-email' }) },
-      { templateId: t2Id, name: 'message', fieldType: 'textarea', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 3, options: null, presentation: JSON.stringify({ cssClass: 'form-control form-textarea', htmlId: 'field-message' }) },
+      { templateId: t2Id, name: 'name', fieldType: 'text', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 1, options: null, cssClass: 'form-control', htmlId: 'field-name' },
+      { templateId: t2Id, name: 'email', fieldType: 'text', validation: JSON.stringify({ type: 'email' }), isRequired: true, displayOrder: 2, options: null, cssClass: 'form-control', htmlId: 'field-email' },
+      { templateId: t2Id, name: 'message', fieldType: 'textarea', validation: JSON.stringify({ type: 'none' }), isRequired: true, displayOrder: 3, options: null, cssClass: 'form-control form-textarea', htmlId: 'field-message' },
     ])
     .returning('id')
     .execute();

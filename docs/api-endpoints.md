@@ -27,7 +27,8 @@ curl -s "http://localhost:3000/form-templates?locale=ja" | jq
           "placeholder": "",
           "helpText": "戸籍上の姓を入力してください",
           "options": [],
-          "presentation": { "cssClass": "form-control", "htmlId": "field-last-name" }
+          "cssClass": "form-control",
+          "htmlId": "field-last-name"
         }
       ],
       "createdAt": "2026-04-08T12:00:00.000Z",
@@ -73,7 +74,8 @@ curl -s "http://localhost:3000/form-templates/1?locale=ja" | jq
         "placeholder": "",
         "helpText": "戸籍上の姓を入力してください",
         "options": [],
-        "presentation": { "cssClass": "form-control", "htmlId": "field-last-name" }
+        "cssClass": "form-control",
+        "htmlId": "field-last-name"
       },
       {
         "id": 2,
@@ -86,7 +88,8 @@ curl -s "http://localhost:3000/form-templates/1?locale=ja" | jq
         "placeholder": "",
         "helpText": "戸籍上の名を入力してください",
         "options": [],
-        "presentation": { "cssClass": "form-control", "htmlId": "field-first-name" }
+        "cssClass": "form-control",
+        "htmlId": "field-first-name"
       },
       {
         "id": 3,
@@ -99,7 +102,8 @@ curl -s "http://localhost:3000/form-templates/1?locale=ja" | jq
         "placeholder": "例: yamada@example.com",
         "helpText": "返信先として使用します",
         "options": [],
-        "presentation": { "cssClass": "form-control", "htmlId": "field-email" }
+        "cssClass": "form-control",
+        "htmlId": "field-email"
       },
       {
         "id": 4,
@@ -112,7 +116,8 @@ curl -s "http://localhost:3000/form-templates/1?locale=ja" | jq
         "placeholder": "例: 090-1234-5678",
         "helpText": "日中に連絡可能な番号を入力してください",
         "options": [],
-        "presentation": { "cssClass": "form-control", "htmlId": "field-phone" }
+        "cssClass": "form-control",
+        "htmlId": "field-phone"
       },
       {
         "id": 5,
@@ -130,7 +135,8 @@ curl -s "http://localhost:3000/form-templates/1?locale=ja" | jq
           { "value": "recruitment", "labels": { "ja": "採用について", "en": "Recruitment" } },
           { "value": "other", "labels": { "ja": "その他", "en": "Other" } }
         ],
-        "presentation": { "cssClass": "form-select", "htmlId": "field-category" }
+        "cssClass": "form-select",
+        "htmlId": "field-category"
       },
       {
         "id": 6,
@@ -143,7 +149,8 @@ curl -s "http://localhost:3000/form-templates/1?locale=ja" | jq
         "placeholder": "",
         "helpText": "お問い合わせ内容をできるだけ具体的にご記入ください",
         "options": [],
-        "presentation": { "cssClass": "form-control form-textarea", "htmlId": "field-message" }
+        "cssClass": "form-control form-textarea",
+        "htmlId": "field-message"
       }
     ],
     "createdAt": "2026-04-08T12:00:00.000Z",
@@ -181,7 +188,8 @@ curl -s -X POST http://localhost:3000/form-templates \
         "placeholder": "",
         "helpText": "",
         "options": [],
-        "presentation": {}
+        "cssClass": "form-control",
+        "htmlId": ""
       },
       {
         "id": 8,
@@ -194,7 +202,8 @@ curl -s -X POST http://localhost:3000/form-templates \
         "placeholder": "",
         "helpText": "",
         "options": [],
-        "presentation": {}
+        "cssClass": "form-control",
+        "htmlId": ""
       }
     ],
     "createdAt": "2026-04-08T12:00:00.000Z",
