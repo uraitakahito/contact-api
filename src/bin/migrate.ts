@@ -6,7 +6,6 @@
  * Kysely マイグレーションを実行する。
  */
 
-import { fileURLToPath } from 'node:url';
 import { Argument, Command } from 'commander';
 import type { RawDbOptions } from '../infrastructure/cli-db-options.js';
 import { addDbOptions, extractDbConfig } from '../infrastructure/cli-db-options.js';
@@ -22,7 +21,6 @@ const label = 'Migration';
 
 // CLI
 const program = new Command();
-const defaultMigrationFolder = fileURLToPath(new URL('../infrastructure/migrations', import.meta.url));
 
 program
   .name('migrate')
@@ -30,7 +28,7 @@ program
   .addArgument(new Argument('<direction>', 'Migration direction').choices(['up', 'down']));
 
 addDbOptions(program);
-addMigrationFolderOption(program, { defaultPath: defaultMigrationFolder, envVar: 'MIGRATION_FOLDER' });
+addMigrationFolderOption(program);
 addLogLevelOption(program);
 program.parse();
 
