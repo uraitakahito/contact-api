@@ -7,8 +7,8 @@
  */
 
 import { Argument, Command } from 'commander';
-import type { RawDbOptions } from '../infrastructure/cli-db-options.js';
-import { addDbOptions, extractDbConfig } from '../infrastructure/cli-db-options.js';
+import type { RawContactApiDbOptions } from '../infrastructure/cli-contact-api-db-options.js';
+import { addContactApiDbOptions, extractContactApiDbConfig } from '../infrastructure/cli-contact-api-db-options.js';
 import { addLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import type { RawSeedFolderOption } from '../infrastructure/cli-seed-folder-option.js';
@@ -27,19 +27,19 @@ program
   .description('Run database seeds')
   .addArgument(new Argument('<direction>', 'Seed direction').choices(['up', 'down']));
 
-addDbOptions(program);
+addContactApiDbOptions(program);
 addSeedFolderOption(program);
 addLogLevelOption(program);
 program.parse();
 
 const direction = program.args[0] as 'up' | 'down';
-const opts = program.opts<RawDbOptions & RawLogLevelOption & RawSeedFolderOption>();
+const opts = program.opts<RawContactApiDbOptions & RawLogLevelOption & RawSeedFolderOption>();
 logger.level = opts.logLevel;
 
 const cliLogger = createChildLogger({ command: 'seed', direction });
 
 // Infrastructure
-const kyselyClient = createKyselyClient(extractDbConfig(opts));
+const kyselyClient = createKyselyClient(extractContactApiDbConfig(opts));
 const migratorConfig = {
   migrationFolder: opts.seedFolder,
   tableName: 'kysely_seed',

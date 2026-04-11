@@ -1,8 +1,7 @@
 /**
- * @module cli-db-options
+ * @module cli-contact-api-db-options
  * @description Infrastructure — Commander DB オプション定義の共有ヘルパー。
  *
- * 両エントリーポイント (main / cli) で同じ DB 接続オプションを再利用する。
  * Option.env() により CLI オプション > 環境変数 > デフォルト値 の優先順で解決される。
  */
 
@@ -11,7 +10,7 @@ import { Option } from 'commander';
 import { parsePort } from './cli-parsers.js';
 import type { DbConfig } from './connection.js';
 
-export interface RawDbOptions {
+export interface RawContactApiDbOptions {
   readonly dbHost: string;
   readonly dbPort: number;
   readonly dbUser?: string;
@@ -19,7 +18,7 @@ export interface RawDbOptions {
   readonly dbDatabase?: string;
 }
 
-export function addDbOptions(cmd: Command): Command {
+export function addContactApiDbOptions(cmd: Command): Command {
   return cmd
     .addOption(new Option('--db-host <host>', 'Database host').env('CONTACT_API_DB_HOST').default('localhost'))
     .addOption(new Option('--db-port <port>', 'Database port').env('CONTACT_API_DB_PORT').default(5432).argParser(parsePort))
@@ -28,7 +27,7 @@ export function addDbOptions(cmd: Command): Command {
     .addOption(new Option('--db-database <name>', 'Database name').env('CONTACT_API_DB_NAME'));
 }
 
-export function extractDbConfig(opts: RawDbOptions): DbConfig {
+export function extractContactApiDbConfig(opts: RawContactApiDbOptions): DbConfig {
   return {
     host: opts.dbHost,
     port: opts.dbPort,
