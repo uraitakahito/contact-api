@@ -1,6 +1,6 @@
 /**
  * @module get-form-template-by-id
- * @description Driving Port（駆動するポート） — フォームテンプレート個別取得ユースケース。
+ * @description Driving Port — フォームテンプレート個別取得ユースケース。
  */
 
 import { FormTemplateNotFoundError } from '../domain/errors.js';

@@ -92,20 +92,23 @@ curl -s -X POST http://localhost:3000/contacts \
 レスポンス:
 ```json
 {
-  "id": 1,
-  "templateId": 1,
-  "userId": "yamada",
+  "success": 1,
   "data": {
-    "lastName": "山田",
-    "firstName": "太郎",
-    "email": "yamada@example.com",
-    "phone": "090-1234-5678",
-    "category": "general",
-    "message": "詳細を教えてください"
-  },
-  "status": "new",
-  "createdAt": "2026-04-08T12:00:00.000Z",
-  "updatedAt": "2026-04-08T12:00:00.000Z"
+    "id": 1,
+    "templateId": 1,
+    "userId": "yamada",
+    "data": {
+      "lastName": "山田",
+      "firstName": "太郎",
+      "email": "yamada@example.com",
+      "phone": "090-1234-5678",
+      "category": "general",
+      "message": "詳細を教えてください"
+    },
+    "status": "new",
+    "createdAt": "2026-04-08T12:00:00.000Z",
+    "updatedAt": "2026-04-08T12:00:00.000Z"
+  }
 }
 ```
 

@@ -1,6 +1,6 @@
 /**
  * @module get-form-templates
- * @description Driving Port（駆動するポート） — フォームテンプレート一覧取得ユースケース。
+ * @description Driving Port — フォームテンプレート一覧取得ユースケース。
  */
 
 import type { FormTemplateRepository } from '../domain/form-template-repository.js';
