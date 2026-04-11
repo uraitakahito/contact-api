@@ -7,7 +7,13 @@
 - OpenFGA による関係ベースアクセス制御（ReBAC）。OpenFGA を Policy Decision Point（PDP）として認可判断を委譲
 - 多言語対応（i18n）
 
-## セットアップ
+## 本番ビルド
+
+```bash
+docker compose --profile prod up -d
+```
+
+## 開発環境のセットアップ
 
 ### 起動手順
 
@@ -137,11 +143,3 @@ Domain 層の Repository / Authorization インターフェースを実装（依
 ### Composition Root (`src/bin/server.ts`)
 
 全層を組み立てるエントリーポイント。DI コンテナの役割を果たす。
-
-## 本番ビルド
-
-```bash
-docker compose --profile prod up -d
-```
-
-Multi-stage ビルドで distroless イメージを使用した軽量な本番コンテナが起動します。
