@@ -1,6 +1,6 @@
 /**
  * @module health-routes
- * @description Driving Adapter（駆動するアダプター） — ヘルスチェック用 HTTP ルート。
+ * @description Driving Adapter — ヘルスチェック用 HTTP ルート。
  */
 
 import type { FastifyInstance } from 'fastify';

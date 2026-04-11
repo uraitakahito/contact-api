@@ -1,6 +1,6 @@
 /**
  * @module update-contact-status
- * @description Driving Port（駆動するポート） — 問い合わせステータス更新ユースケース。
+ * @description Driving Port — 問い合わせステータス更新ユースケース。
  */
 
 import type { ContactAuthorizationService } from '../domain/contact-authorization-service.js';

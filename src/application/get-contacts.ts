@@ -1,6 +1,6 @@
 /**
  * @module get-contacts
- * @description Driving Port（駆動するポート） — 問い合わせ一覧取得ユースケース。
+ * @description Driving Port — 問い合わせ一覧取得ユースケース。
  */
 
 import type { ContactAuthorizationService } from '../domain/contact-authorization-service.js';

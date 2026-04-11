@@ -1,6 +1,6 @@
 /**
  * @module delete-form-template
- * @description Driving Port（駆動するポート） — フォームテンプレート削除ユースケース。
+ * @description Driving Port — フォームテンプレート削除ユースケース。
  */
 
 import { FormTemplateNotFoundError } from '../domain/errors.js';

@@ -1,6 +1,6 @@
 /**
  * @module form-template-routes
- * @description Driving Adapter（駆動するアダプター）
+ * @description Driving Adapter
  *
  * フォームテンプレートの HTTP ルート定義。
  * テンプレートの参照は公開、管理操作は認証（X-User-Id）のみ必要。

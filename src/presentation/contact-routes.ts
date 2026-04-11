@@ -1,6 +1,6 @@
 /**
  * @module contact-routes
- * @description Driving Adapter（駆動するアダプター）
+ * @description Driving Adapter
  *
  * HTTP リクエストを受け取り、ユースケース（Driving Port）を呼び出す。
  * 外部の技術（Fastify/HTTP）とアプリケーションコアを橋渡しする。

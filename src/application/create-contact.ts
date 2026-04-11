@@ -1,6 +1,6 @@
 /**
  * @module create-contact
- * @description Driving Port（駆動するポート） — 問い合わせ作成ユースケース。
+ * @description Driving Port — 問い合わせ作成ユースケース。
  *
  * 外部からアプリケーションを駆動するための入り口。
  */

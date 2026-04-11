@@ -1,6 +1,6 @@
 /**
  * @module update-form-template
- * @description Driving Port（駆動するポート） — フォームテンプレート更新ユースケース。
+ * @description Driving Port — フォームテンプレート更新ユースケース。
  */
 
 import { FormTemplateNotFoundError } from '../domain/errors.js';
