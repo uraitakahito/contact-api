@@ -35,7 +35,7 @@ export interface DbConfig {
   user?: string | undefined;
   password?: string | undefined;
   database?: string | undefined;
-  max?: number;
+  max: number;
 }
 
 export function createKyselyClient(config: DbConfig): Kysely<Database> {
@@ -46,7 +46,7 @@ export function createKyselyClient(config: DbConfig): Kysely<Database> {
       user: config.user,
       password: config.password,
       database: config.database,
-      max: config.max ?? 10,
+      max: config.max,
     }),
   });
 

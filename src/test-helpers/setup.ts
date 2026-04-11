@@ -36,6 +36,7 @@ export function createTestKyselyClient(): Kysely<Database> {
     user: process.env['CONTACT_API_DB_USER'],
     password: process.env['CONTACT_API_DB_PASSWORD'],
     database: process.env['CONTACT_API_DB_NAME'] ?? 'contact_api_test',
+    max: 10,
   });
 }
 

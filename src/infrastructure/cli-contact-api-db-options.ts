@@ -16,6 +16,7 @@ export interface RawContactApiDbOptions {
   readonly dbUser?: string;
   readonly dbPassword?: string;
   readonly dbDatabase?: string;
+  readonly dbPoolSize: number;
 }
 
 export function addContactApiDbOptions(cmd: Command): Command {
@@ -24,7 +25,8 @@ export function addContactApiDbOptions(cmd: Command): Command {
     .addOption(new Option('--db-port <port>', 'Database port').env('CONTACT_API_DB_PORT').default(5432).argParser(parsePort))
     .addOption(new Option('--db-user <user>', 'Database user').env('CONTACT_API_DB_USER'))
     .addOption(new Option('--db-password <password>', 'Database password').env('CONTACT_API_DB_PASSWORD'))
-    .addOption(new Option('--db-database <name>', 'Database name').env('CONTACT_API_DB_NAME'));
+    .addOption(new Option('--db-database <name>', 'Database name').env('CONTACT_API_DB_NAME'))
+    .addOption(new Option('--db-pool-size <size>', 'Database connection pool size').env('CONTACT_API_DB_POOL_SIZE').default(10).argParser(parsePort));
 }
 
 export function extractContactApiDbConfig(opts: RawContactApiDbOptions): DbConfig {
@@ -34,5 +36,6 @@ export function extractContactApiDbConfig(opts: RawContactApiDbOptions): DbConfi
     user: opts.dbUser,
     password: opts.dbPassword,
     database: opts.dbDatabase,
+    max: opts.dbPoolSize,
   };
 }
