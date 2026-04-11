@@ -36,6 +36,6 @@ export function extractContactApiDbConfig(opts: RawContactApiDbOptions): DbConfi
     user: opts.dbUser,
     password: opts.dbPassword,
     database: opts.dbDatabase,
-    max: opts.dbPoolSize,
+    poolSize: opts.dbPoolSize,
   };
 }
