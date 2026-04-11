@@ -60,9 +60,9 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db
     .insertInto('formFieldTranslations')
     .values([
-      { fieldId: getFieldId(t1Fields, 0), locale: 'ja', label: '姓', placeholder: '', helpText: '戸籍上の姓を入力してください' },
+      { fieldId: getFieldId(t1Fields, 0), locale: 'ja', label: '姓', placeholder: '', helpText: '姓を入力してください' },
       { fieldId: getFieldId(t1Fields, 0), locale: 'en', label: 'Last Name', placeholder: '', helpText: 'Enter your family name' },
-      { fieldId: getFieldId(t1Fields, 1), locale: 'ja', label: '名', placeholder: '', helpText: '戸籍上の名を入力してください' },
+      { fieldId: getFieldId(t1Fields, 1), locale: 'ja', label: '名', placeholder: '', helpText: '名を入力してください' },
       { fieldId: getFieldId(t1Fields, 1), locale: 'en', label: 'First Name', placeholder: '', helpText: 'Enter your given name' },
       { fieldId: getFieldId(t1Fields, 2), locale: 'ja', label: 'メールアドレス', placeholder: '例: yamada@example.com', helpText: '返信先として使用します' },
       { fieldId: getFieldId(t1Fields, 2), locale: 'en', label: 'Email', placeholder: 'e.g. yamada@example.com', helpText: 'Used as the reply-to address' },
