@@ -3,8 +3,9 @@ import type { FastifyInstance } from 'fastify';
 import type { Kysely } from 'kysely';
 import type { Database } from '../infrastructure/database.js';
 import type { InMemoryContactAuthorizationService } from '../test-helpers/in-memory-contact-authorization-service.js';
-import type { SuccessEnvelope } from './envelope.js';
+import type { ErrorEnvelope, SuccessEnvelope } from './envelope.js';
 import type { ContactResponse } from './format.js';
+import type { ResolvedValidationError } from './validation-message-formatter.js';
 import { cleanDatabase, createTestApp } from '../test-helpers/setup.js';
 
 let app: FastifyInstance;
@@ -85,7 +86,7 @@ describe('POST /contacts', () => {
     expect(body.updatedAt).toBeDefined();
   });
 
-  it('should return 400 for missing required field in data', async () => {
+  it('should return 400 for missing required field in data with structured errors', async () => {
     const response = await app.inject({
       method: 'POST',
       url: '/contacts',
@@ -94,7 +95,13 @@ describe('POST /contacts', () => {
     });
 
     expect(response.statusCode).toBe(400);
-    expect((response.json() as { success: number }).success).toBe(0);
+    const body = response.json() as ErrorEnvelope;
+    expect(body.success).toBe(0);
+    const details = body.data.details as ResolvedValidationError[];
+    expect(details.length).toBeGreaterThan(0);
+    expect(details[0]).toEqual(
+      expect.objectContaining({ field: expect.any(String) as string, code: expect.any(String) as string, message: expect.any(String) as string }),
+    );
   });
 
   it('should return 400 for invalid email in data', async () => {
@@ -109,6 +116,13 @@ describe('POST /contacts', () => {
     });
 
     expect(response.statusCode).toBe(400);
+    const body = response.json() as ErrorEnvelope;
+    const details = body.data.details as ResolvedValidationError[];
+    expect(details).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ field: 'email', code: 'invalid_format' }),
+      ]),
+    );
   });
 
   it('should return 400 for non-existent templateId', async () => {
@@ -134,6 +148,45 @@ describe('POST /contacts', () => {
     });
 
     expect(response.statusCode).toBe(400);
+    const body = response.json() as ErrorEnvelope;
+    const details = body.data.details as ResolvedValidationError[];
+    expect(details).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ field: 'category', code: 'invalid_option' }),
+      ]),
+    );
+  });
+
+  it('should return Japanese validation messages with locale=ja', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/contacts?locale=ja',
+      headers,
+      payload: { templateId: 1, data: {} },
+    });
+
+    expect(response.statusCode).toBe(400);
+    const body = response.json() as ErrorEnvelope;
+    const details = body.data.details as ResolvedValidationError[];
+    expect(details.length).toBeGreaterThan(0);
+    // シードデータにはフィールドの日本語翻訳があるため、日本語メッセージが返る
+    const requiredError = details.find((d) => d.code === 'required');
+    expect(requiredError?.message).toMatch(/は必須です$/);
+  });
+
+  it('should return English validation messages with locale=en', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/contacts?locale=en',
+      headers,
+      payload: { templateId: 1, data: {} },
+    });
+
+    expect(response.statusCode).toBe(400);
+    const body = response.json() as ErrorEnvelope;
+    const details = body.data.details as ResolvedValidationError[];
+    const requiredError = details.find((d) => d.code === 'required');
+    expect(requiredError?.message).toMatch(/is required$/);
   });
 });
 

@@ -30,9 +30,11 @@ import { createKyselyClient } from '../infrastructure/connection.js';
 import { logger } from '../infrastructure/logger.js';
 import { KyselyContactRepository } from '../infrastructure/kysely-contact-repository.js';
 import { KyselyFormTemplateRepository } from '../infrastructure/kysely-form-template-repository.js';
+import { KyselyValidationMessageRepository } from '../infrastructure/kysely-validation-message-repository.js';
 import { createOpenFgaClient } from '../infrastructure/openfga-connection.js';
 import { OpenFgaContactAuthorizationService } from '../infrastructure/openfga-contact-authorization-service.js';
-import { errorHandler } from '../presentation/error-handler.js';
+import { createErrorHandler } from '../presentation/error-handler.js';
+import { ValidationMessageFormatter } from '../presentation/validation-message-formatter.js';
 import { registerHealthRoutes } from '../presentation/health-routes.js';
 import { registerContactRoutes } from '../presentation/contact-routes.js';
 import { registerFormTemplateRoutes } from '../presentation/form-template-routes.js';
@@ -59,6 +61,9 @@ const fgaClient = createOpenFgaClient(extractOpenFgaConfig(opts));
 const contactRepository = new KyselyContactRepository(kyselyClient);
 const formTemplateRepository = new KyselyFormTemplateRepository(kyselyClient);
 const authorizationService = new OpenFgaContactAuthorizationService(fgaClient);
+const validationMessageRepo = new KyselyValidationMessageRepository(kyselyClient);
+const validationTemplates = await validationMessageRepo.findAll();
+const formatter = new ValidationMessageFormatter(validationTemplates);
 
 // Application (Use Cases)
 const createContact = new CreateContactUseCase(contactRepository, formTemplateRepository, authorizationService);
@@ -75,7 +80,7 @@ const deleteFormTemplate = new DeleteFormTemplateUseCase(formTemplateRepository)
 // Presentation
 const app = Fastify({ loggerInstance: logger as FastifyBaseLogger });
 
-app.setErrorHandler(errorHandler);
+app.setErrorHandler(createErrorHandler(formatter));
 
 // Routes
 registerHealthRoutes(app, kyselyClient);
