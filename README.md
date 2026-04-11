@@ -43,16 +43,6 @@ OPENFGA_STORE_ID=xxxxx OPENFGA_AUTH_MODEL_ID=yyyyy npm start
 
 `.env` に設定してコンテナを再起動する方法でも問題ありません。
 
-### 再セットアップ
-
-既存のデータベースを破棄して作り直す場合:
-
-```bash
-docker compose down -v
-./setup.sh
-docker compose --profile dev up -d
-```
-
 ## 認可 (OpenFGA)
 
 [docs/authorization.md](docs/authorization.md) を参照。認可モデルの定義は [data/openfga/model.fga](data/openfga/model.fga) にあります。
