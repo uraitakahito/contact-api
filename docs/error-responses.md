@@ -22,3 +22,16 @@ curl -s -X POST http://localhost:3000/contacts \
 # 404 の例: 存在しない ID
 curl -s http://localhost:3000/contacts/999 | jq
 ```
+
+### バリデーションエラーの多言語化
+
+フォームフィールドのバリデーションエラーは `?locale=` クエリパラメータで言語を指定できます（デフォルト: `en`）。メッセージテンプレートは `validation_messages` テーブルに格納されており、デプロイなしで追加・変更が可能です。
+
+`details` 配列の各要素は以下の構造を持ちます:
+
+| フィールド | 説明 |
+|-----------|------|
+| `field` | フィールド名（機械可読） |
+| `code` | エラーコード（`required`, `invalid_type`, `invalid_format`, `too_short`, `too_long`, `invalid_option`） |
+| `message` | ロケールに応じた人間可読メッセージ |
+

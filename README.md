@@ -55,18 +55,6 @@ OPENFGA_STORE_ID=xxxxx OPENFGA_AUTH_MODEL_ID=yyyyy npm start
 
 [docs/error-responses.md](docs/error-responses.md) を参照。
 
-### バリデーションエラーの多言語化
-
-フォームフィールドのバリデーションエラーは `?locale=` クエリパラメータで言語を指定できます（デフォルト: `en`）。メッセージテンプレートは `validation_messages` テーブルに格納されており、デプロイなしで追加・変更が可能です。
-
-`details` 配列の各要素は以下の構造を持ちます:
-
-| フィールド | 説明 |
-|-----------|------|
-| `field` | フィールド名（機械可読） |
-| `code` | エラーコード（`required`, `invalid_type`, `invalid_format`, `too_short`, `too_long`, `invalid_option`） |
-| `message` | ロケールに応じた人間可読メッセージ |
-
 ## ヘキサゴナルアーキテクチャ（Ports and Adapters）
 
 本プロジェクトは DDD のレイヤードアーキテクチャに、ヘキサゴナルアーキテクチャの考え方を取り入れています。アプリケーションのコアロジックを外部の技術的詳細（HTTP、データベース、認可基盤）から分離し、Port（インターフェース）と Adapter（実装）で接続します。
