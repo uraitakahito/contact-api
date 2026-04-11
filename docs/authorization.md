@@ -24,27 +24,27 @@ graph TD
         AuthzCheck --> DbOp --> TupleOp
     end
 
-    Application --> PortRepo & PortAuthz & PortCat
+    Application --> PortRepo & PortAuthz & PortTpl
 
     subgraph Domain["Domain 層 (Interface)"]
         PortRepo["ContactRepository"]
         PortAuthz["ContactAuthorizationService"]
-        PortCat["ContactCategoryRepository"]
+        PortTpl["FormTemplateRepository"]
     end
 
     PortRepo --> AdapterRepo
     PortAuthz --> AdapterAuthz
-    PortCat --> AdapterCat
+    PortTpl --> AdapterTpl
 
     subgraph Infra["Infrastructure 層 (Adapter)"]
         AdapterRepo["Kysely<br/>ContactRepository"]
         AdapterAuthz["OpenFGA<br/>ContactAuthorizationService"]
-        AdapterCat["Kysely<br/>ContactCategoryRepository"]
+        AdapterTpl["Kysely<br/>FormTemplateRepository"]
     end
 
     AdapterRepo --> PostgreSQL1[("PostgreSQL")]
     AdapterAuthz --> OpenFGA[("OpenFGA")]
-    AdapterCat --> PostgreSQL2[("PostgreSQL")]
+    AdapterTpl --> PostgreSQL2[("PostgreSQL")]
 ```
 
 **設計のポイント:**
@@ -85,9 +85,16 @@ sequenceDiagram
 
 ## 認証
 
-すべての `/contacts` エンドポイントは `X-User-Id` リクエストヘッダーが必須です。ヘッダーが未設定の場合は `401 Unauthorized` を返します。
+エンドポイントごとの認証・認可の要否は以下の通り。
 
-`/contact-categories` と `/health/*` は認証不要です。
+| エンドポイント | 認証 (`X-User-Id`) | 認可 (OpenFGA) |
+|---|---|---|
+| `GET /health/*` | 不要 | 不要 |
+| `GET /form-templates`, `GET /form-templates/:id` | 不要 | 不要 |
+| `POST /form-templates`, `PUT /form-templates/:id`, `DELETE /form-templates/:id` | 必須 | 不要 |
+| `/contacts/*`（すべて） | 必須 | 必須 |
+
+`X-User-Id` が必須のエンドポイントでヘッダー未設定の場合は `401 Unauthorized` を返します。`/contacts/*` では加えて OpenFGA の認可チェックに失敗すると `403 Forbidden` を返します。
 
 ## 認可モデル
 

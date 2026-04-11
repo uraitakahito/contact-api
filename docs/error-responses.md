@@ -9,18 +9,23 @@
 | 500 | 内部サーバーエラー |
 
 ```bash
-# 400 の例: 不正なメールアドレス
+# 400 の例: フィールドバリデーションエラー（email 形式不正）
 curl -s -X POST http://localhost/contacts \
   -H "Content-Type: application/json" \
-  -d '{"lastName": "Test", "firstName": "User", "email": "bad", "categoryId": 1, "message": "Msg"}' | jq
+  -H "X-User-Id: yamada" \
+  -d '{"templateId": 1, "data": {"lastName": "山田", "firstName": "太郎", "email": "bad", "category": "general", "message": "Msg"}}' | jq
 
-# 400 の例: 存在しない問い合わせ種別
+# 400 の例: 存在しないフォームテンプレート
 curl -s -X POST http://localhost/contacts \
   -H "Content-Type: application/json" \
-  -d '{"lastName": "Test", "firstName": "User", "email": "test@example.com", "categoryId": 999, "message": "Msg"}' | jq
+  -H "X-User-Id: yamada" \
+  -d '{"templateId": 999, "data": {}}' | jq
 
-# 404 の例: 存在しない ID
-curl -s http://localhost/contacts/999 | jq
+# 401 の例: X-User-Id ヘッダー未設定
+curl -s http://localhost/contacts/1 | jq
+
+# 403 の例: 他ユーザーが作成した問い合わせへのアクセス
+curl -s -H "X-User-Id: other-user" http://localhost/contacts/1 | jq
 ```
 
 ### バリデーションエラーの多言語化
