@@ -37,7 +37,7 @@ export function addContactApiDbOptions(cmd: Command): Command {
     .addOption(new Option('--db-pool-size <size>', 'Database connection pool size').env('CONTACT_API_DB_POOL_SIZE').default(10).argParser(parsePort));
 }
 
-export function extractContactApiDbConfig(opts: RawContactApiDbOptions): ContactApiDbConfig {
+export function toContactApiDbConfig(opts: RawContactApiDbOptions): ContactApiDbConfig {
   return {
     host: opts.dbHost,
     port: opts.dbPort,

@@ -8,7 +8,7 @@
 
 import { Argument, Command, Option } from 'commander';
 import type { RawContactApiDbOptions } from '../infrastructure/cli-contact-api-db-options.js';
-import { addContactApiDbOptions, extractContactApiDbConfig } from '../infrastructure/cli-contact-api-db-options.js';
+import { addContactApiDbOptions, toContactApiDbConfig } from '../infrastructure/cli-contact-api-db-options.js';
 import { addLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import { parsePath } from '../infrastructure/cli-parsers.js';
@@ -41,7 +41,7 @@ const opts = program.opts<RawContactApiDbOptions & RawLogLevelOption & { readonl
 const cliLogger = initializeCliLogger(opts.logLevel, { command: 'seed', direction });
 
 // Infrastructure
-const kyselyClient = createKyselyClient(extractContactApiDbConfig(opts));
+const kyselyClient = createKyselyClient(toContactApiDbConfig(opts));
 const migratorConfig = {
   migrationFolder: opts.seedFolder,
   tableName: 'kysely_seed',
