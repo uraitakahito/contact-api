@@ -7,10 +7,6 @@
 - OpenFGA による関係ベースアクセス制御（ReBAC）。OpenFGA を Policy Decision Point（PDP）として認可判断を委譲
 - 多言語対応（i18n）
 
-## アーキテクチャ
-
-[docs/architecture.md](docs/architecture.md) を参照。
-
 ## セットアップ
 
 ### 起動手順
@@ -54,6 +50,10 @@ OPENFGA_STORE_ID=xxxxx OPENFGA_AUTH_MODEL_ID=yyyyy npm start
 ## エラーレスポンス
 
 [docs/error-responses.md](docs/error-responses.md) を参照。
+
+## アーキテクチャ
+
+[docs/architecture.md](docs/architecture.md) を参照。
 
 ## ヘキサゴナルアーキテクチャ（Ports and Adapters）
 
