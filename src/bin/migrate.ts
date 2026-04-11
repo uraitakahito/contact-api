@@ -43,8 +43,8 @@ const cliLogger = initializeCliLogger(opts.logLevel, { command: 'migrate', direc
 const kyselyClient = createKyselyClient(toContactApiDbConfig(opts));
 const migratorConfig = {
   migrationFolder: opts.migrationFolder,
-  tableName: 'kysely_migration',
-  lockTableName: 'kysely_migration_lock',
+  migrationTableName: 'kysely_migration',
+  migrationLockTableName: 'kysely_migration_lock',
 };
 
 const { error, results } = await runMigrator(kyselyClient, migratorConfig, direction);

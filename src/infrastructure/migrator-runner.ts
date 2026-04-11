@@ -13,12 +13,9 @@ import { FileMigrationProvider, Migrator } from 'kysely';
 import type { Kysely, MigrationInfo, MigrationResultSet } from 'kysely';
 
 export interface RunMigratorConfig {
-  /** マイグレーションファイルのディレクトリ (file: URL) */
   readonly migrationFolder: URL;
-  /** Kysely の管理テーブル名 */
-  readonly tableName: string;
-  /** Kysely のロックテーブル名 */
-  readonly lockTableName: string;
+  readonly migrationTableName: string;
+  readonly migrationLockTableName: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Kysely<any> を要求するため
@@ -30,8 +27,8 @@ function createMigrator(kyselyClient: Kysely<any>, config: RunMigratorConfig): M
       path,
       migrationFolder: fileURLToPath(config.migrationFolder),
     }),
-    migrationTableName: config.tableName,
-    migrationLockTableName: config.lockTableName,
+    migrationTableName: config.migrationTableName,
+    migrationLockTableName: config.migrationLockTableName,
   });
 }
 
