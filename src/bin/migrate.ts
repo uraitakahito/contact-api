@@ -12,8 +12,8 @@ import { addLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import type { RawLogLevelOption } from '../infrastructure/cli-log-level-option.js';
 import { parsePath } from '../infrastructure/cli-parsers.js';
 import { createKyselyClient } from '../infrastructure/connection.js';
-import { logger, initializeCliLogger } from '../infrastructure/logger.js';
-import { getMigrationInfos, runMigrator } from '../infrastructure/migrator-runner.js';
+import { initializeCliLogger } from '../infrastructure/logger.js';
+import { runMigratorCli } from '../infrastructure/migrator-runner.js';
 
 const label = 'Migration';
 
@@ -47,49 +47,10 @@ const migratorConfig = {
   migrationLockTableName: 'kysely_migration_lock',
 };
 
-const { error, results } = await runMigrator(kyselyClient, migratorConfig, direction);
-
-for (const result of results ?? []) {
-  if (result.status === 'Success') {
-    cliLogger.info(
-      { migration: result.migrationName },
-      `${label} "${result.migrationName}" was ${direction === 'down' ? 'reverted' : 'executed'} successfully`,
-    );
-  } else if (result.status === 'Error') {
-    cliLogger.error(
-      { migration: result.migrationName },
-      `Failed to ${direction === 'down' ? 'revert' : 'execute'} ${label.toLowerCase()} "${result.migrationName}"`,
-    );
-  }
-}
-
-if (results?.length === 0) {
-  cliLogger.info(`No pending ${label.toLowerCase()} to execute`);
-
-  if (logger.isLevelEnabled('debug')) {
-    const infos = await getMigrationInfos(kyselyClient, migratorConfig);
-    if (infos.length > 0) {
-      cliLogger.info(`${label} status:`);
-      for (const info of infos) {
-        if (info.executedAt) {
-          cliLogger.info(
-            { name: info.name, executedAt: info.executedAt.toISOString() },
-            `${info.name} applied`,
-          );
-        } else {
-          cliLogger.info({ name: info.name }, `${info.name} not applied`);
-        }
-      }
-    }
-  }
-}
-
-if (error) {
-  cliLogger.error(
-    { err: error },
-    `Failed to ${label.toLowerCase()}${direction === 'down' ? ' down' : ''}`,
-  );
-  process.exitCode = 1;
-}
-
-await kyselyClient.destroy();
+await runMigratorCli({
+  label,
+  direction,
+  migratorConfig,
+  kyselyClient,
+  cliLogger,
+});
