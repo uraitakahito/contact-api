@@ -1,5 +1,5 @@
 /**
- * @module 002-simple-form-template
+ * @module 003-simple-form-template
  * @description Seed — シンプルフォームテンプレートの初期データ投入。
  *
  * 自動採番 ID への FK 依存があるため、Migrator の up/down に Kysely INSERT を直接記述する。
