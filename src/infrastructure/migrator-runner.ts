@@ -45,17 +45,14 @@ export async function runMigrator(
     : migrator.migrateToLatest();
 }
 
-export interface RunMigratorCliConfig {
-  readonly label: string;
-  readonly direction: 'up' | 'down';
-  readonly migratorConfig: KyselyMigratorConfig;
+export async function runMigratorCli(
+  label: string,
+  direction: 'up' | 'down',
+  migratorConfig: KyselyMigratorConfig,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Kysely<any> を要求するため
-  readonly kyselyClient: Kysely<any>;
-  readonly cliLogger: Logger;
-}
-
-export async function runMigratorCli(config: RunMigratorCliConfig): Promise<void> {
-  const { label, direction, migratorConfig, kyselyClient, cliLogger } = config;
+  kyselyClient: Kysely<any>,
+  cliLogger: Logger,
+): Promise<void> {
   const { error, results } = await runMigrator(kyselyClient, migratorConfig, direction);
 
   for (const result of results ?? []) {
