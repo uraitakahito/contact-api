@@ -35,6 +35,7 @@ if [ -z "$GH_TOKEN" ]; then
 fi
 
 cat > .env.dev << EOF
+ENV_NAME=dev
 USER_ID=$(id -u)
 GROUP_ID=$(id -g)
 TZ=Asia/Tokyo
@@ -51,6 +52,7 @@ EOF
 echo "Created .env.dev file"
 
 cat > .env.prod << EOF
+ENV_NAME=prod
 TZ=Asia/Tokyo
 POSTGRES_USER=postgres_prod
 POSTGRES_PASSWORD=postgres_prod

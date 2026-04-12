@@ -169,6 +169,7 @@ services:
 
 volumes:
   pgdata:
+    name: contact-api-pgdata-${ENV_NAME}
   zsh-history:
     name: contact-api-zsh-history
   openfga-config:
