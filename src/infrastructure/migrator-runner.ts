@@ -13,14 +13,14 @@ import { FileMigrationProvider, Migrator } from 'kysely';
 import type { Kysely, MigrationInfo, MigrationResultSet } from 'kysely';
 import type { Logger } from './logger.js';
 
-export interface RunMigratorConfig {
+export interface KyselyMigratorConfig {
   readonly migrationFolder: URL;
   readonly migrationTableName: string;
   readonly migrationLockTableName: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Kysely<any> を要求するため
-function createMigrator(kyselyClient: Kysely<any>, config: RunMigratorConfig): Migrator {
+function createMigrator(kyselyClient: Kysely<any>, config: KyselyMigratorConfig): Migrator {
   return new Migrator({
     db: kyselyClient,
     provider: new FileMigrationProvider({
@@ -36,7 +36,7 @@ function createMigrator(kyselyClient: Kysely<any>, config: RunMigratorConfig): M
 export async function runMigrator(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Kysely<any> を要求するため
   kyselyClient: Kysely<any>,
-  config: RunMigratorConfig,
+  config: KyselyMigratorConfig,
   direction: 'up' | 'down',
 ): Promise<MigrationResultSet> {
   const migrator = createMigrator(kyselyClient, config);
@@ -48,7 +48,7 @@ export async function runMigrator(
 export interface RunMigratorCliConfig {
   readonly label: string;
   readonly direction: 'up' | 'down';
-  readonly migratorConfig: RunMigratorConfig;
+  readonly migratorConfig: KyselyMigratorConfig;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Kysely<any> を要求するため
   readonly kyselyClient: Kysely<any>;
   readonly cliLogger: Logger;
@@ -107,7 +107,7 @@ export async function runMigratorCli(config: RunMigratorCliConfig): Promise<void
 export async function getMigrationInfos(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Kysely の Migrator が Kysely<any> を要求するため
   kyselyClient: Kysely<any>,
-  config: RunMigratorConfig,
+  config: KyselyMigratorConfig,
 ): Promise<readonly MigrationInfo[]> {
   const migrator = createMigrator(kyselyClient, config);
   return migrator.getMigrations();
