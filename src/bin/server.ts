@@ -63,7 +63,6 @@ const formTemplateRepository = new KyselyFormTemplateRepository(kyselyClient);
 const authorizationService = new OpenFgaContactAuthorizationService(fgaClient);
 const validationMessageRepo = new KyselyValidationMessageRepository(kyselyClient);
 const validationTemplates = await validationMessageRepo.findAll();
-const formatter = new ValidationMessageFormatter(validationTemplates);
 
 // Application (Use Cases)
 const createContact = new CreateContactUseCase(contactRepository, formTemplateRepository, authorizationService);
@@ -78,6 +77,7 @@ const updateFormTemplate = new UpdateFormTemplateUseCase(formTemplateRepository)
 const deleteFormTemplate = new DeleteFormTemplateUseCase(formTemplateRepository);
 
 // Presentation
+const formatter = new ValidationMessageFormatter(validationTemplates);
 const app = Fastify({ loggerInstance: logger as FastifyBaseLogger });
 
 app.setErrorHandler(createErrorHandler(formatter));
