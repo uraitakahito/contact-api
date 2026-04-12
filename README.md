@@ -12,7 +12,7 @@
 
 ```bash
 ./setup.sh
-docker compose --profile prod up -d
+docker compose --env-file .env.prod --profile prod up -d
 ```
 
 初回起動時は init サービスが自動的に以下を実行します:
@@ -29,7 +29,7 @@ docker compose --profile prod up -d
 
 ```bash
 ./setup.sh
-docker compose --profile dev up -d
+docker compose --env-file .env.dev --profile dev up -d
 ```
 
 以降は dev コンテナ内で実行
