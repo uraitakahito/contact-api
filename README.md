@@ -61,7 +61,3 @@ OPENFGA_STORE_ID=xxxxx OPENFGA_AUTH_MODEL_ID=yyyyy npm start
 ## アーキテクチャ
 
 [docs/architecture.md](docs/architecture.md) を参照。
-
-## ヘキサゴナルアーキテクチャ / DDD 各層
-
-[docs/architecture.md](docs/architecture.md) を参照。
