@@ -169,6 +169,10 @@ services:
 
 volumes:
   pgdata:
+    # dev/prod でボリュームを分離する。PostgreSQL はデータディレクトリが空のときだけ
+    # POSTGRES_USER の作成と docker-entrypoint-initdb.d/ の実行を行うため、
+    # 共有すると後から起動した環境の初期化がスキップされる。
+    name: contact-api-pgdata-${ENV_NAME}
   zsh-history:
     name: contact-api-zsh-history
   openfga-config:
