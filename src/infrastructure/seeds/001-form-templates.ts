@@ -2,7 +2,7 @@
  * @module 001-form-templates
  * @description Seed — form_templates / form_fields 等の初期データ投入。
  *
- * JSONB options を含むため CSV ではなく直接 Kysely INSERT を使用する。
+ * 自動採番 ID への FK 依存があるため、Migrator の up/down に Kysely INSERT を直接記述する。
  */
 
 import type { Kysely } from 'kysely';
