@@ -15,14 +15,6 @@
 docker compose --env-file .env.prod --profile prod up -d
 ```
 
-初回起動時は init サービスが自動的に以下を実行します:
-
-1. `prod-migrate` — データベースマイグレーション
-2. `prod-seed` — シードデータ投入
-3. `prod-openfga-setup` — OpenFGA Store/認可モデル作成
-
-すべての init サービスが完了した後、API サーバーが起動します。
-
 ## 開発環境の起動
 
 ### 起動手順
