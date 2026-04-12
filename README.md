@@ -23,7 +23,7 @@ docker compose --env-file .env.prod --profile prod up -d
 
 すべての init サービスが完了した後、API サーバーが起動します。
 
-## 開発環境のセットアップ
+## 開発環境の起動
 
 ### 起動手順
 
