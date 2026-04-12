@@ -1,6 +1,6 @@
 /**
- * @module 001-create-tables
- * @description Infrastructure — 全テーブルのマイグレーション定義。
+ * @module 002-create-tables
+ * @description Infrastructure — フォームテンプレート・問い合わせテーブルのマイグレーション定義。
  */
 
 import type { Kysely } from 'kysely';
@@ -64,17 +64,9 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     .addColumn('updated_at', 'timestamptz', (col) => col.notNull().defaultTo(sql`now()`))
     .execute();
 
-  await db.schema
-    .createTable('validation_messages')
-    .addColumn('code', 'varchar(50)', (col) => col.notNull())
-    .addColumn('locale', 'varchar(10)', (col) => col.notNull())
-    .addColumn('template', 'text', (col) => col.notNull())
-    .addPrimaryKeyConstraint('validation_messages_pkey', ['code', 'locale'])
-    .execute();
 }
 
 export async function down(db: Kysely<unknown>): Promise<void> {
-  await db.schema.dropTable('validation_messages').execute();
   await db.schema.dropTable('contacts').execute();
   await db.schema.dropTable('form_field_translations').execute();
   await db.schema.dropTable('form_fields').execute();
