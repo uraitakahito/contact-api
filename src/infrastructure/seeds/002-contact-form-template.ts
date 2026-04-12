@@ -1,5 +1,5 @@
 /**
- * @module 001-contact-form-template
+ * @module 002-contact-form-template
  * @description Seed — 問い合わせフォームテンプレートの初期データ投入。
  *
  * 自動採番 ID への FK 依存があるため、Migrator の up/down に Kysely INSERT を直接記述する。

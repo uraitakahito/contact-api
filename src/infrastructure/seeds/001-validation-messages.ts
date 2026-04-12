@@ -1,5 +1,5 @@
 /**
- * @module 003-validation-messages
+ * @module 001-validation-messages
  * @description Seed — バリデーションメッセージテンプレートの初期データ投入。
  */
 

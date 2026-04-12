@@ -20,9 +20,9 @@ import { KyselyContactRepository } from '../infrastructure/kysely-contact-reposi
 import { KyselyFormTemplateRepository } from '../infrastructure/kysely-form-template-repository.js';
 import { KyselyValidationMessageRepository } from '../infrastructure/kysely-validation-message-repository.js';
 import { logger } from '../infrastructure/logger.js';
-import * as contactFormSeed from '../infrastructure/seeds/001-contact-form-template.js';
-import * as simpleFormSeed from '../infrastructure/seeds/002-simple-form-template.js';
-import * as validationMessagesSeed from '../infrastructure/seeds/003-validation-messages.js';
+import * as validationMessagesSeed from '../infrastructure/seeds/001-validation-messages.js';
+import * as contactFormSeed from '../infrastructure/seeds/002-contact-form-template.js';
+import * as simpleFormSeed from '../infrastructure/seeds/003-simple-form-template.js';
 import { createErrorHandler } from '../presentation/error-handler.js';
 import { ValidationMessageFormatter } from '../presentation/validation-message-formatter.js';
 import { registerHealthRoutes } from '../presentation/health-routes.js';
@@ -64,9 +64,9 @@ export async function runMigrations(kyselyClient: Kysely<Database>): Promise<voi
  */
 export async function runSeeds(kyselyClient: Kysely<Database>): Promise<void> {
   await sql`TRUNCATE TABLE contacts, validation_messages, form_field_translations, form_fields, form_template_translations, form_templates RESTART IDENTITY CASCADE`.execute(kyselyClient);
+  await validationMessagesSeed.up(kyselyClient);
   await contactFormSeed.up(kyselyClient);
   await simpleFormSeed.up(kyselyClient);
-  await validationMessagesSeed.up(kyselyClient);
 }
 
 export async function cleanDatabase(

@@ -33,7 +33,7 @@ npm run seed
 npm run openfga:setup
 ```
 
-`openfga:setup` が出力する `OPENFGA_STORE_ID` と `OPENFGA_AUTH_MODEL_ID` を指定してサーバーを起動します。
+`nom run openfga:setup` が出力する `OPENFGA_STORE_ID` と `OPENFGA_AUTH_MODEL_ID` を環境変数に設定してサーバーを起動します。
 
 ```bash
 # 方法1: eval でワンライナーで環境変数をセット（ログは stderr に出力される）
