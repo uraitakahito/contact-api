@@ -11,6 +11,7 @@ COPY src/ src/
 
 RUN npx tsc -b
 RUN npm prune --omit=dev
+COPY data/ data/
 
 # --- Runtime stage ---
 FROM gcr.io/distroless/nodejs24-debian12:nonroot

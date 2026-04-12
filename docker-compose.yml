@@ -86,6 +86,59 @@ services:
     profiles:
       - dev
 
+  prod-migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      target: build
+    command: ["node", "dist/src/bin/migrate.js", "up"]
+    environment:
+      - CONTACT_API_DB_HOST=postgres
+      - CONTACT_API_DB_PORT=5432
+      - CONTACT_API_DB_USER=${CONTACT_API_DB_USER}
+      - CONTACT_API_DB_PASSWORD=${CONTACT_API_DB_PASSWORD}
+      - CONTACT_API_DB_NAME=${CONTACT_API_DB_NAME}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - prod
+
+  prod-seed:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      target: build
+    command: ["node", "dist/src/bin/seed.js", "up"]
+    environment:
+      - CONTACT_API_DB_HOST=postgres
+      - CONTACT_API_DB_PORT=5432
+      - CONTACT_API_DB_USER=${CONTACT_API_DB_USER}
+      - CONTACT_API_DB_PASSWORD=${CONTACT_API_DB_PASSWORD}
+      - CONTACT_API_DB_NAME=${CONTACT_API_DB_NAME}
+    depends_on:
+      prod-migrate:
+        condition: service_completed_successfully
+    profiles:
+      - prod
+
+  prod-openfga-setup:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      target: build
+    command: >-
+      node dist/src/bin/setup-openfga.js
+        --openfga-url http://openfga:8080
+        --output-file /shared/openfga-config.json
+    volumes:
+      - openfga-config:/shared
+    depends_on:
+      openfga:
+        condition: service_healthy
+    profiles:
+      - prod
+
   prod:
     build:
       context: .
@@ -97,11 +150,16 @@ services:
       - CONTACT_API_DB_PASSWORD=${CONTACT_API_DB_PASSWORD}
       - CONTACT_API_DB_NAME=${CONTACT_API_DB_NAME}
       - OPENFGA_API_URL=http://openfga:8080
-      - OPENFGA_STORE_ID=${OPENFGA_STORE_ID:-}
-      - OPENFGA_AUTH_MODEL_ID=${OPENFGA_AUTH_MODEL_ID:-}
+      - OPENFGA_CONFIG_FILE=/shared/openfga-config.json
+    volumes:
+      - openfga-config:/shared:ro
     ports:
       - "80:80"
     depends_on:
+      prod-seed:
+        condition: service_completed_successfully
+      prod-openfga-setup:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       openfga:
@@ -113,3 +171,4 @@ volumes:
   pgdata:
   zsh-history:
     name: contact-api-zsh-history
+  openfga-config:
