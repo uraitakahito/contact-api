@@ -48,10 +48,4 @@ const migratorConfig = {
   migrationLockTableName: 'kysely_seed_lock',
 };
 
-await runMigratorCli({
-  label,
-  direction,
-  migratorConfig,
-  kyselyClient,
-  cliLogger,
-});
+await runMigratorCli(label, direction, migratorConfig, kyselyClient, cliLogger);
