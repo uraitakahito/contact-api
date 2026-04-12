@@ -15,8 +15,8 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       # 初回起動時に各データベースとユーザーを自動作成する初期化スクリプト
-      - ./docker/init-contact-api-db.sh:/docker-entrypoint-initdb.d/01-init-contact-api-db.sh:ro
-      - ./docker/init-openfga-db.sh:/docker-entrypoint-initdb.d/02-init-openfga-db.sh:ro
+      - ./docker/01-init-contact-api-db.sh:/docker-entrypoint-initdb.d/01-init-contact-api-db.sh:ro
+      - ./docker/02-init-openfga-db.sh:/docker-entrypoint-initdb.d/02-init-openfga-db.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
