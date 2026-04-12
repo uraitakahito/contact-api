@@ -26,9 +26,9 @@ export interface OpenFgaConfig {
 export function addOpenFgaOptions(cmd: Command): Command {
   return cmd
     .addOption(new Option('--openfga-url <url>', 'OpenFGA API URL').env('OPENFGA_API_URL').default(new URL('http://localhost:8080')).argParser(parseUrl))
-    .addOption(new Option('--openfga-store-id <id>', 'OpenFGA Store ID').env('OPENFGA_STORE_ID'))
-    .addOption(new Option('--openfga-model-id <id>', 'OpenFGA Authorization Model ID').env('OPENFGA_AUTH_MODEL_ID'))
-    .addOption(new Option('--openfga-config-file <path>', 'Path to OpenFGA config JSON file (fallback for store/model IDs)').env('OPENFGA_CONFIG_FILE'));
+    .addOption(new Option('--openfga-store-id <id>', 'OpenFGA Store ID').env('OPENFGA_STORE_ID').conflicts('openfgaConfigFile'))
+    .addOption(new Option('--openfga-model-id <id>', 'OpenFGA Authorization Model ID').env('OPENFGA_AUTH_MODEL_ID').conflicts('openfgaConfigFile'))
+    .addOption(new Option('--openfga-config-file <path>', 'Path to OpenFGA config JSON file (alternative to --openfga-store-id/--openfga-model-id)').env('OPENFGA_CONFIG_FILE').conflicts(['openfgaStoreId', 'openfgaModelId']));
 }
 
 interface OpenFgaConfigFile {
@@ -37,24 +37,24 @@ interface OpenFgaConfigFile {
 }
 
 export function extractOpenFgaConfig(opts: RawOpenFgaOptions): OpenFgaConfig {
-  let storeId = opts.openfgaStoreId;
-  let authorizationModelId = opts.openfgaModelId;
-
-  if ((!storeId || !authorizationModelId) && opts.openfgaConfigFile) {
+  if (opts.openfgaConfigFile) {
     const fileConfig = JSON.parse(readFileSync(opts.openfgaConfigFile, 'utf-8')) as OpenFgaConfigFile;
-    storeId ??= fileConfig.storeId;
-    authorizationModelId ??= fileConfig.authorizationModelId;
+    return {
+      apiUrl: opts.openfgaUrl,
+      storeId: fileConfig.storeId,
+      authorizationModelId: fileConfig.authorizationModelId,
+    };
   }
 
-  if (!storeId) {
+  if (!opts.openfgaStoreId) {
     throw new Error('OpenFGA Store ID is required (--openfga-store-id, OPENFGA_STORE_ID, or --openfga-config-file)');
   }
-  if (!authorizationModelId) {
+  if (!opts.openfgaModelId) {
     throw new Error('OpenFGA Authorization Model ID is required (--openfga-model-id, OPENFGA_AUTH_MODEL_ID, or --openfga-config-file)');
   }
   return {
     apiUrl: opts.openfgaUrl,
-    storeId,
-    authorizationModelId,
+    storeId: opts.openfgaStoreId,
+    authorizationModelId: opts.openfgaModelId,
   };
 }
