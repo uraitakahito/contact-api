@@ -8,11 +8,20 @@
 - 多言語対応（i18n）
 - マルチテナント(未実装)
 
-## 本番ビルド
+## 本番環境の起動
 
 ```bash
+./setup.sh
 docker compose --profile prod up -d
 ```
+
+初回起動時は init サービスが自動的に以下を実行します:
+
+1. `prod-migrate` — データベースマイグレーション
+2. `prod-seed` — シードデータ投入
+3. `prod-openfga-setup` — OpenFGA Store/認可モデル作成
+
+すべての init サービスが完了した後、API サーバーが起動します。
 
 ## 開発環境のセットアップ
 
@@ -33,7 +42,7 @@ npm run seed
 npm run openfga:setup
 ```
 
-`nom run openfga:setup` が出力する `OPENFGA_STORE_ID` と `OPENFGA_AUTH_MODEL_ID` を環境変数に設定してサーバーを起動します。
+`npm run openfga:setup` が出力する `OPENFGA_STORE_ID` と `OPENFGA_AUTH_MODEL_ID` を環境変数に設定してサーバーを起動します。
 
 ```bash
 # 方法1: eval でワンライナーで環境変数をセット（ログは stderr に出力される）

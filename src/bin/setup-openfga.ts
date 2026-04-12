@@ -26,12 +26,13 @@ program
   .description('Provision OpenFGA store and authorization model')
   .addOption(new Option('--openfga-url <url>', 'OpenFGA API URL').env('OPENFGA_API_URL').default(new URL('http://localhost:8080')).argParser(parseUrl))
   .addOption(new Option('--model-path <path>', 'Path to OpenFGA authorization model (.fga DSL)').env('OPENFGA_MODEL_PATH').default('data/openfga/model.fga'))
-  .addOption(new Option('--admin-user <userId>', 'Bootstrap admin user ID'));
+  .addOption(new Option('--admin-user <userId>', 'Bootstrap admin user ID'))
+  .addOption(new Option('--output-file <path>', 'Write store/model IDs to JSON file'));
 
 addLogLevelOption(program);
 program.parse();
 
-const opts = program.opts<{ openfgaUrl: URL; modelPath: string; adminUser?: string } & RawLogLevelOption>();
+const opts = program.opts<{ openfgaUrl: URL; modelPath: string; adminUser?: string; outputFile?: string } & RawLogLevelOption>();
 logger.level = opts.logLevel;
 
 const cliLogger = logger.child({ command: 'setup-openfga' });
@@ -80,6 +81,12 @@ if (opts.adminUser) {
   cliLogger.info('Admin tuple written');
 }
 
-// 4. Output for configuration (stdout — can be used with eval)
+// 4. Write config to JSON file if --output-file specified
+if (opts.outputFile) {
+  await fs.writeFile(opts.outputFile, JSON.stringify({ storeId, authorizationModelId: modelId }));
+  cliLogger.info({ outputFile: opts.outputFile }, 'Configuration written to file');
+}
+
+// 5. Output for configuration (stdout — can be used with eval)
 console.log(`export OPENFGA_STORE_ID=${storeId}`);
 console.log(`export OPENFGA_AUTH_MODEL_ID=${modelId}`);
