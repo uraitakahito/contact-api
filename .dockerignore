@@ -1,0 +1,9 @@
+# Ignore everything
+*
+
+# Allow only what Dockerfile.prod needs
+!package.json
+!package-lock.json
+!tsconfig.json
+!src/
+!data/
